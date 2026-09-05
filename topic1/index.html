@@ -653,7 +653,7 @@ function renderNav(){
    6 · HOME
    ============================================================ */
 VIEWS.home = function(host){
-  setHead("Start here","Welcome to the Topic 3 Learning Bay");
+  setHead("Start here","Welcome to the Topic 1 Learning Bay");
 
   const hero = el("div",{class:"hero"});
   hero.innerHTML = `
@@ -693,7 +693,7 @@ VIEWS.home = function(host){
     <div class="grid g3">
       <div>
         <div class="eyebrow">Step 1 &middot; Diagnose</div>
-        <p class="small muted">A 12-question pre-flight check places you at Foundation, Developing or Proficient
+        <p class="small muted">A 14-question pre-flight check places you at Foundation, Developing or Proficient
         <b>for each module separately</b>. You may be Proficient on gates and Foundation on converters &mdash; that is normal and useful.</p>
       </div>
       <div>
@@ -733,7 +733,7 @@ VIEWS.diagnostic = function(host){
   setHead("Step 1","Pre-flight check");
 
   host.appendChild(el("div",{class:"note"},
-    "<b>12 questions, about 5 minutes.</b> Answer honestly &mdash; there is no mark attached. "+
+    "<b>14 questions, about 6 minutes.</b> Answer honestly &mdash; there is no mark attached. "+
     "The point is to route you to the right level of support in each module. If you do not know, pick what you "+
     "think is most likely; a wrong answer here simply gets you more scaffolding later."));
 
@@ -2005,7 +2005,7 @@ VIEWS.summary = function(host){
 
   const done = MODULES.filter(m=>isModuleDone(m.id)).length;
   const head = el("div",{class:"hero"});
-  head.innerHTML = `<h1>Your Topic 3 knowledge summary</h1>
+  head.innerHTML = `<h1>Your Topic 1 knowledge summary</h1>
     <p>Built from what you actually did in this bay &mdash; your diagnostic level, the labs you ran, the questions you
     got wrong and the explanations you wrote. It is not a copy of the notes; it is a record of your own reasoning.</p>
     <div class="badge-row" style="margin-top:14px;position:relative">
@@ -2102,7 +2102,7 @@ VIEWS.summary = function(host){
   });
 
   host.appendChild(el("div",{class:"note small no-print"},
-    "<b>Next step.</b> Take this summary into the ThingLink MRO scenario for Topic 3 and use it while you work the "+
+    "<b>Next step.</b> Take this summary into the ThingLink MRO scenario for Topic 1 and use it while you work the "+
     "hotspots. If a scenario question stalls you, the module it belongs to is the one to reopen here."));
 };
 
