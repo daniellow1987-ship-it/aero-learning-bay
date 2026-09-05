@@ -1,0 +1,3145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Topic 3 — Logic Circuits &amp; Data Converters | Interactive Learning Bay</title>
+<style>
+/* ============================================================
+   Topic 3 — Logic Circuits & Data Converters
+   Interactive learning environment · Temasek Polytechnic
+   Self-contained: no external fonts, scripts, styles or images.
+   ============================================================ */
+
+:root{
+  --bg:#080d13;
+  --bg-2:#0e151d;
+  --panel:#121b25;
+  --panel-2:#17222e;
+  --panel-3:#1d2b39;
+  --line:#26384a;
+  --line-soft:#1c2937;
+  --ink:#e3edf6;
+  --ink-2:#a8bccd;
+  --ink-3:#6f8598;
+  --tp:#e02b3c;
+  --tp-deep:#a8121f;
+  --grn:#3ad68b;
+  --amb:#f5b431;
+  --red:#ff5a5f;
+  --cyn:#38c6d9;
+  --vio:#9b8cff;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Roboto Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --r:10px;
+  --shadow:0 10px 30px rgba(0,0,0,.45);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:
+    radial-gradient(1200px 700px at 78% -10%, #16283a 0%, transparent 60%),
+    radial-gradient(900px 600px at 0% 100%, #14202c 0%, transparent 55%),
+    var(--bg);
+  color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{margin:0 0 .5em;line-height:1.25;font-weight:650;letter-spacing:-.01em}
+h1{font-size:1.6rem}h2{font-size:1.25rem}h3{font-size:1.02rem}h4{font-size:.9rem}
+p{margin:0 0 .85em}
+a{color:var(--cyn)}
+button{font:inherit;color:inherit}
+code,.mono{font-family:var(--mono)}
+
+/* ---------- app frame ---------- */
+.app{display:flex;min-height:100vh}
+
+/* ---------- rail ---------- */
+.rail{
+  width:262px;flex:0 0 262px;background:linear-gradient(180deg,#0d141c,#0a1018);
+  border-right:1px solid var(--line-soft);display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;
+}
+.rail-head{padding:18px 18px 14px;border-bottom:1px solid var(--line-soft)}
+.brand{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.brand-mark{
+  width:26px;height:26px;border-radius:6px;flex:0 0 26px;
+  background:linear-gradient(145deg,var(--tp),var(--tp-deep));
+  display:grid;place-items:center;font-weight:800;font-size:.72rem;color:#fff;letter-spacing:.02em;
+}
+.brand-txt{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.rail-title{font-size:.98rem;font-weight:650;line-height:1.3}
+.rail-sub{font-size:.72rem;color:var(--ink-3);margin-top:3px}
+
+.rail-nav{flex:1;overflow-y:auto;padding:12px 10px}
+.nav-label{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);padding:10px 8px 6px;font-weight:700}
+.nav-item{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  background:transparent;border:1px solid transparent;border-radius:8px;
+  padding:8px 9px;margin-bottom:2px;cursor:pointer;color:var(--ink-2);
+  font-size:.845rem;transition:background .13s,color .13s,border-color .13s;
+}
+.nav-item:hover{background:#141f2b;color:var(--ink)}
+.nav-item.active{background:#182739;border-color:#2b4560;color:#fff;font-weight:600}
+.nav-num{
+  width:21px;height:21px;flex:0 0 21px;border-radius:5px;background:#1b2836;
+  display:grid;place-items:center;font-size:.68rem;font-family:var(--mono);color:var(--ink-3);
+  border:1px solid var(--line-soft);
+}
+.nav-item.active .nav-num{background:var(--tp);color:#fff;border-color:transparent}
+.nav-item.done .nav-num{background:rgba(58,214,139,.15);color:var(--grn);border-color:rgba(58,214,139,.35)}
+.nav-txt{flex:1;min-width:0}
+.nav-tier{
+  font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+  padding:2px 6px;border-radius:20px;white-space:nowrap;
+}
+.tier-foundation{background:rgba(56,198,217,.14);color:var(--cyn)}
+.tier-developing{background:rgba(245,180,49,.14);color:var(--amb)}
+.tier-proficient{background:rgba(58,214,139,.14);color:var(--grn)}
+
+.rail-foot{padding:12px;border-top:1px solid var(--line-soft)}
+.progress-wrap{margin-bottom:10px}
+.progress-line{display:flex;justify-content:space-between;font-size:.7rem;color:var(--ink-3);margin-bottom:5px}
+.bar{height:5px;border-radius:5px;background:#18222d;overflow:hidden}
+.bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--tp),#ff7a5c);border-radius:5px;transition:width .35s ease}
+.ghost-btn{
+  width:100%;background:#141e29;border:1px solid var(--line);border-radius:8px;
+  padding:7px;font-size:.76rem;color:var(--ink-2);cursor:pointer;transition:.13s;
+}
+.ghost-btn:hover{background:#1a2734;color:var(--ink)}
+
+/* ---------- main ---------- */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:14px 26px;border-bottom:1px solid var(--line-soft);
+  background:rgba(9,14,20,.82);backdrop-filter:blur(8px);position:sticky;top:0;z-index:20;
+}
+.crumb{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.topbar h2{margin:2px 0 0;font-size:1.06rem}
+.view{padding:26px;max-width:1120px;width:100%;margin:0 auto;flex:1}
+
+/* ---------- generic pieces ---------- */
+.card{background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--r);padding:18px 20px;margin-bottom:16px}
+.card.tight{padding:14px 16px}
+.card-h{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+.card-h .dot{width:7px;height:7px;border-radius:50%;background:var(--tp);flex:0 0 7px}
+.card-h h3{margin:0}
+.eyebrow{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin-bottom:6px}
+.muted{color:var(--ink-2)}
+.small{font-size:.82rem}
+.tiny{font-size:.74rem}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.split{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+hr.sep{border:0;border-top:1px solid var(--line-soft);margin:18px 0}
+
+.btn{
+  background:linear-gradient(180deg,#e33c4c,var(--tp-deep));border:0;border-radius:8px;
+  padding:9px 16px;font-weight:600;font-size:.86rem;color:#fff;cursor:pointer;
+  box-shadow:0 3px 10px rgba(224,43,60,.24);transition:filter .13s,transform .06s;
+}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(1px)}
+.btn.sec{background:#1c2836;border:1px solid var(--line);box-shadow:none;color:var(--ink)}
+.btn.sec:hover{background:#243444}
+.btn.ok{background:linear-gradient(180deg,#43dd95,#1e9e63);box-shadow:0 3px 10px rgba(58,214,139,.2)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn-row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:20px;background:#1b2836;color:var(--ink-2);border:1px solid var(--line-soft)}
+.pill.g{background:rgba(58,214,139,.12);color:var(--grn);border-color:rgba(58,214,139,.28)}
+.pill.a{background:rgba(245,180,49,.12);color:var(--amb);border-color:rgba(245,180,49,.28)}
+.pill.r{background:rgba(255,90,95,.12);color:var(--red);border-color:rgba(255,90,95,.28)}
+.pill.c{background:rgba(56,198,217,.12);color:var(--cyn);border-color:rgba(56,198,217,.28)}
+
+.note{border-left:3px solid var(--cyn);background:#101c26;padding:11px 14px;border-radius:0 8px 8px 0;font-size:.87rem;margin:12px 0}
+.note.warn{border-left-color:var(--amb);background:#1d1a10}
+.note.err{border-left-color:var(--red);background:#201415}
+.note.ok{border-left-color:var(--grn);background:#101f18}
+.note b{color:var(--ink)}
+
+/* ---------- lab shell ---------- */
+.lab{background:linear-gradient(180deg,#101a24,#0c141c);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.lab-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:11px 16px;background:#0d161f;border-bottom:1px solid var(--line-soft);
+}
+.lab-head .t{display:flex;align-items:center;gap:9px;font-weight:650;font-size:.92rem}
+.lab-head .t svg{opacity:.85}
+.lab-body{padding:18px}
+.lab-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+.lab-cols.wide-left{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+
+.ctrl{margin-bottom:14px}
+.ctrl label{display:flex;justify-content:space-between;align-items:baseline;font-size:.79rem;color:var(--ink-2);margin-bottom:6px;font-weight:500}
+.ctrl label .v{font-family:var(--mono);color:var(--ink);font-size:.86rem;background:#182430;padding:1px 7px;border-radius:5px;border:1px solid var(--line-soft)}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;
+  background:#22303e;outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--tp);cursor:pointer;border:2px solid #0e151d;box-shadow:0 0 0 1px var(--tp);
+}
+input[type=range]::-moz-range-thumb{
+  width:13px;height:13px;border-radius:50%;background:var(--tp);cursor:pointer;border:2px solid #0e151d;
+}
+input[type=text],input[type=number],select,textarea{
+  width:100%;background:#0c141d;border:1px solid var(--line);border-radius:7px;
+  padding:8px 10px;color:var(--ink);font-family:var(--mono);font-size:.88rem;
+}
+input:focus,select,textarea:focus{outline:2px solid rgba(56,198,217,.4);outline-offset:-1px}
+textarea{font-family:var(--sans);line-height:1.6;resize:vertical;min-height:120px}
+select{font-family:var(--sans)}
+
+.seg{display:flex;gap:4px;background:#0d161f;padding:4px;border-radius:9px;border:1px solid var(--line-soft);flex-wrap:wrap}
+.seg button{
+  flex:1;min-width:62px;background:transparent;border:0;border-radius:6px;padding:7px 8px;
+  font-size:.79rem;color:var(--ink-2);cursor:pointer;font-weight:600;transition:.12s;
+}
+.seg button:hover{background:#182432;color:var(--ink)}
+.seg button.on{background:var(--tp);color:#fff}
+
+/* input toggles (logic switches) */
+.switches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  background:#0d161f;border:1px solid var(--line);border-radius:10px;padding:10px 13px;cursor:pointer;
+  min-width:66px;transition:.13s;user-select:none;
+}
+.sw:hover{border-color:#33506b}
+.sw .nm{font-size:.72rem;color:var(--ink-3);font-weight:700;letter-spacing:.05em}
+.sw .lamp{
+  width:30px;height:30px;border-radius:50%;background:#16212c;border:2px solid #24313d;
+  display:grid;place-items:center;font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--ink-3);
+  transition:.16s;
+}
+.sw.on .lamp{background:rgba(58,214,139,.2);border-color:var(--grn);color:var(--grn);box-shadow:0 0 12px rgba(58,214,139,.35)}
+.sw.out{cursor:default}
+.sw.out.on .lamp{background:rgba(245,180,49,.2);border-color:var(--amb);color:var(--amb);box-shadow:0 0 14px rgba(245,180,49,.4)}
+
+/* truth table */
+table.tt{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.85rem}
+table.tt th,table.tt td{border:1px solid var(--line-soft);padding:6px 10px;text-align:center}
+table.tt th{background:#16212c;color:var(--ink-2);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;font-family:var(--sans);font-weight:700}
+table.tt td.out{color:var(--amb);font-weight:700}
+table.tt tr.hi td{background:rgba(224,43,60,.14);outline:1px solid rgba(224,43,60,.45)}
+table.tt tr.hi td.out{color:#ff9a5c}
+
+/* readouts */
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:9px}
+.ro{background:#0d161f;border:1px solid var(--line-soft);border-radius:9px;padding:9px 11px}
+.ro .k{font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin-bottom:3px}
+.ro .v{font-family:var(--mono);font-size:1.02rem;color:var(--ink);word-break:break-all}
+.ro.hl .v{color:var(--amb)}
+.ro.g .v{color:var(--grn)}
+.ro.c .v{color:var(--cyn)}
+
+svg.viz{display:block;width:100%;height:auto;background:#0a1119;border:1px solid var(--line-soft);border-radius:9px}
+
+/* bit boxes */
+.bits{display:flex;gap:6px;flex-wrap:wrap}
+.bit{
+  width:46px;text-align:center;background:#0d161f;border:1px solid var(--line);border-radius:8px;
+  padding:7px 0 5px;cursor:pointer;transition:.12s;user-select:none;
+}
+.bit:hover{border-color:#3a5b78}
+.bit .b{font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--ink-3);line-height:1.1}
+.bit.on{background:rgba(224,43,60,.14);border-color:var(--tp)}
+.bit.on .b{color:#ff8b8b}
+.bit .w{font-size:.6rem;color:var(--ink-3);font-family:var(--mono);margin-top:2px}
+.bit.on .w{color:var(--amb)}
+.bit.flip{border-color:var(--red);box-shadow:0 0 0 1px var(--red)}
+
+/* q&a */
+.q{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:10px;padding:15px 17px;margin-bottom:12px}
+.q .stem{font-weight:600;margin-bottom:11px}
+.opts{display:flex;flex-direction:column;gap:7px}
+.opt{
+  display:flex;align-items:flex-start;gap:10px;background:#0e1720;border:1px solid var(--line);
+  border-radius:8px;padding:9px 12px;cursor:pointer;transition:.12s;font-size:.89rem;
+}
+.opt:hover{border-color:#3a5b78;background:#122030}
+.opt .k{
+  width:20px;height:20px;flex:0 0 20px;border-radius:5px;background:#1b2836;border:1px solid var(--line);
+  display:grid;place-items:center;font-family:var(--mono);font-size:.72rem;color:var(--ink-3);font-weight:700;
+}
+.opt.sel{border-color:var(--cyn);background:#0f1e26}
+.opt.sel .k{background:var(--cyn);color:#04141a;border-color:transparent}
+.opt.right{border-color:var(--grn);background:#0e1e17}
+.opt.right .k{background:var(--grn);color:#052014;border-color:transparent}
+.opt.wrong{border-color:var(--red);background:#1e1315}
+.opt.wrong .k{background:var(--red);color:#2a0b0c;border-color:transparent}
+.opt.locked{cursor:default}
+.fb{margin-top:11px;font-size:.86rem;padding:10px 13px;border-radius:8px;display:none}
+.fb.show{display:block}
+.fb.good{background:#0e1e17;border:1px solid rgba(58,214,139,.3)}
+.fb.bad{background:#1e1315;border:1px solid rgba(255,90,95,.3)}
+
+/* stepper */
+.steps{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:12px;padding-bottom:14px;position:relative}
+.step:not(:last-child)::before{content:"";position:absolute;left:11px;top:26px;bottom:0;width:1px;background:var(--line)}
+.step .n{
+  width:23px;height:23px;flex:0 0 23px;border-radius:50%;background:#1b2836;border:1px solid var(--line);
+  display:grid;place-items:center;font-family:var(--mono);font-size:.7rem;color:var(--ink-2);z-index:1;
+}
+.step.done .n{background:var(--grn);color:#052014;border-color:transparent}
+.step .c{flex:1;font-size:.88rem;padding-top:1px}
+
+/* tier banner */
+.tier-banner{
+  display:flex;align-items:center;gap:14px;padding:13px 17px;border-radius:10px;margin-bottom:16px;
+  background:linear-gradient(90deg,#131f2b,#101820);border:1px solid var(--line);
+}
+.tier-banner .ic{
+  width:36px;height:36px;flex:0 0 36px;border-radius:9px;display:grid;place-items:center;font-size:1.05rem;font-weight:800;
+}
+.tb-foundation .ic{background:rgba(56,198,217,.16);color:var(--cyn)}
+.tb-developing .ic{background:rgba(245,180,49,.16);color:var(--amb)}
+.tb-proficient .ic{background:rgba(58,214,139,.16);color:var(--grn)}
+.tier-banner .tx{flex:1;min-width:0}
+.tier-banner .tx b{display:block;font-size:.92rem}
+.tier-banner .tx span{font-size:.79rem;color:var(--ink-2)}
+
+/* checklist */
+.chk{display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:.87rem;cursor:pointer}
+.chk .box{
+  width:19px;height:19px;flex:0 0 19px;border-radius:5px;border:1px solid var(--line);background:#0e1720;
+  display:grid;place-items:center;font-size:.72rem;color:transparent;transition:.12s;margin-top:1px;
+}
+.chk.on .box{background:var(--grn);border-color:var(--grn);color:#052014}
+
+/* module footer nav */
+.modfoot{display:flex;justify-content:space-between;gap:12px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line-soft)}
+
+/* summary print */
+.sum-block{background:var(--panel);border:1px solid var(--line-soft);border-radius:10px;padding:16px 18px;margin-bottom:12px}
+.sum-block h4{margin:0 0 8px;font-size:.95rem;display:flex;align-items:center;gap:8px}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 14px;font-size:.86rem}
+.kv .k{color:var(--ink-3)}
+.quoted{background:#0d151d;border-left:3px solid var(--vio);padding:10px 14px;border-radius:0 8px 8px 0;font-size:.87rem;white-space:pre-wrap;color:var(--ink-2)}
+
+/* misc */
+.badge-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.hidden{display:none !important}
+.center{text-align:center}
+.stack>*+*{margin-top:12px}
+ul.tick{list-style:none;padding:0;margin:0}
+ul.tick li{padding-left:22px;position:relative;margin-bottom:7px;font-size:.88rem}
+ul.tick li::before{content:"▸";position:absolute;left:4px;color:var(--tp);font-size:.8rem}
+ul.plain{margin:0 0 .8em;padding-left:20px}
+ul.plain li{margin-bottom:5px;font-size:.89rem}
+
+.hero{
+  background:linear-gradient(135deg,#16232f 0%,#101820 60%);
+  border:1px solid var(--line);border-radius:14px;padding:28px 30px;margin-bottom:18px;position:relative;overflow:hidden;
+}
+.hero::after{
+  content:"";position:absolute;right:-60px;top:-60px;width:280px;height:280px;border-radius:50%;
+  background:radial-gradient(circle,rgba(224,43,60,.16),transparent 68%);
+}
+.hero h1{font-size:1.75rem;margin-bottom:8px;position:relative}
+.hero p{max-width:640px;position:relative;color:var(--ink-2)}
+
+.mod-card{
+  background:var(--panel);border:1px solid var(--line-soft);border-radius:11px;padding:15px 16px;
+  cursor:pointer;transition:.14s;display:flex;flex-direction:column;gap:7px;text-align:left;width:100%;
+}
+.mod-card:hover{border-color:#33506b;background:var(--panel-2);transform:translateY(-1px)}
+.mod-card .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mod-card .idx{font-family:var(--mono);font-size:.7rem;color:var(--ink-3)}
+.mod-card b{font-size:.94rem}
+.mod-card p{font-size:.8rem;color:var(--ink-3);margin:0}
+
+@media (max-width:1080px){
+  .lab-cols,.lab-cols.wide-left,.split{grid-template-columns:1fr}
+  .g2,.g3{grid-template-columns:1fr}
+}
+@media (max-width:820px){
+  .rail{position:fixed;left:-262px;z-index:60;transition:left .2s;box-shadow:var(--shadow)}
+  .rail.open{left:0}
+  .menu-btn{display:inline-flex !important}
+  .view{padding:18px 16px}
+}
+.menu-btn{display:none;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;background:#182432;border:1px solid var(--line);cursor:pointer}
+
+@media print{
+  .rail,.topbar,.modfoot,.no-print{display:none !important}
+  body{background:#fff;color:#111}
+  .sum-block,.card{background:#fff;border:1px solid #ccc;color:#111;break-inside:avoid}
+  .quoted{background:#f5f5f5;color:#222}
+  .kv .k{color:#555}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= RAIL ================= -->
+  <aside class="rail" id="rail">
+    <div class="rail-head">
+      <div class="brand">
+        <div class="brand-mark">TP</div>
+        <div class="brand-txt">School of Engineering</div>
+      </div>
+      <div class="rail-title">Topic 3 · Logic Circuits &amp; Data Converters</div>
+      <div class="rail-sub">Interactive Learning Bay</div>
+    </div>
+    <nav class="rail-nav" id="railNav"></nav>
+    <div class="rail-foot">
+      <div class="progress-wrap">
+        <div class="progress-line"><span>Topic progress</span><span id="progPct">0%</span></div>
+        <div class="bar"><i id="progBar" style="width:0%"></i></div>
+      </div>
+      <button class="ghost-btn" id="resetBtn">Reset my progress</button>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <div class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+        <div>
+          <div class="crumb" id="crumb">Start here</div>
+          <h2 id="viewTitle">Welcome</h2>
+        </div>
+      </div>
+      <div class="badge-row" style="margin:0" id="topPills"></div>
+    </header>
+    <main class="view" id="view"></main>
+  </div>
+</div>
+<script>
+"use strict";
+/* ============================================================
+   1 · STATE  (browser-local only; never leaves the device)
+   ============================================================ */
+const STORE_KEY = "tp_topic3_lb_v1";
+
+const BLANK = {
+  started:false,
+  diagnosticDone:false,
+  diagAnswers:{},                  // qid -> chosen index
+  tiers:{},                        // modId -> 'foundation'|'developing'|'proficient'
+  progress:{},                     // modId -> {concept,lab,practice,feynman}
+  feynman:{},                      // modId -> text
+  feynmanScore:{},                 // modId -> {covered:[], missing:[], words:n}
+  practice:{},                     // modId -> {qid:{choice,correct}}
+  labFlags:{},                     // modId -> {flagName:true}
+  misconceptions:[],               // {mod, text}
+  predictions:{}                   // key -> {guess, actual, hit}
+};
+
+let S = clone(BLANK);
+
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){ S = Object.assign(clone(BLANK), JSON.parse(raw)); }
+  }catch(e){ /* storage blocked (private window / sandboxed iframe) — run in memory */ }
+}
+function save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }
+  catch(e){ /* non-fatal: session continues in memory */ }
+}
+function resetAll(){
+  S = clone(BLANK);
+  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  go("home");
+}
+
+function prog(id){
+  if(!S.progress[id]) S.progress[id] = {concept:false,lab:false,practice:false,feynman:false};
+  return S.progress[id];
+}
+function markProg(id, key){
+  const p = prog(id);
+  if(!p[key]){ p[key]=true; save(); renderNav(); }
+}
+function tierOf(id){ return S.tiers[id] || "developing"; }
+function flag(id, name){
+  if(!S.labFlags[id]) S.labFlags[id] = {};
+  if(!S.labFlags[id][name]){ S.labFlags[id][name] = true; save(); }
+}
+function hasFlag(id,name){ return !!(S.labFlags[id] && S.labFlags[id][name]); }
+function addMisconception(mod, text){
+  if(!S.misconceptions.some(m=>m.mod===mod && m.text===text)){
+    S.misconceptions.push({mod,text}); save();
+  }
+}
+
+/* ============================================================
+   2 · SMALL DOM HELPERS
+   ============================================================ */
+const $  = (sel,root)=> (root||document).querySelector(sel);
+const $$ = (sel,root)=> Array.from((root||document).querySelectorAll(sel));
+function el(tag, attrs, html){
+  const n = document.createElement(tag);
+  if(attrs) for(const k in attrs){
+    if(attrs[k]===undefined || attrs[k]===null) continue;
+    if(k==="class") n.className = attrs[k];
+    else if(k.startsWith("on")) n.addEventListener(k.slice(2), attrs[k]);
+    else n.setAttribute(k, attrs[k]);
+  }
+  if(html!=null) n.innerHTML = html;
+  return n;
+}
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+const SVGNS = "http://www.w3.org/2000/svg";
+function svg(tag, attrs){
+  const n = document.createElementNS(SVGNS, tag);
+  for(const k in attrs) n.setAttribute(k, attrs[k]);
+  return n;
+}
+
+/* ============================================================
+   3 · MODULE REGISTRY
+   ============================================================ */
+const MODULES = [
+  {id:"m1", n:1, title:"Number Systems",              blurb:"Decimal, binary, octal, hex and BCD — and how to move between them."},
+  {id:"m2", n:2, title:"Waveforms &amp; Timing",          blurb:"Period, pulse width, frequency and duty cycle on a real timing diagram."},
+  {id:"m3", n:3, title:"Logic Gates",                 blurb:"All seven gates: symbol, truth table, Boolean expression, output waveform."},
+  {id:"m4", n:4, title:"Aircraft Logic Circuits",     blurb:"Gate combinations behind real warning and protection logic on aircraft."},
+  {id:"m5", n:5, title:"Data Converters",             blurb:"DAC resolution and step size; ADC sampling, quantising and aliasing."},
+  {id:"m6", n:6, title:"Parity &amp; Error Checking",     blurb:"How a single parity bit catches a corrupted data line — and when it fails."}
+];
+const MOD_BY_ID = {}; MODULES.forEach(m=>MOD_BY_ID[m.id]=m);
+
+const TIER_META = {
+  foundation:{label:"Foundation", icon:"1", note:"We'll walk it through step by step, one idea at a time."},
+  developing:{label:"Developing", icon:"2", note:"You've got the basics — now predict before you check."},
+  proficient:{label:"Proficient", icon:"3", note:"Straight to challenge and transfer tasks. No hand-holding."}
+};
+
+/* ============================================================
+   4 · DIAGNOSTIC  (2 items per module)
+   ============================================================ */
+const DIAG = [
+  {id:"d1", mod:"m1", stem:"What is 1101₂ in decimal?",
+   opts:["11","13","15"], ans:1,
+   why:"Sum the weights of the 1s: 2³ + 2² + 2⁰ = 8 + 4 + 1 = 13."},
+  {id:"d2", mod:"m1", stem:"The BCD code 1000 0101 represents which decimal number?",
+   opts:["85","133","8.5"], ans:0,
+   why:"BCD codes each decimal digit separately in 4 bits: 1000 = 8, 0101 = 5, so 85. Read as pure binary it would be 133 — that is the classic trap."},
+
+  {id:"d3", mod:"m2", stem:"What is the period of a 50 Hz rectangular waveform?",
+   opts:["10 ms","20 ms","30 ms"], ans:1,
+   why:"T = 1/f = 1/50 = 0.02 s = 20 ms."},
+  {id:"d4", mod:"m2", stem:"A pulse is HIGH for 5 ms out of every 25 ms. What is the duty cycle?",
+   opts:["5%","20%","25%"], ans:1,
+   why:"Duty cycle = (t_w / T) × 100% = (5/25) × 100% = 20%."},
+
+  {id:"d5", mod:"m3", stem:"A gate outputs LOW only when every input is HIGH. Which gate is it?",
+   opts:["NOR","NAND","XNOR"], ans:1,
+   why:"NAND = AND followed by an inverter, so the only LOW output is the all-HIGH input row."},
+  {id:"d6", mod:"m3", stem:"For inputs A = 1, B = 1, which gate gives output Y = 0?",
+   opts:["XOR","OR","XNOR"], ans:0,
+   why:"XOR is HIGH only when the inputs differ. With A = B = 1 they are the same, so Y = 0."},
+
+  {id:"d7", mod:"m4", stem:"A warning lamp must light when the gear is NOT down AND the throttle IS at idle. Which arrangement works?",
+   opts:["NOT on the gear signal feeding an AND with throttle-idle",
+         "OR of gear-down and throttle-idle",
+         "NAND of gear-down and throttle-idle"], ans:0,
+   why:"'NOT down' needs an inverter on the gear signal; 'AND' requires both conditions together — so invert, then AND."},
+  {id:"d8", mod:"m4", stem:"A fire warning must sound if ANY one of three loops detects fire. Which gate suits?",
+   opts:["3-input AND","3-input OR","3-input XOR"], ans:1,
+   why:"'Any one or more' is exactly the OR function."},
+
+  {id:"d9", mod:"m5", stem:"An 8-bit DAC with a 5 V reference divides its output into how many steps?",
+   opts:["8","128","255"], ans:2,
+   why:"2⁸ − 1 = 255 steps between 0 V and full scale, which is why each step is about 19.6 mV."},
+  {id:"d10", mod:"m5", stem:"Which A/D converter is chosen when conversion speed must not depend on the input voltage?",
+   opts:["Ramp generation","Successive approximation","Integration type"], ans:1,
+   why:"A SAR converter always takes the same number of clock cycles — one per bit — regardless of the analogue level."},
+
+  {id:"d11", mod:"m6", stem:"Data line bits are 1 1 1 1 1 1 (six 1s). Under EVEN parity, the parity bit is:",
+   opts:["0","1","undefined"], ans:0,
+   why:"Six 1s is already an even count, so the generator adds a 0 to keep the total even."},
+  {id:"d12", mod:"m6", stem:"A single parity bit lets the receiver:",
+   opts:["detect and correct one bad bit","detect that a bit is wrong but not correct it","correct any number of bad bits"], ans:1,
+   why:"Parity is detection only. The receiver knows something is wrong, but not which bit — so it must request a retransmission."}
+];
+
+/* ============================================================
+   5 · ROUTER
+   ============================================================ */
+let CURRENT = "home";
+const VIEWS = {};   // name -> render function
+
+function go(name){
+  CURRENT = name;
+  const host = $("#view");
+  host.innerHTML = "";
+  window.scrollTo(0,0);
+  $("#rail").classList.remove("open");
+  (VIEWS[name] || VIEWS.home)(host);
+  renderNav();
+  renderTopPills();
+}
+
+function setHead(crumb, title){
+  $("#crumb").textContent = crumb;
+  $("#viewTitle").innerHTML = title;
+}
+
+function renderTopPills(){
+  const host = $("#topPills"); host.innerHTML = "";
+  if(S.diagnosticDone && MOD_BY_ID[CURRENT]){
+    const t = tierOf(CURRENT);
+    host.appendChild(el("span",{class:"nav-tier tier-"+t}, TIER_META[t].label));
+  }
+  const done = MODULES.filter(m=>isModuleDone(m.id)).length;
+  host.appendChild(el("span",{class:"pill"}, done+" / "+MODULES.length+" modules complete"));
+}
+
+function isModuleDone(id){
+  const p = prog(id);
+  return p.concept && p.lab && p.practice && p.feynman;
+}
+function overallPct(){
+  let total = MODULES.length*4 + 1, done = S.diagnosticDone?1:0;
+  MODULES.forEach(m=>{
+    const p = prog(m.id);
+    ["concept","lab","practice","feynman"].forEach(k=>{ if(p[k]) done++; });
+  });
+  return Math.round(done/total*100);
+}
+
+function renderNav(){
+  const nav = $("#railNav"); nav.innerHTML = "";
+  nav.appendChild(el("div",{class:"nav-label"},"Start"));
+
+  const mk = (name, num, label, extra)=>{
+    const b = el("button",{class:"nav-item"+(CURRENT===name?" active":"")+(extra&&extra.done?" done":""),
+                           onclick:()=>go(name)});
+    b.appendChild(el("span",{class:"nav-num"}, extra&&extra.done ? "✓" : num));
+    b.appendChild(el("span",{class:"nav-txt"}, label));
+    if(extra && extra.tier) b.appendChild(el("span",{class:"nav-tier tier-"+extra.tier}, TIER_META[extra.tier].label.slice(0,4)));
+    nav.appendChild(b);
+  };
+
+  mk("home","⌂","Welcome");
+  mk("diagnostic","✓","Pre-flight check",{done:S.diagnosticDone});
+
+  nav.appendChild(el("div",{class:"nav-label"},"Learning modules"));
+  MODULES.forEach(m=>{
+    mk(m.id, m.n, m.title, {done:isModuleDone(m.id), tier:S.diagnosticDone?tierOf(m.id):null});
+  });
+
+  nav.appendChild(el("div",{class:"nav-label"},"Consolidate"));
+  mk("summary","≡","Smart knowledge summary");
+
+  const pct = overallPct();
+  $("#progPct").textContent = pct+"%";
+  $("#progBar").style.width = pct+"%";
+}
+
+/* ============================================================
+   6 · HOME
+   ============================================================ */
+VIEWS.home = function(host){
+  setHead("Start here","Welcome to the Topic 3 Learning Bay");
+
+  const hero = el("div",{class:"hero"});
+  hero.innerHTML = `
+    <h1>Logic Circuits &amp; Data Converters</h1>
+    <p>This bay is where you <b>do</b> the topic rather than watch it. Every module gives you
+    something to change &mdash; a bit, a pulse width, a sampling rate, a resistor ladder &mdash; and
+    shows you immediately what it does to the outcome. You will be asked to predict first, then check.</p>
+    <div class="btn-row" style="margin-top:18px;position:relative">
+      <button class="btn" id="startDiag">${S.diagnosticDone?"Re-run the pre-flight check":"Run the pre-flight check"}</button>
+      <button class="btn sec" id="skipDiag">Skip &mdash; take me straight to Module 1</button>
+    </div>`;
+  host.appendChild(hero);
+  $("#startDiag").onclick = ()=>go("diagnostic");
+  $("#skipDiag").onclick  = ()=>{ MODULES.forEach(m=>{ if(!S.tiers[m.id]) S.tiers[m.id]="developing"; }); save(); go("m1"); };
+
+  const ilo = el("div",{class:"card"});
+  ilo.innerHTML = `
+    <div class="card-h"><span class="dot"></span><h3>What you should be able to do by the end</h3></div>
+    <p class="small muted" style="margin-bottom:10px"><b>Topic ILO:</b> Explain the numbering system, the use of common
+    logic gates, and the operation and applications of analogue-to-digital (ADC) and digital-to-analogue (DAC)
+    converters in aircraft systems.</p>
+    <ul class="tick">
+      <li>Describe the numbering systems used in digital logic systems.</li>
+      <li>Convert between decimal, binary, octal and hexadecimal &mdash; and back again.</li>
+      <li>Identify the common logic gate symbols, truth tables and equivalent circuits.</li>
+      <li>Define the format of analogue and digital data.</li>
+      <li>Describe the logic circuit applications used for aircraft systems.</li>
+      <li>Describe the purpose of converting between digital and analogue data.</li>
+      <li>Describe the operation, application and limitations of ADCs and DACs.</li>
+    </ul>`;
+  host.appendChild(ilo);
+
+  const how = el("div",{class:"card"});
+  how.innerHTML = `
+    <div class="card-h"><span class="dot"></span><h3>How this bay works</h3></div>
+    <div class="grid g3">
+      <div>
+        <div class="eyebrow">Step 1 &middot; Diagnose</div>
+        <p class="small muted">A 12-question pre-flight check places you at Foundation, Developing or Proficient
+        <b>for each module separately</b>. You may be Proficient on gates and Foundation on converters &mdash; that is normal and useful.</p>
+      </div>
+      <div>
+        <div class="eyebrow">Step 2 &middot; Scaffolded practice</div>
+        <p class="small muted">Each module reads differently depending on your level: worked examples and heavy hints at
+        Foundation, prediction prompts at Developing, challenge and transfer tasks at Proficient.</p>
+      </div>
+      <div>
+        <div class="eyebrow">Step 3 &middot; Feynman &amp; summary</div>
+        <p class="small muted">Explain each concept in plain words as if to a first-year apprentice. The bay checks
+        which key ideas you covered, then builds a personal knowledge summary you can keep.</p>
+      </div>
+    </div>`;
+  host.appendChild(how);
+
+  const grid = el("div",{class:"grid g3"});
+  MODULES.forEach(m=>{
+    const c = el("button",{class:"mod-card", onclick:()=>go(m.id)});
+    const doneP = isModuleDone(m.id);
+    c.innerHTML = `<div class="top"><span class="idx">MODULE ${m.n}</span>${
+      doneP?'<span class="pill g">complete</span>':(S.diagnosticDone?'<span class="nav-tier tier-'+tierOf(m.id)+'">'+TIER_META[tierOf(m.id)].label+'</span>':"")
+    }</div><b>${m.title}</b><p>${m.blurb}</p>`;
+    grid.appendChild(c);
+  });
+  host.appendChild(grid);
+
+  const priv = el("div",{class:"note small"});
+  priv.innerHTML = "<b>Your work stays on this device.</b> Answers, explanations and progress are saved in this "+
+    "browser only. Nothing is uploaded and no account is needed. Clearing your browser data clears your progress.";
+  host.appendChild(priv);
+};
+
+/* ============================================================
+   7 · DIAGNOSTIC VIEW
+   ============================================================ */
+VIEWS.diagnostic = function(host){
+  setHead("Step 1","Pre-flight check");
+
+  host.appendChild(el("div",{class:"note"},
+    "<b>12 questions, about 5 minutes.</b> Answer honestly &mdash; there is no mark attached. "+
+    "The point is to route you to the right level of support in each module. If you do not know, pick what you "+
+    "think is most likely; a wrong answer here simply gets you more scaffolding later."));
+
+  const form = el("div");
+  DIAG.forEach((q,i)=>{
+    const box = el("div",{class:"q"});
+    box.appendChild(el("div",{class:"stem"}, `<span class="tiny muted">Q${i+1} &middot; Module ${MOD_BY_ID[q.mod].n}</span><br>${q.stem}`));
+    const opts = el("div",{class:"opts"});
+    q.opts.forEach((o,oi)=>{
+      const chosen = S.diagAnswers[q.id]===oi;
+      const b = el("button",{class:"opt"+(chosen?" sel":""), onclick:()=>{
+        S.diagAnswers[q.id]=oi; save();
+        $$(".opt",opts).forEach(x=>x.classList.remove("sel"));
+        b.classList.add("sel");
+        updateCount();
+      }});
+      b.innerHTML = `<span class="k">${"ABC"[oi]}</span><span>${o}</span>`;
+      opts.appendChild(b);
+    });
+    box.appendChild(opts);
+    form.appendChild(box);
+  });
+  host.appendChild(form);
+
+  const foot = el("div",{class:"card"});
+  foot.innerHTML = `<div class="btn-row"><button class="btn" id="scoreBtn">Score my check &amp; set my pathway</button>
+    <span class="small muted" id="cnt"></span></div>`;
+  host.appendChild(foot);
+
+  function updateCount(){
+    const n = DIAG.filter(q=>S.diagAnswers[q.id]!=null).length;
+    $("#cnt").textContent = n+" of "+DIAG.length+" answered";
+    $("#scoreBtn").disabled = n<DIAG.length;
+  }
+  $("#scoreBtn").onclick = scoreDiagnostic;
+  updateCount();
+};
+
+function scoreDiagnostic(){
+  const byMod = {};
+  DIAG.forEach(q=>{
+    if(!byMod[q.mod]) byMod[q.mod] = {right:0, total:0, wrong:[]};
+    byMod[q.mod].total++;
+    if(S.diagAnswers[q.id]===q.ans) byMod[q.mod].right++;
+    else byMod[q.mod].wrong.push(q);
+  });
+  MODULES.forEach(m=>{
+    const r = byMod[m.id] ? byMod[m.id].right : 0;
+    S.tiers[m.id] = r===2 ? "proficient" : (r===1 ? "developing" : "foundation");
+  });
+  S.diagnosticDone = true;
+  save();
+  showDiagResult(byMod);
+}
+
+function showDiagResult(byMod){
+  const host = $("#view"); host.innerHTML = "";
+  setHead("Step 1 complete","Your personalised pathway");
+  renderNav();
+
+  host.appendChild(el("div",{class:"note ok"},
+    "<b>Pathway set.</b> Each module below now opens at the level shown. You can change level at any time from "+
+    "inside a module &mdash; if a module feels too easy or too hard, move yourself."));
+
+  MODULES.forEach(m=>{
+    const t = tierOf(m.id);
+    const r = byMod[m.id];
+    const card = el("div",{class:"card tight"});
+    const wrongHtml = r && r.wrong.length ? r.wrong.map(q=>
+      `<div class="note err small" style="margin:8px 0 0"><b>You missed:</b> ${q.stem}<br>
+       <span class="muted">Correct answer: <b>${esc(q.opts[q.ans])}</b>. ${q.why}</span></div>`).join("") : "";
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span class="nav-num" style="width:26px;height:26px;flex:0 0 26px">${m.n}</span>
+        <b style="flex:1;min-width:140px">${m.title}</b>
+        <span class="pill">${r?r.right:0} / 2 correct</span>
+        <span class="nav-tier tier-${t}">${TIER_META[t].label}</span>
+      </div>
+      <p class="small muted" style="margin:8px 0 0">${TIER_META[t].note}</p>
+      ${wrongHtml}`;
+    host.appendChild(card);
+  });
+
+  const go1 = el("div",{class:"card center"});
+  go1.innerHTML = `<p class="muted small">Work through the modules in order &mdash; each one builds on the last.</p>
+    <button class="btn" id="beginBtn">Begin Module 1 &middot; Number Systems</button>`;
+  host.appendChild(go1);
+  $("#beginBtn").onclick = ()=>go("m1");
+}
+/* ============================================================
+   8 · MODULE CONTENT  (tier-adaptive)
+   ============================================================ */
+const CONTENT = {
+
+/* ---------------- MODULE 1 · NUMBER SYSTEMS ---------------- */
+m1:{
+ takeaways:[
+  "A number system is defined by its base: how many digit symbols exist before you carry.",
+  "Any positional number = sum of (digit x base^position), counting positions from 0 at the right.",
+  "Decimal to any base: repeated division by the base; the remainders read bottom-up (first remainder is the LSD).",
+  "Binary to octal: group bits in 3s. Binary to hex: group bits in 4s. Group from the right.",
+  "BCD codes each decimal digit in its own 4 bits, so 1000 0101 is 85 in BCD but 133 as pure binary."
+ ],
+ concept:{
+  foundation:`
+   <p>Every number system works the same way. The only thing that changes is <b>how many digits you have
+   before you run out and have to carry</b>. That count is the <b>base</b>.</p>
+   <ul class="plain">
+     <li><b>Decimal (base 10)</b> &mdash; digits 0&ndash;9. After 9 you carry: 10.</li>
+     <li><b>Binary (base 2)</b> &mdash; digits 0 and 1 only. This is all a logic circuit can hold: a voltage is either HIGH or LOW.</li>
+     <li><b>Octal (base 8)</b> &mdash; digits 0&ndash;7. There is no such thing as an 8 or a 9.</li>
+     <li><b>Hexadecimal (base 16)</b> &mdash; digits 0&ndash;9 then A=10, B=11, C=12, D=13, E=14, F=15.</li>
+     <li><b>BCD</b> &mdash; not really a base. Each decimal digit is written as its own group of 4 bits.</li>
+   </ul>
+   <div class="note"><b>Worked example &mdash; binary to decimal.</b> Take 1101<sub>2</sub>.
+   Write the weight above each bit, starting at 2<sup>0</sup> on the right:<br>
+   <span class="mono">weights: 2&sup3; 2&sup2; 2&sup1; 2&#8304; &nbsp;&rarr;&nbsp; 8 4 2 1</span><br>
+   <span class="mono">bits:&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp; 1&nbsp;&nbsp; 0&nbsp;&nbsp; 1</span><br>
+   Add the weights wherever the bit is a 1: 8 + 4 + 0 + 1 = <b>13</b><sub>10</sub>. Ignore the columns holding 0.</div>
+   <div class="note"><b>Worked example &mdash; decimal to octal.</b> Convert 486<sub>10</sub> by <b>repeated division by 8</b>:<br>
+   <span class="mono">486 &divide; 8 = 60 remainder <b>6</b> &nbsp;&larr; LSD</span><br>
+   <span class="mono">&nbsp;60 &divide; 8 = &nbsp;7 remainder <b>4</b></span><br>
+   <span class="mono">&nbsp;&nbsp;7 &divide; 8 = &nbsp;0 remainder <b>7</b> &nbsp;&larr; MSD</span><br>
+   Now read the remainders <b>upwards</b>: 486<sub>10</sub> = <b>746</b><sub>8</sub>.</div>
+   <p>The one that catches people out is <b>BCD</b>. In BCD you never convert the whole number &mdash; you convert
+   each decimal digit on its own into 4 bits. So 85 becomes 8 &rarr; 1000 and 5 &rarr; 0101, giving 1000 0101.
+   If you read that same pattern as ordinary binary you would get 133, which is wrong. Always check which one you have been given.</p>`,
+
+  developing:`
+   <p>You already convert individual numbers. What separates a fast technician from a slow one is knowing the
+   <b>shortcuts</b> and knowing <b>which system you are actually looking at</b>.</p>
+   <div class="note"><b>Grouping shortcut.</b> Octal is base 8 = 2&sup3;, so <b>three</b> bits make exactly one octal digit.
+   Hex is base 16 = 2&#8308;, so <b>four</b> bits make exactly one hex digit. Group from the <b>right</b> and pad the left with zeros.<br>
+   <span class="mono">110010011&#8322; &rarr; 110 | 010 | 011 &rarr; 6 | 2 | 3 &rarr; 623&#8328;</span><br>
+   <span class="mono">110010011&#8322; &rarr; 0001 | 1001 | 0011 &rarr; 1 | 9 | 3 &rarr; 193&#8321;&#8326;</span></div>
+   <p>No division, no weights, no arithmetic &mdash; that is the entire reason octal and hex exist. They are a
+   compact way for a human to write and read a long binary word without making transcription errors.</p>
+   <div class="note warn"><b>The BCD trap.</b> BCD wastes six of the sixteen possible 4-bit codes (1010 to 1111 are illegal)
+   and it is <b>not</b> the same value as the pure binary of that bit pattern. 1000 0101 is 85 in BCD and 133 in binary.
+   The only way to know which you are holding is to know where the data came from.</div>
+   <p>Sum of weights runs in reverse for any base: 6235<sub>8</sub> = (6&times;8&sup3;) + (2&times;8&sup2;) + (3&times;8&sup1;) + (5&times;8&#8304;)
+   = 3072 + 128 + 24 + 5 = 3229<sub>10</sub>.</p>`,
+
+  proficient:`
+   <p>You can convert. The question worth your time is <b>why an aircraft system chose a particular representation</b>,
+   because that choice constrains range, resolution and error behaviour.</p>
+   <ul class="plain">
+     <li><b>Octal in avionics.</b> ARINC 429 label fields are conventionally written in octal &mdash; 8 bits of label
+     collapse neatly into three octal digits for the interface control document. A transponder squawk is four octal
+     digits, which is why you can select 7700 but never 7800: the digit 8 does not exist in base 8.</li>
+     <li><b>Hex in maintenance.</b> Memory dumps, fault codes and BITE data come out in hex because one hex digit maps
+     exactly to one nibble, so a byte is always two characters wide &mdash; easy to read across a column on a printout.</li>
+     <li><b>BCD in data buses.</b> ARINC 429 defines BCD data words precisely because the destination is a
+     <b>display</b>. Sending altitude as BCD means the display driver needs no conversion arithmetic, which removes a
+     rounding-error path &mdash; at the cost of wasted code space and reduced resolution for the same word length.</li>
+   </ul>
+   <div class="note"><b>Resolution argument.</b> A 4-digit BCD field uses 16 bits to represent 0&ndash;9999.
+   The same 16 bits as pure binary represents 0&ndash;65535. BCD throws away roughly 84% of the code space to buy
+   display convenience. When you see a system with a strangely coarse least-significant digit, this trade is often why.</div>
+   <p><b>Transfer task:</b> a maintenance manual quotes a discrete word as <span class="mono">0xA7</span>. Express it in
+   binary, in octal, and say what its value would be if the same 8 bits had instead been transmitted as two BCD digits.
+   (Hint: one of those three answers does not exist.)</p>`
+ },
+ practice:{
+  foundation:[
+   {id:"m1f1",stem:"Convert 1011&#8322; to decimal.",opts:["9","11","13"],ans:1,
+    why:"Weights are 8 4 2 1. Bits are 1 0 1 1, so 8 + 0 + 2 + 1 = 11.",
+    mis:"Reading binary weights from the wrong end (left-to-right instead of right-to-left)."},
+   {id:"m1f2",stem:"Convert 25&#8321;&#8320; to octal by repeated division.",opts:["25","31","41"],ans:1,
+    why:"25 &divide; 8 = 3 remainder 1 (LSD). 3 &divide; 8 = 0 remainder 3 (MSD). Read upwards: 31&#8328;.",
+    mis:"Reading division remainders top-down instead of bottom-up."},
+   {id:"m1f3",stem:"In BCD, the decimal number 47 is written as:",opts:["0100 0111","0010 1111","0111 0100"],ans:0,
+    why:"Each digit gets its own 4 bits: 4 = 0100, 7 = 0111.",
+    mis:"Converting the whole decimal number to binary instead of coding each digit separately."}
+  ],
+  developing:[
+   {id:"m1d1",stem:"Convert 10110110&#8322; to hexadecimal using grouping.",opts:["B6","6B","A6"],ans:0,
+    why:"Group in 4s from the right: 1011 | 0110 &rarr; B | 6 &rarr; B6&#8321;&#8326;.",
+    mis:"Grouping from the left, or grouping in 3s (that is the octal rule)."},
+   {id:"m1d2",stem:"Convert 111101&#8322; to octal.",opts:["57","75","65"],ans:1,
+    why:"Group in 3s from the right: 111 | 101 &rarr; 7 | 5 &rarr; 75&#8328;.",
+    mis:"Grouping in 4s (the hex rule) rather than 3s for octal."},
+   {id:"m1d3",stem:"The bit pattern 0011 0110 is received. As BCD it is 36; as pure binary it is:",opts:["36","54","63"],ans:1,
+    why:"As pure binary, 00110110 = 32 + 16 + 4 + 2 = 54. Same bits, different meaning &mdash; you must know the source format.",
+    mis:"Assuming a bit pattern has only one possible decimal meaning."}
+  ],
+  proficient:[
+   {id:"m1p1",stem:"A 12-bit field carries three BCD digits. What is its maximum decimal value, and how much of the code space is wasted?",
+    opts:["999, about 76% wasted","4095, nothing wasted","999, about 24% wasted"],ans:0,
+    why:"Three BCD digits reach 999. Twelve bits of pure binary reach 4095. So 999/4095 is about 24% used, meaning roughly 76% of the code space is unused.",
+    mis:"Treating a BCD field as if it had the same range as pure binary of the same width."},
+   {id:"m1p2",stem:"Why is an ARINC 429 label conventionally quoted in octal rather than hexadecimal?",
+    opts:["Octal digits are smaller so the label fits","The 8-bit label maps to three octal digits, matching the historical field grouping in the specification","Hexadecimal cannot represent 8 bits"],ans:1,
+    why:"It is a convention rooted in how the field is grouped and documented. Hex could represent it perfectly well; octal is what the specification and the interface control documents use, so that is what you must read and quote.",
+    mis:"Assuming a number base is chosen for capacity reasons rather than for documentation convention and human readability."},
+   {id:"m1p3",stem:"A discrete word reads 0xA7. Which statement is correct?",
+    opts:["In binary it is 1010 0111, and it cannot be valid BCD","In binary it is 1010 0111, and as BCD it is 107","It is 247 in octal and valid BCD"],ans:0,
+    why:"0xA7 = 1010 0111. The nibble 1010 is one of the six illegal BCD codes (1010&ndash;1111), so this pattern cannot be BCD. In octal it is 247&#8328;, which is true but the BCD claim in that option is wrong.",
+    mis:"Forgetting that BCD has six illegal 4-bit codes, so not every byte is a valid BCD pair."}
+  ]
+ },
+ feynman:{
+  prompt:"A first-year apprentice asks: <i>&ldquo;Why does anyone use octal or hex? Why not just write everything in binary or decimal?&rdquo;</i> Answer them in plain language, in about 4&ndash;6 sentences.",
+  starter:"Machines can only hold 0s and 1s, so...",
+  ideas:[
+   {k:"Binary is what the hardware holds",terms:["binary","0 and 1","0s and 1s","two states","high and low","voltage"]},
+   {k:"Long binary words are error-prone for humans",terms:["long","mistake","error","hard to read","miscount","transcription","confusing"]},
+   {k:"Grouping bits (3 for octal, 4 for hex)",terms:["group","three bits","3 bits","four bits","4 bits","nibble","chunk"]},
+   {k:"No arithmetic is needed to convert",terms:["no arithmetic","no calculation","no maths","no math","instantly","directly","straight"]},
+   {k:"BCD is per-digit, for displays",terms:["bcd","each digit","per digit","display","separately"]}
+  ]
+ }
+},
+
+/* ---------------- MODULE 2 · WAVEFORMS & TIMING ---------------- */
+m2:{
+ takeaways:[
+  "A digital waveform is a voltage that switches between two states: HIGH (logic 1) and LOW (logic 0).",
+  "Period T is the time for one complete cycle; pulse width t_w is the time spent HIGH in that cycle.",
+  "Frequency f = 1/T, measured in hertz. A 50 Hz waveform has a period of 20 ms.",
+  "Duty cycle = (t_w / T) x 100%. It says what fraction of each cycle is HIGH.",
+  "A timing diagram shows two or more waveforms on a shared time axis so their relationship is visible."
+ ],
+ concept:{
+  foundation:`
+   <p>An analogue signal can sit at any voltage. A <b>digital</b> signal is only ever allowed to be one of two
+   things: <b>HIGH</b> (logic 1) or <b>LOW</b> (logic 0). Drawn against time, that gives the familiar square shape.</p>
+   <ul class="plain">
+     <li><b>Period (T)</b> &mdash; the time taken for one complete cycle, measured in seconds. Measure it from one
+     rising edge to the <i>next</i> rising edge.</li>
+     <li><b>Pulse width (t<sub>w</sub>)</b> &mdash; how long the signal stays HIGH within that one cycle.</li>
+     <li><b>Frequency (f)</b> &mdash; how many cycles happen per second, in hertz (Hz). It is simply <b>f = 1/T</b>.</li>
+     <li><b>Duty cycle</b> &mdash; what percentage of the cycle is HIGH: <b>(t<sub>w</sub> / T) &times; 100%</b>.</li>
+   </ul>
+   <div class="note"><b>Worked example.</b> A waveform is HIGH for 5 ms then LOW for 15 ms, over and over.<br>
+   Period T = 5 + 15 = <b>20 ms</b> = 0.02 s.<br>
+   Frequency f = 1/T = 1/0.02 = <b>50 Hz</b>.<br>
+   Duty cycle = (5/20) &times; 100 = <b>25%</b>.<br>
+   Notice you needed both the HIGH time and the LOW time to get T. A common slip is to use only t<sub>w</sub>.</div>
+   <p>A <b>timing diagram</b> simply stacks two or more of these waveforms on the same time axis. That is how you see
+   whether signal B goes HIGH before, during, or after signal A &mdash; which is exactly what you need when you are
+   fault-finding a circuit that only misbehaves at a certain moment.</p>`,
+
+  developing:`
+   <p>The three quantities are locked together. Change one and you must say what happened to the other two.</p>
+   <div class="note"><b>Two independent knobs.</b> A waveform has only <b>two</b> free parameters: period and pulse width.
+   Frequency is fixed once you choose the period. Duty cycle is fixed once you choose both. So:
+   <ul class="plain" style="margin:8px 0 0">
+     <li>Halve T at constant t<sub>w</sub> &rarr; frequency doubles <b>and</b> duty cycle doubles.</li>
+     <li>Halve t<sub>w</sub> at constant T &rarr; frequency unchanged, duty cycle halves.</li>
+   </ul></div>
+   <p>Duty cycle carries information independently of frequency, which is the whole basis of <b>pulse width
+   modulation</b>. A valve, a lamp dimmer or a motor speed controller can be driven with a fixed frequency and a
+   varying duty cycle: the average delivered power tracks the duty cycle, while the switching frequency stays where
+   the hardware wants it.</p>
+   <p>Average voltage of an ideal rectangular waveform = duty cycle &times; V<sub>HIGH</sub>. A 5 V signal at
+   30% duty has an average of 1.5 V &mdash; which is what a meter on DC average would show you, and why a meter
+   reading alone can mislead you about a digital line.</p>
+   <div class="note warn"><b>Watch the units.</b> f = 1/T needs T in <b>seconds</b>. 20 ms is 0.02 s, not 20.
+   Getting 0.05 Hz instead of 50 Hz is almost always this mistake.</div>`,
+
+  proficient:`
+   <p>Beyond the arithmetic, timing parameters are where real digital faults live.</p>
+   <ul class="plain">
+     <li><b>Edges, not levels, carry the timing.</b> Clocked logic samples on a rising or falling edge. A signal with
+     the correct duty cycle but a slow, degraded edge can still fail, because the receiving device never sees a clean
+     transition through its threshold band.</li>
+     <li><b>Duty cycle distortion.</b> Long cable runs, capacitive loading and mismatched thresholds stretch one state
+     at the expense of the other. The frequency is untouched, so a frequency counter says the line is fine while the
+     data is corrupt. Only a scope showing t<sub>w</sub> against T reveals it.</li>
+     <li><b>Bit rate versus frequency.</b> ARINC 429 runs at 12.5 kbps (low speed) or 100 kbps (high speed). Bit rate
+     is not the same as clock frequency once encoding is applied &mdash; a bipolar return-to-zero scheme returns to a
+     null state within every bit time, so the line contains transitions at a higher rate than the data rate.</li>
+   </ul>
+   <div class="note"><b>Transfer task.</b> A PWM-driven valve is specified as 400 Hz, 35% duty. During test, a scope
+   shows t<sub>w</sub> = 0.875 ms and T = 2.5 ms. Is the valve command correct? Work out both parameters before you
+   answer, then say what a frequency counter alone would have told you.</div>`
+ },
+ practice:{
+  foundation:[
+   {id:"m2f1",stem:"A waveform has a period of 4 ms. What is its frequency?",opts:["4 Hz","250 Hz","400 Hz"],ans:1,
+    why:"f = 1/T = 1/0.004 s = 250 Hz. Convert milliseconds to seconds first.",
+    mis:"Using T in milliseconds instead of seconds in f = 1/T."},
+   {id:"m2f2",stem:"A signal is HIGH for 2 ms and LOW for 6 ms. What is its duty cycle?",opts:["25%","33%","75%"],ans:0,
+    why:"T = 2 + 6 = 8 ms, so duty = (2/8) x 100 = 25%.",
+    mis:"Dividing HIGH time by LOW time instead of by the full period."},
+   {id:"m2f3",stem:"What is the period of a 50 Hz rectangular waveform?",opts:["10 ms","20 ms","30 ms"],ans:1,
+    why:"T = 1/f = 1/50 = 0.02 s = 20 ms.",
+    mis:"Confusing the reciprocal relationship between period and frequency."}
+  ],
+  developing:[
+   {id:"m2d1",stem:"The period is halved while the pulse width stays the same. What happens?",
+    opts:["Frequency doubles, duty cycle doubles","Frequency doubles, duty cycle unchanged","Frequency halves, duty cycle doubles"],ans:0,
+    why:"f = 1/T so halving T doubles f. Duty = t_w/T, and with t_w fixed and T halved the ratio doubles.",
+    mis:"Treating duty cycle as independent of the period."},
+   {id:"m2d2",stem:"A 5 V digital line runs at 40% duty cycle. A DC meter reading average would show approximately:",
+    opts:["5.0 V","2.0 V","0.4 V"],ans:1,
+    why:"Average = duty x V_HIGH = 0.40 x 5 = 2.0 V. This is why a multimeter alone can badly mislead you on a digital line.",
+    mis:"Expecting a meter to show the HIGH level of a switching signal."},
+   {id:"m2d3",stem:"A PWM valve driver is set to 400 Hz. To command 35% open, the pulse width must be:",
+    opts:["0.35 ms","0.875 ms","1.4 ms"],ans:1,
+    why:"T = 1/400 = 2.5 ms. t_w = 0.35 x 2.5 = 0.875 ms.",
+    mis:"Reading duty cycle as an absolute time rather than a fraction of the period."}
+  ],
+  proficient:[
+   {id:"m2p1",stem:"A frequency counter on a suspect data line reads exactly the specified frequency, yet the receiving LRU rejects the data. The most likely timing cause is:",
+    opts:["The period is wrong","Duty cycle distortion or degraded edges the counter cannot see","The frequency counter is faulty"],ans:1,
+    why:"A counter only measures how often transitions occur. Stretched states, slow edges or threshold problems leave the frequency intact while corrupting the received bits.",
+    mis:"Assuming a correct frequency reading proves a digital line is healthy."},
+   {id:"m2p2",stem:"Two waveforms have identical frequency but different duty cycles. Which statement is true?",
+    opts:["They deliver the same average power to a resistive load","They have the same period but different average voltages","They must have different periods"],ans:1,
+    why:"Same frequency means same period by definition. Different duty cycles give different average voltages and therefore different average power.",
+    mis:"Conflating frequency with delivered power."},
+   {id:"m2p3",stem:"Why is a timing diagram more useful than two separate single-channel measurements when diagnosing a sequencing fault?",
+    opts:["It shows the relative timing between the signals on one shared time axis","It is more accurate","It shows the voltage levels more precisely"],ans:0,
+    why:"The fault is in the relationship, not in either signal alone. Only a shared time axis reveals which edge arrived first.",
+    mis:"Trying to diagnose a sequencing problem from signals captured at different times."}
+  ]
+ },
+ feynman:{
+  prompt:"Explain to an apprentice, in plain words, <i>&ldquo;What is duty cycle, and why does an aircraft system care about it?&rdquo;</i> About 4&ndash;6 sentences.",
+  starter:"A digital signal spends part of each cycle switched on and the rest switched off, so...",
+  ideas:[
+   {k:"HIGH time as a fraction of the whole cycle",terms:["fraction","percentage","proportion","ratio","part of","portion","how much of"]},
+   {k:"The formula (t_w / T) x 100%",terms:["divide","pulse width","period","times 100","x 100","percent","formula"]},
+   {k:"Independent of frequency",terms:["frequency","independent","same speed","without changing","regardless"]},
+   {k:"Controls average power delivered",terms:["average","power","voltage","brightness","speed","how much energy","effective"]},
+   {k:"Used for control (PWM: valves, motors, lamps)",terms:["pwm","pulse width modulation","valve","motor","dimmer","control","actuator","lamp"]}
+  ]
+ }
+},
+
+/* ---------------- MODULE 3 · LOGIC GATES ---------------- */
+m3:{
+ takeaways:[
+  "A logic gate is an electronic switching circuit whose output is decided entirely by its present inputs.",
+  "AND (Y = A.B) is HIGH only when every input is HIGH; OR (Y = A+B) is HIGH when any input is HIGH.",
+  "A bubble on the output means invert: NAND is AND then NOT, NOR is OR then NOT.",
+  "XOR is HIGH when the inputs differ; XNOR is HIGH when the inputs are the same (an equality detector).",
+  "Boolean addition is the OR operation and Boolean multiplication is the AND operation."
+ ],
+ concept:{
+  foundation:`
+   <p>A <b>logic gate</b> is an electronic switching device built from transistors. It has one or more inputs and one
+   output, and that output is always at one of two voltage levels: HIGH (logic 1) or LOW (logic 0). For a given gate
+   type, the output depends only on what the inputs are doing right now.</p>
+   <p>Learn each gate as one sentence, and the truth table writes itself:</p>
+   <ul class="plain">
+     <li><b>NOT (inverter)</b> &mdash; one input. Output is the opposite. Y = <span style="text-decoration:overline">A</span></li>
+     <li><b>AND</b> &mdash; output HIGH <b>only if all</b> inputs are HIGH. Y = A &middot; B</li>
+     <li><b>OR</b> &mdash; output HIGH if <b>one or more</b> inputs are HIGH. Y = A + B</li>
+     <li><b>NAND</b> &mdash; AND with the output inverted. Output LOW <b>only if all</b> inputs are HIGH.</li>
+     <li><b>NOR</b> &mdash; OR with the output inverted. Output HIGH <b>only if all</b> inputs are LOW.</li>
+     <li><b>XOR</b> &mdash; output HIGH if the inputs are <b>different</b>.</li>
+     <li><b>XNOR</b> &mdash; output HIGH if the inputs are the <b>same</b>.</li>
+   </ul>
+   <div class="note"><b>Reading the symbol.</b> The <i>shape</i> tells you the base function: a flat-backed D is AND,
+   a curved shield is OR, a triangle is a buffer or inverter. A small <b>bubble</b> on the output means
+   &ldquo;then invert&rdquo;. So the AND shape plus a bubble is NAND. Two curved lines at the input of an OR shape means
+   exclusive: XOR.</div>
+   <div class="note warn"><b>Boolean addition is not ordinary addition.</b> In Boolean algebra 1 + 1 = 1, because
+   &ldquo;+&rdquo; means OR, and OR asks only &ldquo;is at least one input HIGH?&rdquo;. There is no carry, because there
+   is nowhere for a carry to go.</div>`,
+
+  developing:`
+   <p>Once you know the seven gates, work on the two skills that get tested: <b>reading a gate off a waveform</b>
+   and <b>seeing the inversion relationships</b>.</p>
+   <div class="note"><b>Identify a gate from its waveform.</b> Look only at the moments where A and B differ.
+   <ul class="plain" style="margin:8px 0 0">
+     <li>Output HIGH whenever they differ, LOW when they match &rarr; <b>XOR</b>.</li>
+     <li>Output LOW only where both are HIGH &rarr; <b>NAND</b>.</li>
+     <li>Output HIGH only where both are LOW &rarr; <b>NOR</b>.</li>
+     <li>Output tracks HIGH whenever either is HIGH &rarr; <b>OR</b>.</li>
+   </ul></div>
+   <p><b>Inversion pairs.</b> NAND is the complement of AND, NOR of OR, XNOR of XOR. Every row of the truth table
+   flips &mdash; not just some of them. That single fact halves the amount you have to memorise.</p>
+   <p><b>XNOR as an equality detector.</b> Y = 1 when A = B. This is the gate used inside comparators: feed the two
+   words in bit by bit and every XNOR must read 1 for the words to be identical. In BITE circuits that is how a
+   channel-to-channel comparison is done.</p>
+   <div class="note warn"><b>Common slip.</b> With three inputs, &ldquo;OR&rdquo; still means <i>one or more</i>, not
+   <i>exactly one</i>. Exactly-one is a different function and is not a basic gate.</div>`,
+
+  proficient:`
+   <p>At this level the interesting questions are about <b>equivalence and implementation</b>, not about single gates.</p>
+   <ul class="plain">
+     <li><b>NAND and NOR are universal.</b> Any logic function can be built from NAND gates alone, or from NOR gates
+     alone. A NAND with both inputs tied together is an inverter; a NAND followed by that inverter is an AND; and by
+     De Morgan a NAND with both inputs inverted is an OR. This is why a board may carry rows of identical quad-NAND
+     packages rather than a mixture of gate types &mdash; one part number, easier spares provisioning, and a spare gate
+     is always available.</li>
+     <li><b>De Morgan's theorems.</b>
+     <span class="mono">NOT(A&middot;B) = NOT(A) + NOT(B)</span> and
+     <span class="mono">NOT(A+B) = NOT(A) &middot; NOT(B)</span>. Practically: pushing a bubble through a gate changes
+     its shape between AND and OR. This is how the same circuit gets redrawn in two different manuals and still be the
+     same circuit &mdash; and it is how you recognise that an OR gate drawn with inverted inputs <i>is</i> a NAND.</li>
+     <li><b>Active-low signalling.</b> Aircraft discretes are very often active-low, because a broken wire then reads
+     as the safe inactive state. Once a signal is active-low, the gate that implements &ldquo;both conditions true&rdquo;
+     on paper appears in the schematic as a NOR. Always establish the active sense before you name the gate.</li>
+   </ul>
+   <div class="note"><b>Transfer task.</b> Show that a 2-input OR gate can be built from three NAND gates, and state
+   which De Morgan identity you used. Then say what fails if one of the three gates is stuck HIGH.</div>`
+ },
+ practice:{
+  foundation:[
+   {id:"m3f1",stem:"For a 2-input AND gate with A = 1 and B = 0, the output Y is:",opts:["0","1","undefined"],ans:0,
+    why:"AND is HIGH only when all inputs are HIGH. B is LOW, so Y = 0.",
+    mis:"Assuming any HIGH input is enough for an AND gate."},
+   {id:"m3f2",stem:"Which gate has the truth table 00 -> 1, 01 -> 0, 10 -> 0, 11 -> 0?",opts:["NAND","NOR","XNOR"],ans:1,
+    why:"Output is HIGH only when all inputs are LOW. That is NOR: OR followed by an inverter.",
+    mis:"Confusing NOR (HIGH only when all inputs LOW) with NAND (LOW only when all inputs HIGH)."},
+   {id:"m3f3",stem:"In Boolean algebra, 1 + 1 equals:",opts:["0","1","10"],ans:1,
+    why:"The + symbol means OR, not arithmetic addition. OR asks only whether at least one input is HIGH, so the answer is 1.",
+    mis:"Applying ordinary binary arithmetic to a Boolean expression."}
+  ],
+  developing:[
+   {id:"m3d1",stem:"Inputs A and B are identical at every instant. Which gate outputs a constant HIGH?",
+    opts:["XOR","XNOR","NAND"],ans:1,
+    why:"XNOR is HIGH whenever the inputs are the same, so identical inputs give a permanently HIGH output.",
+    mis:"Swapping XOR (different) with XNOR (same)."},
+   {id:"m3d2",stem:"A gate output is LOW only during the interval where both inputs are HIGH. The gate is:",
+    opts:["AND","NAND","NOR"],ans:1,
+    why:"That is the inverted AND function: NAND.",
+    mis:"Reading an inverted output as the non-inverted gate."},
+   {id:"m3d3",stem:"A NAND gate has both inputs tied together and driven by signal A. The output is:",
+    opts:["A","NOT A","always 1"],ans:1,
+    why:"With both inputs equal to A, the AND term is A.A = A, then the bubble inverts it: Y = NOT A. This is the standard way to make an inverter out of a spare NAND.",
+    mis:"Forgetting that A AND A = A, so the gate reduces to a plain inverter."}
+  ],
+  proficient:[
+   {id:"m3p1",stem:"By De Morgan, an OR gate drawn with both inputs inverted is equivalent to:",
+    opts:["A NAND gate","A NOR gate","An XOR gate"],ans:0,
+    why:"NOT(A) + NOT(B) = NOT(A.B), which is NAND.",
+    mis:"Applying De Morgan without also swapping the gate shape between AND and OR."},
+   {id:"m3p2",stem:"Why might a designer build an entire board from quad-NAND packages rather than a mix of gate types?",
+    opts:["NAND is faster than every other gate","NAND is functionally complete, so one part number covers all logic and spares are simpler","NAND uses less power in all cases"],ans:1,
+    why:"Functional completeness means any function can be realised from NAND alone. The real driver is usually a single part number, simpler spares and always having a spare gate on the package.",
+    mis:"Assuming a component choice is always about speed or power rather than about maintainability."},
+   {id:"m3p3",stem:"Two aircraft discretes are active-low. The requirement is 'warn when both conditions are true'. In the schematic this most likely appears as:",
+    opts:["An AND gate","A NOR gate","An XOR gate"],ans:1,
+    why:"With active-low inputs, both conditions true means both lines are LOW. A gate that outputs HIGH only when all inputs are LOW is a NOR.",
+    mis:"Naming a gate from the logical requirement without first establishing the active sense of the signals."}
+  ]
+ },
+ feynman:{
+  prompt:"An apprentice asks: <i>&ldquo;What is the difference between an AND gate and an OR gate, and how do I remember which is which?&rdquo;</i> Explain in plain language, with a real example, in about 4&ndash;6 sentences.",
+  starter:"Think of the gate as asking a question about its inputs...",
+  ideas:[
+   {k:"AND requires all inputs HIGH",terms:["all","both","every","together","each"]},
+   {k:"OR requires at least one input HIGH",terms:["one","any","either","at least","one or more"]},
+   {k:"The output is only ever HIGH or LOW",terms:["high","low","1","0","two states","on","off"]},
+   {k:"A memory hook or everyday analogy",terms:["like","imagine","think of","switch","door","key","seat belt","example","series","parallel"]},
+   {k:"A real aircraft or system example",terms:["aircraft","warning","gear","lamp","engine","sensor","alarm","system","cockpit"]}
+  ]
+ }
+},
+
+/* ---------------- MODULE 4 · AIRCRAFT LOGIC CIRCUITS ---------------- */
+m4:{
+ takeaways:[
+  "Aircraft warning logic is written as a plain-English condition first, then translated gate by gate.",
+  "'NOT' in the requirement becomes an inverter; 'AND' becomes an AND gate; 'ANY of' becomes an OR gate.",
+  "Fire detection uses OR across loops so any single loop can raise the warning.",
+  "Gear warning combines an inverted gear-down signal with a throttle-at-idle signal through an AND.",
+  "Active-low signalling means a broken wire reads as the safe inactive state, which changes which gate appears on the schematic."
+ ],
+ concept:{
+  foundation:`
+   <p>Everything in this module is the same seven gates from Module 3. The only new skill is
+   <b>translating a sentence into gates</b>. Do it one word at a time.</p>
+   <div class="note"><b>The translation table.</b>
+   <ul class="plain" style="margin:8px 0 0">
+     <li>&ldquo;<b>and</b>&rdquo; / &ldquo;both&rdquo; / &ldquo;at the same time&rdquo; &rarr; AND gate</li>
+     <li>&ldquo;<b>or</b>&rdquo; / &ldquo;any of&rdquo; / &ldquo;one or more&rdquo; &rarr; OR gate</li>
+     <li>&ldquo;<b>not</b>&rdquo; / &ldquo;is absent&rdquo; / &ldquo;fails to&rdquo; &rarr; NOT gate (inverter)</li>
+   </ul></div>
+   <p><b>Worked example &mdash; landing gear warning.</b> The requirement: <i>&ldquo;Sound the horn when the gear is
+   NOT down AND the throttle IS at idle.&rdquo;</i></p>
+   <div class="steps">
+     <div class="step"><span class="n">1</span><span class="c">Identify the inputs: GEAR_DOWN (1 when locked down) and THROTTLE_IDLE (1 when at idle).</span></div>
+     <div class="step"><span class="n">2</span><span class="c">&ldquo;NOT down&rdquo; &rarr; put an inverter on GEAR_DOWN. Now the line reads 1 when the gear is not down.</span></div>
+     <div class="step"><span class="n">3</span><span class="c">&ldquo;AND&rdquo; &rarr; feed the inverted signal and THROTTLE_IDLE into an AND gate.</span></div>
+     <div class="step"><span class="n">4</span><span class="c">The AND output drives the horn. It only sounds when both conditions hold together.</span></div>
+   </div>
+   <p>Notice why the AND matters: without it, the horn would sound every time the gear was up in the cruise, which
+   would be useless. The throttle condition is what makes it a warning about <b>landing</b> rather than about flying.</p>`,
+
+  developing:`
+   <p>Two design patterns cover most aircraft warning logic. Learn to spot which one you are looking at.</p>
+   <div class="note"><b>Pattern A &mdash; OR for detection.</b> Fire, smoke and overheat systems put multiple sensors or
+   loops into an OR gate: <i>any</i> loop detecting fire must raise the warning. Missing a real fire is far worse than a
+   spurious warning, so the logic is deliberately biased towards annunciating.</div>
+   <div class="note"><b>Pattern B &mdash; AND for arming.</b> Configuration warnings (gear, flaps, spoilers,
+   take-off configuration) put conditions into an AND gate so the warning only appears in the flight phase where it
+   matters. Here a spurious warning during cruise would train crews to ignore the horn, so the logic is biased towards
+   silence until the conditions line up.</div>
+   <p><b>Dual-loop fire detection</b> is the interesting hybrid. Two loops are run in each zone. In <i>normal</i>
+   operation both loops must agree &mdash; an AND &mdash; so a single loop failure cannot produce a false fire warning.
+   If one loop is detected as failed, the system reconfigures to single-loop operation and reverts to OR. The gate
+   arrangement is chosen to trade false alarms against missed detection, and the trade changes with the health of the system.</p>
+   <div class="note warn"><b>Predict before you toggle.</b> In the lab below, decide what the annunciator should do
+   <i>before</i> you flip the switch. Being wrong is the useful part &mdash; it shows you which term you misread.</div>`,
+
+  proficient:`
+   <p>At maintenance level the questions are about <b>failure behaviour</b>, not about the nominal truth table.</p>
+   <ul class="plain">
+     <li><b>Fail-safe sense.</b> Most aircraft discretes are active-low (ground-to-activate). An open circuit then
+     floats to the inactive state, so a chafed wire produces no warning rather than a spurious one &mdash; or, in a
+     detection circuit, the opposite is chosen deliberately so a break annunciates. Which way round it fails is a
+     design decision you must read off the schematic, not assume.</li>
+     <li><b>Latching.</b> A pure gate network is combinational: remove the condition and the warning disappears.
+     Many warnings must <i>latch</i> so a transient event is not missed, which requires memory (a flip-flop) plus a
+     reset path. If a warning you expect to be momentary stays on, look for the latch and its reset, not for a stuck gate.</li>
+     <li><b>Voting.</b> Triple-channel systems use 2-out-of-3 voting: the warning is raised when any two of three
+     channels agree. Expressed in gates that is (A&middot;B) + (B&middot;C) + (A&middot;C) &mdash; three ANDs into an OR.
+     One failed channel cannot cause or suppress the warning, which is the entire point.</li>
+   </ul>
+   <div class="note"><b>Transfer task.</b> A take-off configuration warning must sound when: throttles are advanced AND
+   (flaps are not in the take-off range OR the parking brake is set OR the trim is out of range). Draw the gate network,
+   then state which single sensor failure would cause the warning to be missed entirely, and which would cause a nuisance warning.</div>`
+ },
+ practice:{
+  foundation:[
+   {id:"m4f1",stem:"'The warning sounds if ANY of the three fire loops detects fire.' Which gate?",
+    opts:["3-input AND","3-input OR","3-input XOR"],ans:1,
+    why:"'Any one or more' is the OR function.",
+    mis:"Choosing AND when the requirement says 'any' rather than 'all'."},
+   {id:"m4f2",stem:"To turn a GEAR_DOWN signal into a 'gear is NOT down' signal you add:",
+    opts:["An AND gate","An inverter (NOT gate)","An OR gate"],ans:1,
+    why:"'NOT' in the requirement becomes an inverter on that one line.",
+    mis:"Trying to express a negation with a two-input gate."},
+   {id:"m4f3",stem:"Gear warning: horn sounds when (NOT gear down) AND (throttle idle). Gear is down and throttle is at idle. The horn:",
+    opts:["Sounds","Stays silent","Depends on airspeed"],ans:1,
+    why:"The gear IS down, so 'NOT gear down' is 0. An AND gate with any LOW input gives a LOW output, so no horn.",
+    mis:"Forgetting that the inverter flips the gear signal before the AND."}
+  ],
+  developing:[
+   {id:"m4d1",stem:"Why is a fire warning built around OR while a configuration warning is built around AND?",
+    opts:["OR is more reliable than AND","Missing a fire is worse than a false alarm, while a nuisance configuration warning trains crews to ignore it","AND gates cannot take three inputs"],ans:1,
+    why:"The gate choice encodes which error the designer is more willing to accept: false alarm or missed event.",
+    mis:"Treating gate selection as arbitrary rather than as a deliberate safety trade-off."},
+   {id:"m4d2",stem:"A dual-loop fire system requires BOTH loops to agree in normal operation. This is chosen to:",
+    opts:["Speed up detection","Prevent a single loop failure from producing a false fire warning","Reduce wiring"],ans:1,
+    why:"Requiring agreement (an AND) means one faulty loop alone cannot annunciate. If a loop is found failed, the system reverts to single-loop OR operation.",
+    mis:"Assuming detection logic is always OR regardless of system health."},
+   {id:"m4d3",stem:"A cabin altitude warning must trigger when cabin altitude exceeds 10,000 ft AND the system is not in test mode. The 'not in test mode' term is implemented as:",
+    opts:["An inverter on the TEST signal feeding the AND","An OR with the TEST signal","A second AND gate"],ans:0,
+    why:"'Not in test' is the inversion of the TEST discrete, which then becomes one input of the AND.",
+    mis:"Adding an inhibit condition with the wrong gate, so test mode fails to suppress the warning."}
+  ],
+  proficient:[
+   {id:"m4p1",stem:"A 2-out-of-3 voting warning is expressed in gates as:",
+    opts:["A.B.C","(A.B) + (B.C) + (A.C)","A + B + C"],ans:1,
+    why:"Each AND term detects one agreeing pair; the OR raises the warning if any pair agrees. One failed channel then cannot cause or suppress the output.",
+    mis:"Confusing majority voting with simple AND (all three) or OR (any one)."},
+   {id:"m4p2",stem:"A warning that should have been momentary remains annunciated after the condition clears. The most likely cause is:",
+    opts:["A stuck gate in the combinational network","A latch circuit that has not been reset","A failed inverter"],ans:1,
+    why:"A purely combinational gate network follows its inputs instantly. Persistence after the condition clears implies memory, so look at the latch and its reset path.",
+    mis:"Looking for a stuck gate when the symptom points to a latching element."},
+   {id:"m4p3",stem:"Aircraft discretes are commonly active-low so that:",
+    opts:["Less current is drawn","An open circuit reads as the inactive state, which is usually the safe one","The gates run faster"],ans:1,
+    why:"Ground-to-activate wiring means a broken wire floats inactive. The fail-safe direction is a design decision and must be read off the schematic for each circuit.",
+    mis:"Assuming the active sense of a discrete without checking the schematic."}
+  ]
+ },
+ feynman:{
+  prompt:"Explain to an apprentice <i>&ldquo;why the landing gear warning horn does not sound every time the gear is up&rdquo;</i>, and what gates make that happen. About 4&ndash;6 sentences.",
+  starter:"The horn is not driven by the gear signal on its own, because...",
+  ideas:[
+   {k:"Two conditions must be true together",terms:["two","both","together","and","at the same time","combination"]},
+   {k:"The gear signal is inverted",terms:["invert","not","opposite","reverse","flip","inverter"]},
+   {k:"Throttle at idle indicates approach/landing",terms:["throttle","idle","power","landing","approach","descent","phase"]},
+   {k:"An AND gate combines them",terms:["and gate","and","combine","both inputs"]},
+   {k:"Avoiding nuisance warnings matters",terms:["nuisance","false","spurious","annoying","ignore","cruise","unnecessary","distract"]}
+  ]
+ }
+},
+
+/* ---------------- MODULE 5 · DATA CONVERTERS ---------------- */
+m5:{
+ takeaways:[
+  "The real world is analogue and continuous; digital computers only handle discrete 1s and 0s, so converters sit between them.",
+  "A DAC divides its output range into steps: an n-bit DAC has 2^n - 1 steps, so an 8-bit DAC on 5 V steps about 19.6 mV at a time.",
+  "Binary weighted ladder DACs are simplest but need many precise resistor values; R-2R needs only two values and is less noise-prone.",
+  "An ADC samples the analogue signal in time and quantises it in amplitude; both introduce error.",
+  "Ramp ADCs are slow and voltage-dependent, successive approximation is fast and fixed-time, integrating types are accurate and noise-immune but slow."
+ ],
+ concept:{
+  foundation:`
+   <p>A digital computer can only understand 1s and 0s, and it changes in <b>discrete steps</b>. The real world does
+   not: temperature, pressure, control surface position and fuel quantity all vary <b>continuously</b>. So an interface
+   is needed at each end of the computer.</p>
+   <ul class="plain">
+     <li><b>ADC (analogue to digital)</b> &mdash; takes the signal from a sensor and turns it into a digital word the
+     computer can process. Sensors in, numbers out.</li>
+     <li><b>DAC (digital to analogue)</b> &mdash; takes a digital word from the computer and produces an equivalent
+     voltage or current to drive something. Numbers in, actuator out.</li>
+   </ul>
+   <div class="note"><b>How a DAC builds its output.</b> It divides the output range into a series of small, equal steps.
+   How many steps you get depends on how many bits are in the data word:
+   <br><br><span class="mono">number of steps = 2<sup>n</sup> &minus; 1</span>
+   <br><span class="mono">step size = V<sub>ref</sub> &divide; (2<sup>n</sup> &minus; 1)</span><br><br>
+   With 8 bits and a 5 V reference: 2<sup>8</sup> &minus; 1 = 255 steps, and each step is
+   5 &divide; 255 &asymp; <b>0.0195 V</b>, which is the 19.5 mV you see on the staircase in your notes.</div>
+   <p>Feed an 8-bit DAC from a counter and the output climbs one step at a time: 0 V, 0.0195 V, 0.0390 V, 0.0585 V and
+   so on, up to 4.980 V at 1111 1111. That staircase <i>is</i> the DAC output. More bits means smaller steps and a
+   smoother-looking result &mdash; it never becomes a true smooth line, it just gets finer.</p>`,
+
+  developing:`
+   <p>Concentrate on the two things you will be asked to compare: <b>DAC construction</b> and <b>ADC type selection</b>.</p>
+   <div class="note"><b>Two DAC constructions.</b>
+   <ul class="plain" style="margin:8px 0 0">
+     <li><b>Binary weighted ladder</b> &mdash; one resistor per bit, each half the value of the last (200k, 100k, 50k, 25k...).
+     Simplest to understand, but for a wide word you need many <b>different, very precise</b> resistor values. Practically
+     limited to about 8 bits, larger error, more susceptible to noise.</li>
+     <li><b>R-2R ladder</b> &mdash; only <b>two</b> resistor values, repeated. Far easier to manufacture accurately,
+     faster response, less prone to noise, so it is the one used in noisy environments &mdash; which describes an aircraft.</li>
+   </ul></div>
+   <div class="note"><b>Three ADC types.</b>
+   <ul class="plain" style="margin:8px 0 0">
+     <li><b>Ramp generation</b> &mdash; counts up until an internal ramp matches the input. Slow, and the conversion time
+     <i>depends on the input voltage</i>: a larger voltage takes longer. Unsuitable for high speed.</li>
+     <li><b>Successive approximation (SAR)</b> &mdash; a binary search. Tries the MSB, keeps or discards it, moves to the
+     next bit. Fixed conversion time of one clock per bit, <b>independent of the analogue level</b>. This is the general workhorse.</li>
+     <li><b>Integration type</b> &mdash; averages the input over a fixed window. High accuracy and excellent noise
+     immunity because noise averages out, but slower than SAR.</li>
+   </ul></div>
+   <p>The ADC also introduces two distinct errors. <b>Sampling</b> chops the signal in time: sample too slowly and you
+   reconstruct a completely wrong, lower-frequency signal (aliasing). <b>Quantising</b> chops it in amplitude: the value
+   must be rounded to the nearest available step, leaving a quantisation error of up to half a step.</p>`,
+
+  proficient:`
+   <p>Converter specifications are where system-level performance is won or lost.</p>
+   <ul class="plain">
+     <li><b>Resolution is not accuracy.</b> Resolution is the step size set by the bit count. Accuracy is how close the
+     output is to the true value, and it is limited by reference stability, linearity and offset. A 16-bit converter with a
+     drifting reference is less accurate than a well-referenced 12-bit one, however impressive its resolution looks on paper.</li>
+     <li><b>Nyquist and anti-aliasing.</b> Sample at more than twice the highest frequency present, or components above
+     half the sampling rate fold back and appear as spurious low-frequency content that is indistinguishable from real data.
+     Because you cannot remove it afterwards, an <b>analogue</b> anti-alias filter must sit ahead of the ADC. A vibration
+     monitoring channel that is under-sampled will report a smooth, plausible, and entirely fictitious signal.</li>
+     <li><b>Quantisation error.</b> Bounded at plus or minus half an LSB, and it behaves like added noise. Each extra
+     bit halves the step and improves the signal-to-noise ratio by about 6 dB &mdash; the standard rule of thumb when
+     someone asks whether a channel needs 12 or 14 bits.</li>
+     <li><b>Why R-2R wins in practice.</b> Monolithic fabrication can match two resistor values to each other far better
+     than it can hold eight absolute values to 0.1%. Matching, not absolute precision, is what an R-2R ladder needs, which
+     is why it dominates despite being harder to explain.</li>
+   </ul>
+   <div class="note"><b>Transfer task.</b> A 12-bit ADC on a 10 V reference monitors a signal containing components up to
+   2 kHz. State the step size, the minimum sampling rate, and what physically must be fitted ahead of the converter &mdash;
+   and explain why increasing the bit count would not fix an aliasing problem.</div>`
+ },
+ practice:{
+  foundation:[
+   {id:"m5f1",stem:"An 8-bit DAC divides its output into how many steps?",opts:["8","128","255"],ans:2,
+    why:"2^8 - 1 = 255 steps between zero and full scale.",
+    mis:"Using the number of bits as the number of steps instead of 2^n - 1."},
+   {id:"m5f2",stem:"What is the purpose of an A/D converter?",
+    opts:["To change sensor analogue signals into digital data for the computer","To change computer data into a voltage for a motor","To amplify a weak signal"],ans:0,
+    why:"ADC: analogue in from sensors, digital out to the computer. The reverse job belongs to the DAC.",
+    mis:"Swapping the directions of the ADC and DAC."},
+   {id:"m5f3",stem:"An 8-bit DAC has a 5 V reference. Approximately what is one step?",opts:["0.625 V","0.0195 V","0.005 V"],ans:1,
+    why:"Step = 5 / 255 = 0.0196 V, about 19.6 mV.",
+    mis:"Dividing the reference by the number of bits rather than by 2^n - 1."}
+  ],
+  developing:[
+   {id:"m5d1",stem:"The main advantage of an R-2R ladder DAC over a binary weighted ladder is:",
+    opts:["It uses only two resistor values, so it is easier to make accurately and is less noise-prone","It needs fewer bits","It does not need an operational amplifier"],ans:0,
+    why:"Only two values are needed, repeated. That is easier to match in manufacture, gives faster response and better noise behaviour.",
+    mis:"Assuming the binary weighted ladder is better because it is simpler to draw."},
+   {id:"m5d2",stem:"Which ADC has a conversion time that does NOT depend on the input voltage?",
+    opts:["Ramp generation","Successive approximation","Neither"],ans:1,
+    why:"A SAR converter always takes one clock cycle per bit, whatever the analogue level. A ramp converter counts up, so a larger voltage takes longer.",
+    mis:"Believing all ADCs take the same time regardless of type."},
+   {id:"m5d3",stem:"Doubling the number of bits of a DAC from 4 to 8 changes the step size how?",
+    opts:["Halves it","Makes it about 17 times smaller","Doubles it"],ans:1,
+    why:"4-bit gives 15 steps; 8-bit gives 255. The step size shrinks by 255/15 = 17 times, not by 2. Steps scale with 2^n, not with n.",
+    mis:"Assuming resolution improves linearly with bit count."}
+  ],
+  proficient:[
+   {id:"m5p1",stem:"A vibration channel sampled below twice its highest frequency will:",
+    opts:["Simply lose the high frequencies","Report a plausible but false lower-frequency signal that cannot be removed later","Produce no output"],ans:1,
+    why:"Aliasing folds the high-frequency content down into the band of interest, where it is indistinguishable from real data. It must be prevented with an analogue filter before the ADC.",
+    mis:"Believing that under-sampling only causes a loss of detail rather than the creation of false data."},
+   {id:"m5p2",stem:"A 16-bit converter with a drifting voltage reference compared with a stable 12-bit one:",
+    opts:["Is always more accurate because it has more bits","Has finer resolution but may be less accurate","Has both better resolution and better accuracy"],ans:1,
+    why:"Resolution is set by bit count; accuracy is limited by reference stability, linearity and offset. They are different specifications.",
+    mis:"Treating resolution and accuracy as the same specification."},
+   {id:"m5p3",stem:"Adding one bit to an ADC improves the signal-to-quantisation-noise ratio by roughly:",
+    opts:["1 dB","6 dB","20 dB"],ans:1,
+    why:"Each extra bit halves the step size, which is about a 6 dB improvement. It is the standard rule of thumb for sizing a channel.",
+    mis:"Assuming resolution gains translate into arbitrary noise improvements."}
+  ]
+ },
+ feynman:{
+  prompt:"An apprentice asks: <i>&ldquo;Why does an aircraft need converters at all? Why can't the computer just read the sensor?&rdquo;</i> Explain in plain words, about 5&ndash;7 sentences.",
+  starter:"A sensor produces a signal that varies smoothly, but a computer...",
+  ideas:[
+   {k:"The real world is continuous / analogue",terms:["continuous","smooth","analogue","analog","real world","varies","any value","temperature","pressure"]},
+   {k:"Computers only handle discrete 1s and 0s",terms:["1s and 0s","discrete","steps","digital","binary","only understands","numbers"]},
+   {k:"ADC converts sensor to digital",terms:["adc","analogue to digital","analog to digital","sensor","into digital","reads"]},
+   {k:"DAC converts digital back to drive things",terms:["dac","digital to analogue","digital to analog","motor","actuator","valve","drive","output","speaker"]},
+   {k:"Conversion is done in steps, so some detail is lost",terms:["step","resolution","bits","rounded","approximate","error","quantis","quantiz","staircase","accuracy"]}
+  ]
+ }
+},
+
+/* ---------------- MODULE 6 · PARITY ---------------- */
+m6:{
+ takeaways:[
+  "A parity bit is one extra bit added to a data word so that the total number of 1s is made even or odd.",
+  "Even parity: the generator sets the parity bit so the total count of 1s is even. Odd parity makes it odd.",
+  "The receiver recounts the 1s. A mismatch means the data was corrupted in transit.",
+  "Parity detects an error but cannot correct it, and cannot say which bit was wrong.",
+  "Any even number of flipped bits cancels out and passes the check undetected. Parity is a cheap first line of defence, not a guarantee."
+ ],
+ concept:{
+  foundation:`
+   <p>Data travelling down a wire can be corrupted by noise: a bit that left as a 1 can arrive as a 0. <b>Parity</b>
+   is the simplest way to notice that this has happened.</p>
+   <div class="steps">
+     <div class="step"><span class="n">1</span><span class="c">At the transmitter, a <b>parity generator</b> counts the 1s in the data.</span></div>
+     <div class="step"><span class="n">2</span><span class="c">It sets one extra bit &mdash; the <b>parity bit</b> &mdash; so that the total count of 1s comes out even (even parity) or odd (odd parity), depending on the system.</span></div>
+     <div class="step"><span class="n">3</span><span class="c">Data and parity bit travel together down the bus.</span></div>
+     <div class="step"><span class="n">4</span><span class="c">At the receiver, a <b>parity checker</b> recounts. If the count no longer matches the rule, an error is flagged.</span></div>
+   </div>
+   <div class="note"><b>Worked example.</b> Data lines carry 1 1 1 1 1 1 &mdash; that is six 1s, already an even number.
+   Under <b>even</b> parity the generator adds a <b>0</b>, leaving the total even. Under <b>odd</b> parity it must add a
+   <b>1</b>, making seven 1s in total.</div>
+   <div class="note warn"><b>The limitation you must remember.</b> A parity check tells the receiver that something is
+   wrong. It does <b>not</b> tell it which bit is wrong, and it <b>cannot correct</b> the error. If the data is not time
+   sensitive, the receiver can be designed to request a retransmission, and the retransmitted data goes through the
+   parity check again.</div>`,
+
+  developing:`
+   <p>Parity is a single-bit summary of the data, so it can only ever tell you about the <b>parity of the number of
+   errors</b>, not about their location or count.</p>
+   <div class="note"><b>What parity catches and what it misses.</b>
+   <ul class="plain" style="margin:8px 0 0">
+     <li><b>1 bit flipped</b> &mdash; count changes parity &rarr; <b>detected</b>.</li>
+     <li><b>2 bits flipped</b> &mdash; one goes up, one comes down, count parity is restored &rarr; <b>missed</b>.</li>
+     <li><b>3 bits flipped</b> &mdash; detected. <b>4 bits</b> &mdash; missed. And so on.</li>
+   </ul>
+   Any <b>odd</b> number of errors is caught. Any <b>even</b> number is invisible.</div>
+   <p>This matters more than it sounds, because real interference is often not a single tidy bit flip. A burst of noise
+   from a nearby contactor or an intermittent shield can corrupt several adjacent bits at once, and a two-bit burst
+   sails straight through a parity check looking perfectly healthy.</p>
+   <p>The gate that implements parity is the <b>XOR</b>. Chain XORs across all the data bits and the result is 1 when the
+   number of 1s is odd. That single output <i>is</i> the even-parity bit &mdash; which is why parity hardware is cheap and
+   why it appears on so many buses.</p>
+   <div class="note warn"><b>Detection is not protection.</b> Knowing data is bad is only useful if the system does
+   something about it: request retransmission, discard the word, or flag the parameter invalid. On a time-critical
+   parameter there may be no time to retransmit, so the word is simply discarded and the display goes blank or shows a
+   fail flag &mdash; which is exactly the symptom you would be sent to investigate.</div>`,
+
+  proficient:`
+   <p>Parity is the cheapest point on a spectrum of error-control schemes. Know where it sits and why anyone still uses it.</p>
+   <ul class="plain">
+     <li><b>Overhead versus capability.</b> One parity bit on a 32-bit word is about 3% overhead and gives single-error
+     detection only. ARINC 429 spends bit 32 of every word exactly this way, normally as odd parity. Cheap, fast to check
+     in hardware, and adequate on a short, shielded, point-to-point twisted pair.</li>
+     <li><b>Why not something stronger?</b> A CRC would detect burst errors far better, and an ECC scheme could correct
+     them, but both cost bits, latency and gates. On a one-way broadcast bus that transmits the same parameter again a few
+     milliseconds later, discarding a bad word costs almost nothing &mdash; the next update repairs the display. The design
+     choice is driven by <b>refresh rate</b>, not by how clever the code is.</li>
+     <li><b>Diagnostic value.</b> Occasional parity errors that clear themselves point to marginal signal quality:
+     chafed shielding, a poor bond, a loose pin, or a nearby noise source. Persistent parity errors on one label point at
+     the transmitting LRU. The pattern of the errors is more informative than any individual error.</li>
+   </ul>
+   <div class="note"><b>Transfer task.</b> A system reports intermittent parity errors on one ARINC 429 receiver only,
+   worse during flap operation. Explain what parity can and cannot tell you here, and set out the reasoning that leads
+   you from that symptom to a likely physical cause.</div>`
+ },
+ practice:{
+  foundation:[
+   {id:"m6f1",stem:"Data bits are 1 0 1 1 0 0 0. Under EVEN parity, the parity bit is:",opts:["0","1","either"],ans:1,
+    why:"There are three 1s, which is odd. To make the total even the generator must add a 1.",
+    mis:"Counting the zeros instead of the ones."},
+   {id:"m6f2",stem:"The receiver finds the parity does not match. It can:",
+    opts:["Correct the faulty bit","Detect that an error occurred but not correct it","Identify which bit failed"],ans:1,
+    why:"Parity is detection only. It cannot locate or correct the bad bit.",
+    mis:"Assuming any error-checking scheme can also correct errors."},
+   {id:"m6f3",stem:"Data lines carry six 1s. Under ODD parity the parity bit is:",opts:["0","1","0 or 1"],ans:1,
+    why:"Six is even; adding a 1 makes seven, which is odd, satisfying odd parity.",
+    mis:"Applying the even-parity rule when the system is specified as odd."}
+  ],
+  developing:[
+   {id:"m6d1",stem:"Noise flips TWO bits in a word protected by a single parity bit. The checker will:",
+    opts:["Detect the error","Miss the error entirely","Detect and correct it"],ans:1,
+    why:"Two flips cancel: one 1 becomes 0 and one 0 becomes 1, so the parity is restored and the word passes as valid. Any even number of errors is invisible to parity.",
+    mis:"Believing parity catches all corruption regardless of how many bits are affected."},
+   {id:"m6d2",stem:"Which gate is used to build a parity generator?",opts:["AND","XOR","NOR"],ans:1,
+    why:"XOR gates chained across the data bits produce a 1 when the number of 1s is odd, which is exactly the even-parity bit.",
+    mis:"Assuming parity requires special-purpose hardware rather than a chain of XOR gates."},
+   {id:"m6d3",stem:"A parity error is detected on a time-critical parameter that cannot be retransmitted in time. The system most likely:",
+    opts:["Displays the corrupted value anyway","Discards the word and flags the parameter invalid","Corrects it using the parity bit"],ans:1,
+    why:"With no time to retransmit, the safe action is to discard the word and annunciate the parameter as invalid, which is why the crew sees a blank field or a fail flag.",
+    mis:"Expecting a system to display data it knows to be corrupt."}
+  ],
+  proficient:[
+   {id:"m6p1",stem:"Why does a broadcast data bus tolerate a scheme as weak as single-bit parity?",
+    opts:["Errors are impossible on shielded twisted pair","The same parameter is retransmitted a few milliseconds later, so discarding a bad word costs almost nothing","Parity actually corrects most errors"],ans:1,
+    why:"High refresh rate is what makes cheap detection sufficient. The next update repairs the display before the crew can notice.",
+    mis:"Judging an error-control scheme without considering the refresh rate of the data."},
+   {id:"m6p2",stem:"Intermittent parity errors on one receiver, worse during flap operation, most strongly suggest:",
+    opts:["A software fault in the receiving LRU","Marginal signal quality: chafing, a poor bond or a noise source disturbed by flap movement","A failed parity generator"],ans:1,
+    why:"Correlation with a mechanical event points at the physical layer. A failed generator would give constant, not movement-correlated, errors.",
+    mis:"Chasing the LRU when the symptom correlates with a mechanical event on the wiring."},
+   {id:"m6p3",stem:"Compared with a CRC, a single parity bit:",
+    opts:["Detects burst errors equally well","Costs far fewer bits and gates but detects only an odd number of errors","Can correct errors that a CRC cannot"],ans:1,
+    why:"Parity trades capability for cost. A CRC detects burst errors far better, at the price of bits, latency and gates.",
+    mis:"Assuming stronger error control is always the right engineering choice regardless of cost and latency."}
+  ]
+ },
+ feynman:{
+  prompt:"Explain to an apprentice <i>&ldquo;how one extra bit can tell the receiver that data got corrupted &mdash; and why it sometimes fails to notice&rdquo;</i>. About 5&ndash;7 sentences.",
+  starter:"Before the data is sent, something counts the 1s in it, and...",
+  ideas:[
+   {k:"Count the 1s in the data",terms:["count","number of 1s","how many","total","ones"]},
+   {k:"Add a bit to make the total even or odd",terms:["add","extra bit","parity bit","even","odd","make the total"]},
+   {k:"The receiver recounts and compares",terms:["receiver","recount","count again","check","compare","matches"]},
+   {k:"Detects but cannot correct",terms:["cannot correct","only detect","not correct","does not fix","retransmit","resend","which bit"]},
+   {k:"Two flipped bits cancel out and slip through",terms:["two","even number","cancel","misses","undetected","slips","fails to"]}
+  ]
+ }
+}
+};
+/* ============================================================
+   9 · MODULE VIEW
+   ============================================================ */
+MODULES.forEach(m=>{ VIEWS[m.id] = host => renderModule(host, m); });
+
+function renderModule(host, m){
+  const C = CONTENT[m.id];
+  const tier = tierOf(m.id);
+  setHead("Module "+m.n, m.title);
+
+  /* ---- tier banner + level switch ---- */
+  const tb = el("div",{class:"tier-banner tb-"+tier});
+  tb.innerHTML = `
+    <div class="ic">${TIER_META[tier].icon}</div>
+    <div class="tx"><b>${TIER_META[tier].label} pathway</b><span>${TIER_META[tier].note}</span></div>
+    <div class="no-print"><select id="tierSel" style="width:auto;font-size:.8rem;padding:6px 8px">
+      <option value="foundation">Foundation</option>
+      <option value="developing">Developing</option>
+      <option value="proficient">Proficient</option>
+    </select></div>`;
+  host.appendChild(tb);
+  $("#tierSel").value = tier;
+  $("#tierSel").onchange = e=>{ S.tiers[m.id]=e.target.value; save(); go(m.id); };
+
+  /* ---- 1 · concept ---- */
+  const c1 = el("div",{class:"card"});
+  c1.innerHTML = `<div class="card-h"><span class="dot"></span><h3>1 &middot; The concept</h3></div>`;
+  c1.appendChild(el("div",{}, C.concept[tier]));
+  const readRow = el("div",{class:"btn-row no-print", style:"margin-top:14px"});
+  const readBtn = el("button",{class:"btn sec", onclick:()=>{ markProg(m.id,"concept"); readBtn.textContent="Read ✓"; readBtn.disabled=true; }},
+                     prog(m.id).concept ? "Read ✓" : "I've worked through this");
+  readBtn.disabled = prog(m.id).concept;
+  readRow.appendChild(readBtn);
+  c1.appendChild(readRow);
+  host.appendChild(c1);
+
+  /* ---- 2 · lab ---- */
+  const labWrap = el("div");
+  labWrap.appendChild(el("div",{class:"card-h", style:"margin:22px 0 10px"},
+    '<span class="dot"></span><h3>2 &middot; Interactive lab &mdash; change something and watch what happens</h3>'));
+  const labMount = el("div");
+  labWrap.appendChild(labMount);
+  host.appendChild(labWrap);
+  try{ LABS[m.id](labMount, m.id, tier); }
+  catch(err){ labMount.appendChild(el("div",{class:"note err"},"Lab failed to load: "+esc(err.message))); }
+
+  /* ---- 3 · practice ---- */
+  const c3 = el("div",{class:"card"});
+  c3.innerHTML = `<div class="card-h"><span class="dot"></span><h3>3 &middot; Check yourself</h3></div>
+    <p class="small muted">Three questions pitched at your current level. Wrong answers are logged as
+    misconceptions so your summary can point you back to them &mdash; guessing costs you nothing but tells you less.</p>`;
+  const qHost = el("div");
+  c3.appendChild(qHost);
+  host.appendChild(c3);
+  renderPractice(qHost, m.id, C.practice[tier]);
+
+  /* ---- 4 · feynman ---- */
+  host.appendChild(renderFeynman(m.id, C.feynman));
+
+  /* ---- footer nav ---- */
+  const idx = MODULES.findIndex(x=>x.id===m.id);
+  const foot = el("div",{class:"modfoot no-print"});
+  if(idx>0) foot.appendChild(el("button",{class:"btn sec", onclick:()=>go(MODULES[idx-1].id)},"&larr; Module "+MODULES[idx-1].n));
+  else foot.appendChild(el("span"));
+  if(idx<MODULES.length-1) foot.appendChild(el("button",{class:"btn", onclick:()=>go(MODULES[idx+1].id)},"Module "+MODULES[idx+1].n+" &rarr;"));
+  else foot.appendChild(el("button",{class:"btn ok", onclick:()=>go("summary")},"Build my knowledge summary &rarr;"));
+  host.appendChild(foot);
+}
+
+/* ============================================================
+   10 · PRACTICE ENGINE
+   ============================================================ */
+function renderPractice(host, modId, qs){
+  if(!S.practice[modId]) S.practice[modId] = {};
+  const rec = S.practice[modId];
+
+  qs.forEach((q,i)=>{
+    const box = el("div",{class:"q"});
+    box.appendChild(el("div",{class:"stem"}, `<span class="tiny muted">Question ${i+1}</span><br>${q.stem}`));
+    const opts = el("div",{class:"opts"});
+    const fb = el("div",{class:"fb"});
+
+    const paint = ()=>{
+      const r = rec[q.id];
+      $$(".opt",opts).forEach((b,bi)=>{
+        b.className = "opt locked";
+        if(r){
+          if(bi===q.ans) b.classList.add("right");
+          else if(bi===r.choice) b.classList.add("wrong");
+        }else{
+          b.className = "opt";
+        }
+      });
+      if(r){
+        fb.className = "fb show "+(r.correct?"good":"bad");
+        fb.innerHTML = (r.correct?"<b>Correct.</b> ":"<b>Not quite.</b> ")+q.why;
+      }
+    };
+
+    q.opts.forEach((o,oi)=>{
+      const b = el("button",{class:"opt", onclick:()=>{
+        if(rec[q.id]) return;
+        const ok = oi===q.ans;
+        rec[q.id] = {choice:oi, correct:ok};
+        if(!ok && q.mis) addMisconception(modId, q.mis);
+        save();
+        paint();
+        if(qs.every(x=>rec[x.id])) markProg(modId,"practice");
+      }});
+      b.innerHTML = `<span class="k">${"ABC"[oi]}</span><span>${o}</span>`;
+      opts.appendChild(b);
+    });
+    box.appendChild(opts);
+    box.appendChild(fb);
+    host.appendChild(box);
+    paint();
+  });
+
+  const again = el("button",{class:"btn sec no-print", onclick:()=>{
+    S.practice[modId] = {}; save(); host.innerHTML=""; renderPractice(host, modId, qs);
+  }},"Clear my answers and try again");
+  host.appendChild(el("div",{class:"btn-row", style:"margin-top:6px"})).appendChild(again);
+}
+
+/* ============================================================
+   11 · FEYNMAN ENGINE
+   ============================================================ */
+function analyseFeynman(text, ideas){
+  const t = " "+text.toLowerCase().replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ")+" ";
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const covered = [], missing = [];
+  ideas.forEach(idea=>{
+    const hit = idea.terms.some(term=> t.indexOf(" "+term.toLowerCase()) !== -1 || t.indexOf(term.toLowerCase()) !== -1);
+    (hit?covered:missing).push(idea.k);
+  });
+  // sentence count as a rough proxy for whether it is an explanation or a label
+  const sentences = (text.match(/[.!?]+/g)||[]).length;
+  return {words, sentences, covered, missing, pct: Math.round(covered.length/ideas.length*100)};
+}
+
+function renderFeynman(modId, F){
+  const card = el("div",{class:"card"});
+  card.innerHTML = `<div class="card-h"><span class="dot"></span><h3>4 &middot; Explain it back (Feynman method)</h3></div>
+    <p class="small muted">If you cannot explain it simply, you do not understand it yet. Write it as if the person in
+    front of you has never seen this topic &mdash; no formulas you have not explained, no jargon you have not unpacked.</p>
+    <div class="note">${F.prompt}</div>`;
+
+  const ta = el("textarea",{placeholder:F.starter, id:"fey_"+modId});
+  ta.value = S.feynman[modId] || "";
+  card.appendChild(ta);
+
+  const meta = el("div",{class:"small muted", style:"margin-top:6px"});
+  const out = el("div",{style:"margin-top:14px"});
+
+  const refresh = ()=>{
+    const n = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
+    meta.textContent = n+" words"+(n<40?" — aim for roughly 60–120":"");
+  };
+  ta.addEventListener("input", refresh);
+  refresh();
+  card.appendChild(meta);
+
+  const row = el("div",{class:"btn-row no-print", style:"margin-top:12px"});
+  const chk = el("button",{class:"btn", onclick:()=>{
+    const text = ta.value.trim();
+    S.feynman[modId] = text; save();
+    const a = analyseFeynman(text, F.ideas);
+    S.feynmanScore[modId] = {covered:a.covered, missing:a.missing, words:a.words, pct:a.pct};
+    save();
+    out.innerHTML = "";
+
+    if(a.words < 25){
+      out.appendChild(el("div",{class:"note warn"},
+        "<b>Too short to check.</b> A one-line answer is a label, not an explanation. Write it as you would say it out "+
+        "loud to someone standing next to you &mdash; roughly 60 to 120 words."));
+      return;
+    }
+
+    const head = el("div",{class:"note "+(a.pct>=80?"ok":(a.pct>=50?"warn":"err"))});
+    head.innerHTML = `<b>${a.covered.length} of ${F.ideas.length} key ideas covered (${a.pct}%).</b> `+
+      (a.pct>=80 ? "That is a solid explanation &mdash; someone could learn the idea from it."
+       : a.pct>=50 ? "You have the shape of it. The gaps below are the parts your listener would still be confused about."
+       : "Most of the key ideas are missing. Read the concept section again, then rewrite &mdash; do not just add the words in.");
+    out.appendChild(head);
+
+    const g = el("div",{class:"grid g2"});
+    const cvd = el("div");
+    cvd.innerHTML = `<div class="eyebrow">You covered</div>`+
+      (a.covered.length? "<ul class='tick'>"+a.covered.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul>"
+                       : "<p class='small muted'>Nothing yet.</p>");
+    const mis = el("div");
+    mis.innerHTML = `<div class="eyebrow">Still missing</div>`+
+      (a.missing.length? "<ul class='tick'>"+a.missing.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul>"
+                       : "<p class='small muted'>Nothing &mdash; all key ideas present.</p>");
+    g.appendChild(cvd); g.appendChild(mis);
+    out.appendChild(g);
+
+    out.appendChild(el("div",{class:"note small"},
+      "<b>Careful:</b> this check looks for the ideas, not for the exact words. Dropping a missing keyword into your "+
+      "text will tick the box without teaching anyone anything. Rewrite the sentence so the idea is actually explained."));
+
+    markProg(modId,"feynman");
+  }},"Check my explanation");
+  row.appendChild(chk);
+  row.appendChild(el("button",{class:"btn sec", onclick:()=>{ ta.value=""; refresh(); out.innerHTML=""; }},"Clear"));
+  card.appendChild(row);
+  card.appendChild(out);
+  return card;
+}
+
+/* ============================================================
+   12 · SMART KNOWLEDGE SUMMARY
+   ============================================================ */
+VIEWS.summary = function(host){
+  setHead("Consolidate","Smart knowledge summary");
+
+  const done = MODULES.filter(m=>isModuleDone(m.id)).length;
+  const head = el("div",{class:"hero"});
+  head.innerHTML = `<h1>Your Topic 3 knowledge summary</h1>
+    <p>Built from what you actually did in this bay &mdash; your diagnostic level, the labs you ran, the questions you
+    got wrong and the explanations you wrote. It is not a copy of the notes; it is a record of your own reasoning.</p>
+    <div class="badge-row" style="margin-top:14px;position:relative">
+      <span class="pill ${done===MODULES.length?"g":"a"}">${done} / ${MODULES.length} modules complete</span>
+      <span class="pill">${overallPct()}% of all activities</span>
+      <span class="pill ${S.misconceptions.length?"r":"g"}">${S.misconceptions.length} misconception${S.misconceptions.length===1?"":"s"} flagged</span>
+    </div>`;
+  host.appendChild(head);
+
+  const tools = el("div",{class:"btn-row no-print", style:"margin-bottom:16px"});
+  tools.appendChild(el("button",{class:"btn", onclick:()=>window.print()},"Print / save as PDF"));
+  tools.appendChild(el("button",{class:"btn sec", id:"copyBtn", onclick:copySummary},"Copy summary as text"));
+  host.appendChild(tools);
+
+  if(!S.diagnosticDone){
+    host.appendChild(el("div",{class:"note warn"},
+      "You have not run the pre-flight check, so the summary has no diagnostic levels in it. "+
+      "It will still record your labs, answers and explanations."));
+  }
+
+  /* ---- priority section: what to revisit ---- */
+  const weak = MODULES.filter(m=>{
+    const p = prog(m.id);
+    const wrong = Object.values(S.practice[m.id]||{}).filter(r=>!r.correct).length;
+    return tierOf(m.id)==="foundation" || wrong>=2 || !p.feynman;
+  });
+  const pri = el("div",{class:"sum-block"});
+  pri.innerHTML = `<h4><span class="pill r">Priority</span> What to revisit first</h4>`;
+  if(!weak.length){
+    pri.appendChild(el("p",{class:"small muted"},"Nothing flagged. Every module is at Developing or above, your practice answers are mostly right, and every explanation is written. Move on to consolidation across topics."));
+  }else{
+    const ul = el("ul",{class:"tick"});
+    weak.forEach(m=>{
+      const wrong = Object.values(S.practice[m.id]||{}).filter(r=>!r.correct).length;
+      const reasons = [];
+      if(tierOf(m.id)==="foundation") reasons.push("diagnosed at Foundation");
+      if(wrong>=2) reasons.push(wrong+" practice questions missed");
+      if(!prog(m.id).feynman) reasons.push("no explanation written yet");
+      ul.appendChild(el("li",{},`<b>Module ${m.n} &mdash; ${m.title}:</b> `+reasons.join(", ")+"."));
+    });
+    pri.appendChild(ul);
+  }
+  host.appendChild(pri);
+
+  /* ---- misconceptions ---- */
+  if(S.misconceptions.length){
+    const mc = el("div",{class:"sum-block"});
+    mc.innerHTML = `<h4><span class="pill a">Flagged</span> Misconceptions to clear</h4>
+      <p class="small muted">Each of these was triggered by a specific wrong answer. They are the highest-value thing
+      on this page &mdash; a wrong idea you are confident in costs more than a gap you know about.</p>`;
+    const ul = el("ul",{class:"tick"});
+    S.misconceptions.forEach(x=>{
+      ul.appendChild(el("li",{},`<span class="tiny muted">Module ${MOD_BY_ID[x.mod].n}</span> &mdash; ${esc(x.text)}`));
+    });
+    mc.appendChild(ul);
+    host.appendChild(mc);
+  }
+
+  /* ---- per module ---- */
+  MODULES.forEach(m=>{
+    const p = prog(m.id);
+    const t = tierOf(m.id);
+    const recs = S.practice[m.id]||{};
+    const answered = Object.keys(recs).length;
+    const right = Object.values(recs).filter(r=>r.correct).length;
+    const fs = S.feynmanScore[m.id];
+
+    const b = el("div",{class:"sum-block"});
+    b.innerHTML = `<h4><span class="nav-num" style="width:24px;height:24px;flex:0 0 24px">${m.n}</span> ${m.title}
+      ${S.diagnosticDone?`<span class="nav-tier tier-${t}" style="margin-left:auto">${TIER_META[t].label}</span>`:""}</h4>`;
+
+    const kv = el("div",{class:"kv"});
+    kv.innerHTML = `
+      <span class="k">Activities done</span><span>${["concept","lab","practice","feynman"].filter(k=>p[k]).length} of 4
+        <span class="tiny muted">(${["concept","lab","practice","feynman"].filter(k=>p[k]).join(", ")||"none"})</span></span>
+      <span class="k">Practice score</span><span>${answered? right+" / "+answered+" correct" : "not attempted"}</span>
+      <span class="k">Explanation</span><span>${fs? fs.pct+"% of key ideas covered ("+fs.words+" words)" : "not written"}</span>`;
+    b.appendChild(kv);
+
+    const tk = el("div",{style:"margin-top:12px"});
+    tk.innerHTML = `<div class="eyebrow">Key points for this module</div><ul class="tick">`+
+      CONTENT[m.id].takeaways.map(x=>"<li>"+x+"</li>").join("")+"</ul>";
+    b.appendChild(tk);
+
+    if(fs && fs.missing && fs.missing.length){
+      b.appendChild(el("div",{class:"note warn small"},
+        "<b>Your explanation did not cover:</b> "+fs.missing.map(esc).join("; ")+"."));
+    }
+    if(S.feynman[m.id]){
+      b.appendChild(el("div",{class:"eyebrow", style:"margin-top:12px"},"In your own words"));
+      b.appendChild(el("div",{class:"quoted"}, esc(S.feynman[m.id])));
+    }
+    host.appendChild(b);
+  });
+
+  host.appendChild(el("div",{class:"note small no-print"},
+    "<b>Next step.</b> Take this summary into the ThingLink MRO scenario for Topic 3 and use it while you work the "+
+    "hotspots. If a scenario question stalls you, the module it belongs to is the one to reopen here."));
+};
+
+function copySummary(){
+  const lines = [];
+  lines.push("TOPIC 3 — LOGIC CIRCUITS & DATA CONVERTERS");
+  lines.push("Personal knowledge summary — generated "+new Date().toLocaleString());
+  lines.push("");
+  MODULES.forEach(m=>{
+    const p = prog(m.id), recs = S.practice[m.id]||{};
+    const right = Object.values(recs).filter(r=>r.correct).length;
+    lines.push("MODULE "+m.n+" — "+m.title.replace(/&amp;/g,"&"));
+    if(S.diagnosticDone) lines.push("  Level: "+TIER_META[tierOf(m.id)].label);
+    lines.push("  Activities: "+["concept","lab","practice","feynman"].filter(k=>p[k]).length+"/4");
+    lines.push("  Practice: "+(Object.keys(recs).length? right+"/"+Object.keys(recs).length+" correct":"not attempted"));
+    CONTENT[m.id].takeaways.forEach(t=>lines.push("   - "+t));
+    if(S.feynman[m.id]){ lines.push("  My explanation: "+S.feynman[m.id].replace(/\s+/g," ")); }
+    lines.push("");
+  });
+  if(S.misconceptions.length){
+    lines.push("MISCONCEPTIONS TO CLEAR");
+    S.misconceptions.forEach(x=>lines.push("   - [M"+MOD_BY_ID[x.mod].n+"] "+x.text));
+  }
+  const text = lines.join("\n");
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select();
+  let ok=false;
+  try{ ok = document.execCommand("copy"); }catch(e){}
+  document.body.removeChild(ta);
+  const btn = $("#copyBtn");
+  if(btn){ btn.textContent = ok? "Copied ✓" : "Press Ctrl/Cmd+C"; setTimeout(()=>{ btn.textContent="Copy summary as text"; },2200); }
+}
+/* ============================================================
+   13 · LAB HELPERS
+   ============================================================ */
+const HI = "#3ad68b", LO = "#4a5d70", ACC = "#e02b3c", AMB = "#f5b431", CYN = "#38c6d9", GRID = "#1e2b38";
+
+const touches = {};
+function labTouch(id, n){
+  touches[id] = (touches[id]||0)+1;
+  if(touches[id] >= (n||6)) markProg(id,"lab");
+}
+
+function labShell(title, subtitle){
+  const box = el("div",{class:"lab"});
+  const head = el("div",{class:"lab-head"});
+  head.innerHTML = `<div class="t">${title}</div><div class="tiny muted">${subtitle||""}</div>`;
+  const body = el("div",{class:"lab-body"});
+  box.appendChild(head); box.appendChild(body);
+  box._body = body;
+  return box;
+}
+
+function ctrl(label, valueId, input){
+  const w = el("div",{class:"ctrl"});
+  const l = el("label",{}, `<span>${label}</span><span class="v" id="${valueId}"></span>`);
+  w.appendChild(l); w.appendChild(input);
+  return w;
+}
+function range(id, min, max, step, val){
+  return el("input",{type:"range", id:id, min:min, max:max, step:step, value:val});
+}
+function readout(items){
+  const g = el("div",{class:"readout"});
+  items.forEach(it=>{
+    const shown = (it.v===undefined || it.v===null || it.v==="") ? "&mdash;" : it.v;
+    g.appendChild(el("div",{class:"ro "+(it.cls||""), id:it.id?("ro_"+it.id):undefined},
+      `<div class="k">${it.k}</div><div class="v" id="${it.id}">${shown}</div>`));
+  });
+  return g;
+}
+
+/* square-wave path builder: pts = array of 0/1, drawn across w */
+function wavePath(pts, x0, w, yHi, yLo){
+  const dx = w/pts.length;
+  let d = "", cy = pts[0]?yHi:yLo;
+  d += "M"+x0+","+cy;
+  for(let i=0;i<pts.length;i++){
+    const y = pts[i]?yHi:yLo;
+    if(y!==cy){ d += " L"+(x0+i*dx)+","+y; cy=y; }
+    d += " L"+(x0+(i+1)*dx)+","+y;
+  }
+  return d;
+}
+
+/* gate glyph + wiring, returns SVG markup string */
+function gateSVG(type, a, b, y, labels){
+  const L = labels || {a:"A", b:"B", y:"Y"};
+  const one = (type==="NOT");
+  const col = v => v ? HI : LO;
+  const shapes = {
+    AND:'<path d="M30,15 L55,15 A25,25 0 0 1 55,65 L30,65 Z"/>',
+    NAND:'<path d="M30,15 L55,15 A25,25 0 0 1 55,65 L30,65 Z"/><circle cx="85" cy="40" r="5"/>',
+    OR:'<path d="M28,15 Q52,40 28,65 Q70,65 82,40 Q70,15 28,15 Z"/>',
+    NOR:'<path d="M28,15 Q52,40 28,65 Q70,65 82,40 Q70,15 28,15 Z"/><circle cx="87" cy="40" r="5"/>',
+    XOR:'<path d="M28,15 Q52,40 28,65 Q70,65 82,40 Q70,15 28,15 Z"/><path d="M19,15 Q43,40 19,65" fill="none"/>',
+    XNOR:'<path d="M28,15 Q52,40 28,65 Q70,65 82,40 Q70,15 28,15 Z"/><path d="M19,15 Q43,40 19,65" fill="none"/><circle cx="87" cy="40" r="5"/>',
+    NOT:'<path d="M32,16 L76,40 L32,64 Z"/><circle cx="81" cy="40" r="5"/>'
+  };
+  const outX = (type==="NAND")?90:(type==="NOR"||type==="XNOR")?92:(type==="NOT")?86:(type==="OR"||type==="XOR")?82:80;
+  const inX  = (type==="XOR"||type==="XNOR")?19:(type==="OR"||type==="NOR")?28:(type==="NOT")?32:30;
+
+  const K = 44;   // left gutter reserved for input labels
+  let wires = "";
+  if(one){
+    wires = `<line x1="${K}" y1="40" x2="${K+inX}" y2="40" stroke="${col(a)}" stroke-width="2.5"/>
+             <text x="2" y="37" class="lbl">${L.a}</text>
+             <text x="16" y="38" class="val" fill="${col(a)}">${a?1:0}</text>`;
+  }else{
+    wires = `<line x1="${K}" y1="28" x2="${K+inX+4}" y2="28" stroke="${col(a)}" stroke-width="2.5"/>
+             <line x1="${K}" y1="52" x2="${K+inX+4}" y2="52" stroke="${col(b)}" stroke-width="2.5"/>
+             <text x="2" y="31" class="lbl">${L.a}</text>
+             <text x="16" y="32" class="val" fill="${col(a)}">${a?1:0}</text>
+             <text x="2" y="55" class="lbl">${L.b}</text>
+             <text x="16" y="56" class="val" fill="${col(b)}">${b?1:0}</text>`;
+  }
+  return `<svg class="viz" style="max-width:340px;margin:0 auto" viewBox="0 0 200 80" role="img" aria-label="${type} gate">
+    <style>
+      .gsym{fill:#16222e;stroke:#7d94a8;stroke-width:2}
+      .lbl{fill:#8fa3b5;font:600 10px system-ui;letter-spacing:.06em}
+      .val{font:700 11px ui-monospace,monospace}
+    </style>
+    ${wires}
+    <g class="gsym" transform="translate(${K},0)">${shapes[type]}</g>
+    <line x1="${K+outX}" y1="40" x2="${174}" y2="40" stroke="${col(y)}" stroke-width="2.5"/>
+    <circle cx="180" cy="40" r="7" fill="${y?'rgba(58,214,139,.25)':'#16212c'}" stroke="${col(y)}" stroke-width="2"/>
+    <text x="176.5" y="44" class="val" fill="${col(y)}">${y?1:0}</text>
+    <text x="176" y="24" class="lbl">${L.y}</text>
+  </svg>`;
+}
+
+function switchEl(name, on, onclick, isOut){
+  const s = el("div",{class:"sw"+(on?" on":"")+(isOut?" out":""), onclick:isOut?null:onclick});
+  s.innerHTML = `<span class="nm">${name}</span><span class="lamp">${on?1:0}</span>`;
+  return s;
+}
+
+const GATE_FN = {
+  NOT:(a)=>a?0:1,
+  AND:(a,b)=>(a&&b)?1:0,
+  OR:(a,b)=>(a||b)?1:0,
+  NAND:(a,b)=>(a&&b)?0:1,
+  NOR:(a,b)=>(a||b)?0:1,
+  XOR:(a,b)=>(a!==b)?1:0,
+  XNOR:(a,b)=>(a===b)?1:0
+};
+const GATE_EXPR = {
+  NOT:"Y = <span style='text-decoration:overline'>A</span>",
+  AND:"Y = A &middot; B",
+  OR:"Y = A + B",
+  NAND:"Y = <span style='text-decoration:overline'>A &middot; B</span>",
+  NOR:"Y = <span style='text-decoration:overline'>A + B</span>",
+  XOR:"Y = A &oplus; B",
+  XNOR:"Y = <span style='text-decoration:overline'>A &oplus; B</span>"
+};
+const GATE_RULE = {
+  NOT:"Output is the opposite of the input.",
+  AND:"Output is HIGH only if ALL inputs are HIGH.",
+  OR:"Output is HIGH if ONE OR MORE inputs are HIGH.",
+  NAND:"Output is LOW only if ALL inputs are HIGH.",
+  NOR:"Output is HIGH only if ALL inputs are LOW.",
+  XOR:"Output is HIGH if the inputs are DIFFERENT.",
+  XNOR:"Output is HIGH if the inputs are the SAME."
+};
+
+/* ============================================================
+   14 · LABS
+   ============================================================ */
+const LABS = {};
+
+/* ---------------- M1 · NUMBER SYSTEMS BENCH ---------------- */
+LABS.m1 = function(host, id, tier){
+  const box = labShell("Number systems bench","Click a bit to toggle it");
+  const B = box._body;
+  host.appendChild(box);
+
+  let bits = [0,0,0,0,1,1,0,1];   // 13
+  let target = null;
+
+  const cols = el("div",{class:"lab-cols wide-left"});
+  const left = el("div"), right = el("div");
+  cols.appendChild(left); cols.appendChild(right);
+  B.appendChild(cols);
+
+  const bitsHost = el("div",{class:"bits", style:"margin-bottom:14px"});
+  left.appendChild(el("div",{class:"eyebrow"},"8-bit register &mdash; click to toggle"));
+  left.appendChild(bitsHost);
+
+  const roHost = el("div"); left.appendChild(roHost);
+  const groupHost = el("div",{style:"margin-top:16px"}); left.appendChild(groupHost);
+
+  right.appendChild(el("div",{class:"eyebrow"},"Repeated-division trace"));
+  const divWrap = el("div",{class:"card tight", style:"margin:0 0 14px"});
+  divWrap.innerHTML = `<div class="tiny muted" style="margin-bottom:8px">Convert the decimal value above into another base, the long way.</div>`;
+  const baseSeg = el("div",{class:"seg", style:"margin-bottom:10px"});
+  let divBase = 8;
+  [2,8,16].forEach(bse=>{
+    const b = el("button",{class:bse===divBase?"on":"", onclick:()=>{
+      divBase=bse; $$("button",baseSeg).forEach(x=>x.classList.remove("on")); b.classList.add("on"); drawDiv(); labTouch(id);
+    }},"Base "+bse);
+    baseSeg.appendChild(b);
+  });
+  divWrap.appendChild(baseSeg);
+  const divOut = el("div",{class:"mono small"});
+  divWrap.appendChild(divOut);
+  right.appendChild(divWrap);
+
+  /* challenge */
+  const chal = el("div",{class:"card tight", style:"margin:0"});
+  chal.innerHTML = `<div class="eyebrow">Set-the-bits challenge</div>`;
+  const chalTxt = el("div",{class:"small", style:"margin-bottom:10px"});
+  const chalBtns = el("div",{class:"btn-row"});
+  const chalFb = el("div",{class:"small", style:"margin-top:9px"});
+  chal.appendChild(chalTxt); chal.appendChild(chalBtns); chal.appendChild(chalFb);
+  right.appendChild(chal);
+
+  const TASKS = {
+    foundation:[
+      {q:"Set the register to decimal <b>13</b>.", test:v=>v.dec===13},
+      {q:"Set the register to decimal <b>40</b>.", test:v=>v.dec===40},
+      {q:"Set the register so the octal reading is <b>77</b>.", test:v=>v.oct==="77"}
+    ],
+    developing:[
+      {q:"Set the register so the hexadecimal reading is <b>B6</b>.", test:v=>v.hex==="B6"},
+      {q:"Set the register so the octal reading is <b>146</b>.", test:v=>v.oct==="146"},
+      {q:"Set the register to a value that is a <b>valid BCD pair</b> and reads <b>59</b> in BCD.", test:v=>v.bcd==="59"}
+    ],
+    proficient:[
+      {q:"Set the register to <b>0xA7</b>, then look at the BCD readout and explain why it is invalid.", test:v=>v.hex==="A7"},
+      {q:"Find a value whose <b>BCD reading and decimal reading differ by exactly 48</b>.", test:v=>v.bcd!=="invalid" && (v.dec - parseInt(v.bcd,10))===48},
+      {q:"Set the largest value that is still a <b>valid BCD pair</b>.", test:v=>v.bcd==="99"}
+    ]
+  };
+  let taskIdx = 0;
+  const tasks = TASKS[tier];
+
+  function vals(){
+    const dec = bits.reduce((a,b,i)=>a + (b? (1<<(7-i)) : 0), 0);
+    const bin = bits.join("");
+    const oct = dec.toString(8);
+    const hex = dec.toString(16).toUpperCase();
+    const hiN = parseInt(bin.slice(0,4),2), loN = parseInt(bin.slice(4),2);
+    const bcd = (hiN<=9 && loN<=9) ? ""+hiN+loN : "invalid";
+    return {dec,bin,oct,hex,bcd,hiN,loN};
+  }
+
+  function drawBits(){
+    bitsHost.innerHTML = "";
+    bits.forEach((b,i)=>{
+      const w = 1<<(7-i);
+      const d = el("div",{class:"bit"+(b?" on":""), onclick:()=>{ bits[i]=b?0:1; render(); labTouch(id); }});
+      d.innerHTML = `<div class="b">${b}</div><div class="w">${w}</div>`;
+      bitsHost.appendChild(d);
+    });
+  }
+
+  function drawGroups(){
+    const v = vals();
+    const b = v.bin;
+    const oct3 = [b.slice(0,2).padStart(3,"0"), b.slice(2,5), b.slice(5,8)];
+    const hex4 = [b.slice(0,4), b.slice(4,8)];
+    groupHost.innerHTML = `
+      <div class="eyebrow">Grouping shortcut &mdash; no arithmetic needed</div>
+      <div class="grid g2">
+        <div class="card tight" style="margin:0">
+          <div class="tiny muted" style="margin-bottom:6px">Groups of <b>3</b> &rarr; octal</div>
+          <div class="mono" style="font-size:1.05rem;letter-spacing:.05em">
+            ${oct3.map(g=>`<span style="color:${CYN}">${g}</span>`).join(" ")}
+          </div>
+          <div class="mono" style="font-size:1.05rem;color:${AMB};letter-spacing:.42em;margin-top:4px">
+            ${oct3.map(g=>parseInt(g,2)).join("&nbsp;&nbsp;")}
+          </div>
+          <div class="tiny muted" style="margin-top:5px">= ${oct3.map(g=>parseInt(g,2)).join("").replace(/^0+(?=\d)/,"")}<sub>8</sub>
+            <span style="opacity:.6">(leading zeros carry no value)</span></div>
+        </div>
+        <div class="card tight" style="margin:0">
+          <div class="tiny muted" style="margin-bottom:6px">Groups of <b>4</b> &rarr; hexadecimal</div>
+          <div class="mono" style="font-size:1.05rem;letter-spacing:.05em">
+            ${hex4.map(g=>`<span style="color:${CYN}">${g}</span>`).join(" &nbsp;")}
+          </div>
+          <div class="mono" style="font-size:1.05rem;color:${AMB};letter-spacing:.9em;margin-top:4px">
+            ${hex4.map(g=>parseInt(g,2).toString(16).toUpperCase()).join("&nbsp;&nbsp;&nbsp;")}
+          </div>
+          <div class="tiny muted" style="margin-top:5px">= ${v.hex}<sub>16</sub></div>
+        </div>
+      </div>`;
+  }
+
+  function drawDiv(){
+    const v = vals();
+    let n = v.dec, rows = [], guard = 0;
+    if(n===0) rows.push({n:0,q:0,r:0});
+    while(n>0 && guard++<20){
+      const q = Math.floor(n/divBase), r = n % divBase;
+      rows.push({n:n,q:q,r:r});
+      n = q;
+    }
+    const digit = r => r<10 ? String(r) : "ABCDEF"[r-10];
+    divOut.innerHTML = rows.map((x,i)=>
+      `<div>${x.n} &divide; ${divBase} = ${x.q} remainder <b style="color:${AMB}">${digit(x.r)}</b>`+
+      (i===0?` <span class="tiny muted">&larr; LSD</span>`:"")+
+      (i===rows.length-1?` <span class="tiny muted">&larr; MSD</span>`:"")+`</div>`
+    ).join("") + `<div style="margin-top:8px">Read the remainders <b>upwards</b>: <b style="color:${HI}">`+
+      rows.map(x=>digit(x.r)).reverse().join("")+`</b><sub>${divBase}</sub></div>`;
+  }
+
+  function drawRO(){
+    const v = vals();
+    roHost.innerHTML = "";
+    roHost.appendChild(readout([
+      {k:"Decimal", id:"n_dec", v:v.dec, cls:"hl"},
+      {k:"Binary",  id:"n_bin", v:v.bin},
+      {k:"Octal",   id:"n_oct", v:v.oct+"₈", cls:"c"},
+      {k:"Hex",     id:"n_hex", v:v.hex+"₁₆", cls:"c"},
+      {k:"As BCD",  id:"n_bcd", v:v.bcd==="invalid"?"invalid":v.bcd, cls:v.bcd==="invalid"?"":"g"}
+    ]));
+    if(v.bcd==="invalid"){
+      roHost.appendChild(el("div",{class:"note warn small", style:"margin-bottom:0"},
+        `<b>Not a valid BCD pair.</b> Nibble ${v.hiN>9?"1 = "+v.bin.slice(0,4):"2 = "+v.bin.slice(4)} is
+         ${Math.max(v.hiN,v.loN)}, and BCD only allows 0000 to 1001 (0&ndash;9). Codes 1010 to 1111 are illegal &mdash;
+         this is the wasted code space that makes BCD less efficient than pure binary.`));
+    }else{
+      roHost.appendChild(el("div",{class:"note small", style:"margin-bottom:0"},
+        `<b>Same bits, two meanings.</b> This pattern is <b>${v.dec}</b> read as pure binary but
+         <b>${v.bcd}</b> read as BCD. Nothing in the bits themselves tells you which &mdash; only knowing the source does.`));
+    }
+  }
+
+  function drawChal(){
+    const t = tasks[taskIdx];
+    chalTxt.innerHTML = `<span class="tiny muted">Task ${taskIdx+1} of ${tasks.length}</span><br>${t.q}`;
+    chalBtns.innerHTML = "";
+    chalBtns.appendChild(el("button",{class:"btn", onclick:()=>{
+      const v = vals();
+      if(t.test(v)){
+        chalFb.innerHTML = `<span class="pill g">Correct</span> ${v.bin} = ${v.dec}<sub>10</sub> = ${v.oct}<sub>8</sub> = ${v.hex}<sub>16</sub>`;
+        markProg(id,"lab");
+        if(taskIdx < tasks.length-1){ taskIdx++; setTimeout(drawChal, 1200); }
+        else chalFb.innerHTML += `<div class="tiny" style="margin-top:6px;color:${HI}">All tasks complete.</div>`;
+      }else{
+        chalFb.innerHTML = `<span class="pill r">Not yet</span> currently ${v.dec}<sub>10</sub> / ${v.oct}<sub>8</sub> / ${v.hex}<sub>16</sub> / BCD ${v.bcd}`;
+      }
+    }},"Check my register"));
+    chalBtns.appendChild(el("button",{class:"btn sec", onclick:()=>{ bits=[0,0,0,0,0,0,0,0]; render(); }},"Clear bits"));
+  }
+
+  function render(){ drawBits(); drawRO(); drawGroups(); drawDiv(); }
+  render(); drawChal();
+};
+
+/* ---------------- M2 · TIMING BENCH ---------------- */
+LABS.m2 = function(host, id, tier){
+  const box = labShell("Timing bench","Drag the sliders; the waveform is live");
+  const B = box._body;
+  host.appendChild(box);
+  let T = 20, tw = 5, VH = 5;
+
+  const cols = el("div",{class:"lab-cols wide-left"});
+  const left = el("div"), right = el("div");
+  cols.appendChild(left); cols.appendChild(right);
+  B.appendChild(cols);
+
+  const wave = el("div"); left.appendChild(wave);
+  const ro = el("div",{style:"margin-top:14px"}); left.appendChild(ro);
+
+  const rT = range("rT",0.5,40,0.1,T), rW = range("rW",0.1,39.9,0.1,tw), rV = range("rV",3,28,1,VH*2);
+  right.appendChild(ctrl("Period T","vT",rT));
+  right.appendChild(ctrl("Pulse width t<sub>w</sub> (HIGH time)","vW",rW));
+  right.appendChild(ctrl("HIGH level V<sub>H</sub>","vV",rV));
+
+  const chal = el("div",{class:"card tight", style:"margin:14px 0 0"});
+  chal.innerHTML = `<div class="eyebrow">Match the target</div>`;
+  const chalTxt = el("div",{class:"small",style:"margin-bottom:9px"});
+  const chalFb  = el("div",{class:"small",style:"margin-top:9px"});
+  const chalRow = el("div",{class:"btn-row"});
+  chal.appendChild(chalTxt); chal.appendChild(chalRow); chal.appendChild(chalFb);
+  right.appendChild(chal);
+
+  const TARGETS = {
+    foundation:[{f:50,d:25},{f:100,d:50}],
+    developing:[{f:250,d:20},{f:125,d:75},{f:500,d:40}],
+    proficient:[{f:400,d:60},{f:200,d:35},{f:1000,d:30}]
+  };
+  let tIdx = 0;
+  const targets = TARGETS[tier];
+
+  function draw(){
+    T = +rT.value; VH = (+rV.value)/2;
+    rW.max = (T-0.1).toFixed(1);
+    if(+rW.value > T-0.1) rW.value = (T-0.1).toFixed(1);
+    tw = +rW.value;
+
+    const f = 1000/T;                      // T in ms -> Hz
+    const duty = tw/T*100;
+    const avg = duty/100*VH;
+
+    $("#vT").textContent = T.toFixed(1)+" ms";
+    $("#vW").textContent = tw.toFixed(1)+" ms";
+    $("#vV").textContent = VH.toFixed(1)+" V";
+
+    /* --- waveform SVG: 3 cycles across 520 px --- */
+    const W=520,H=150, yHi=38, yLo=104, x0=42;
+    const cycles = 3, per = (W-x0-20)/cycles, hiW = per*(tw/T);
+    let d = `M${x0},${yLo}`;
+    for(let c=0;c<cycles;c++){
+      const s = x0 + c*per;
+      d += ` L${s},${yLo} L${s},${yHi} L${s+hiW},${yHi} L${s+hiW},${yLo} L${s+per},${yLo}`;
+    }
+    const s1 = x0, e1 = x0+per, m1 = x0+hiW;
+    wave.innerHTML = `
+      <svg class="viz" viewBox="0 0 ${W} ${H}">
+        <style>
+          .ax{stroke:${GRID};stroke-width:1}
+          .lb{fill:#8fa3b5;font:600 10px system-ui}
+          .dim{stroke:${AMB};stroke-width:1;marker-start:url(#ah);marker-end:url(#ah)}
+          .dsh{stroke:${GRID};stroke-dasharray:3 3;stroke-width:1}
+        </style>
+        <defs><marker id="ah" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,1 L6,3.5 L0,6 Z" fill="${AMB}"/></marker></defs>
+        <line class="ax" x1="${x0}" y1="${yLo}" x2="${W-6}" y2="${yLo}"/>
+        <line class="ax" x1="${x0}" y1="16" x2="${x0}" y2="${yLo+8}"/>
+        <text class="lb" x="4" y="${yHi+4}">HIGH 1</text>
+        <text class="lb" x="4" y="${yLo+4}">LOW 0</text>
+        <line class="dsh" x1="${x0}" y1="${yHi}" x2="${W-6}" y2="${yHi}"/>
+        <path d="${d}" fill="none" stroke="${ACC}" stroke-width="2.4"/>
+        <line class="dim" x1="${s1}" y1="${yLo+22}" x2="${e1}" y2="${yLo+22}"/>
+        <text class="lb" fill="${AMB}" x="${(s1+e1)/2-18}" y="${yLo+37}">T = ${T.toFixed(1)} ms</text>
+        <line class="dim" x1="${s1}" y1="${yHi-14}" x2="${m1}" y2="${yHi-14}"/>
+        <text class="lb" fill="${AMB}" x="${(s1+m1)/2-20}" y="${yHi-19}">tw = ${tw.toFixed(1)} ms</text>
+      </svg>`;
+
+    ro.innerHTML = "";
+    ro.appendChild(readout([
+      {k:"Period T", id:"o_T", v:T.toFixed(1)+" ms"},
+      {k:"Frequency f = 1/T", id:"o_f", v:f.toFixed(f<10?2:0)+" Hz", cls:"hl"},
+      {k:"Duty cycle", id:"o_d", v:duty.toFixed(1)+" %", cls:"c"},
+      {k:"Average voltage", id:"o_a", v:avg.toFixed(2)+" V", cls:"g"}
+    ]));
+    ro.appendChild(el("div",{class:"note small", style:"margin-bottom:0"},
+      `f = 1/T = 1 &divide; ${(T/1000).toFixed(3)} s = <b>${f.toFixed(f<10?2:0)} Hz</b> &nbsp;&middot;&nbsp;
+       duty = (t<sub>w</sub>/T) &times; 100 = (${tw.toFixed(1)}/${T.toFixed(1)}) &times; 100 = <b>${duty.toFixed(1)}%</b> &nbsp;&middot;&nbsp;
+       a DC meter would read about <b>${avg.toFixed(2)} V</b>, not ${VH.toFixed(1)} V.`));
+  }
+
+  function drawChal(){
+    const t = targets[tIdx];
+    chalTxt.innerHTML = `<span class="tiny muted">Target ${tIdx+1} of ${targets.length}</span><br>
+      Set the waveform to <b>${t.f} Hz</b> at <b>${t.d}% duty</b>.
+      <span class="tiny muted">(Work out T first, then t<sub>w</sub>.)</span>`;
+    chalRow.innerHTML = "";
+    chalRow.appendChild(el("button",{class:"btn", onclick:()=>{
+      const f = 1000/(+rT.value), duty = (+rW.value)/(+rT.value)*100;
+      const fOK = Math.abs(f - t.f)/t.f < 0.06;
+      const dOK = Math.abs(duty - t.d) < 3;
+      if(fOK && dOK){
+        chalFb.innerHTML = `<span class="pill g">Match</span> ${f.toFixed(0)} Hz at ${duty.toFixed(0)}% &mdash; T = ${rT.value} ms, t<sub>w</sub> = ${rW.value} ms.`;
+        markProg(id,"lab");
+        if(tIdx<targets.length-1){ tIdx++; setTimeout(drawChal,1400); }
+      }else{
+        chalFb.innerHTML = `<span class="pill r">Not yet</span> you have ${f.toFixed(0)} Hz at ${duty.toFixed(0)}%. `+
+          (!fOK? `Frequency is off &mdash; T should be ${(1000/t.f).toFixed(1)} ms. `:"")+
+          (!dOK? `Duty is off &mdash; t<sub>w</sub> should be ${(t.d/100*(1000/t.f)).toFixed(2)} ms.`:"");
+      }
+    }},"Check"));
+    chalFb.innerHTML = "";
+  }
+
+  [rT,rW,rV].forEach(r=>r.addEventListener("input",()=>{ draw(); labTouch(id,8); }));
+  draw(); drawChal();
+};
+
+/* ---------------- M3 · GATE BENCH ---------------- */
+LABS.m3 = function(host, id, tier){
+  const box = labShell("Logic gate bench","Pick a gate, flip the inputs");
+  const B = box._body;
+  host.appendChild(box);
+  let gate = "AND", A = 0, Bv = 0;
+  let pattA = [0,0,1,1,0,1,1,0,0,1,1,1], pattB = [0,1,1,0,0,1,0,1,1,1,0,0];
+  let predict = null;
+
+  const seg = el("div",{class:"seg", style:"margin-bottom:16px"});
+  ["NOT","AND","OR","NAND","NOR","XOR","XNOR"].forEach(g=>{
+    const b = el("button",{class:g===gate?"on":"", onclick:()=>{
+      gate=g; $$("button",seg).forEach(x=>x.classList.remove("on")); b.classList.add("on");
+      predict=null; render(); labTouch(id,8);
+    }},g);
+    seg.appendChild(b);
+  });
+  B.appendChild(seg);
+
+  const cols = el("div",{class:"lab-cols"});
+  const left = el("div"), right = el("div");
+  cols.appendChild(left); cols.appendChild(right);
+  B.appendChild(cols);
+
+  const gview = el("div"); left.appendChild(gview);
+  const swHost = el("div",{class:"switches", style:"margin-top:14px"}); left.appendChild(swHost);
+  const rule = el("div",{class:"note small", style:"margin-bottom:0"}); left.appendChild(rule);
+
+  const ttHost = el("div"); right.appendChild(ttHost);
+  const predHost = el("div",{style:"margin-top:14px"}); right.appendChild(predHost);
+
+  const waveHost = el("div",{style:"margin-top:18px"});
+  B.appendChild(waveHost);
+
+  function Y(){ return gate==="NOT" ? GATE_FN.NOT(A) : GATE_FN[gate](A,Bv); }
+
+  function render(){
+    const y = Y();
+    gview.innerHTML = gateSVG(gate, A, Bv, y);
+
+    swHost.innerHTML = "";
+    swHost.appendChild(switchEl("INPUT A", A, ()=>{ A=A?0:1; render(); labTouch(id,8); }));
+    if(gate!=="NOT") swHost.appendChild(switchEl("INPUT B", Bv, ()=>{ Bv=Bv?0:1; render(); labTouch(id,8); }));
+    swHost.appendChild(switchEl("OUTPUT Y", y, null, true));
+
+    rule.innerHTML = `<b>${gate}:</b> ${GATE_RULE[gate]} &nbsp;&middot;&nbsp; ${GATE_EXPR[gate]}`;
+
+    /* truth table */
+    const rows = gate==="NOT" ? [[0],[1]] : [[0,0],[0,1],[1,0],[1,1]];
+    let html = `<div class="eyebrow">Truth table &mdash; your current inputs are highlighted</div>
+      <table class="tt"><thead><tr>${gate==="NOT"?"<th>A</th>":"<th>A</th><th>B</th>"}<th>Y</th></tr></thead><tbody>`;
+    rows.forEach(r=>{
+      const yy = gate==="NOT"?GATE_FN.NOT(r[0]):GATE_FN[gate](r[0],r[1]);
+      const hi = gate==="NOT" ? (r[0]===A) : (r[0]===A && r[1]===Bv);
+      html += `<tr class="${hi?"hi":""}">${r.map(x=>"<td>"+x+"</td>").join("")}<td class="out">${yy}</td></tr>`;
+    });
+    html += "</tbody></table>";
+    ttHost.innerHTML = html;
+
+    drawPredict();
+    drawWave();
+  }
+
+  function drawPredict(){
+    if(tier==="foundation"){
+      predHost.innerHTML = `<div class="note small" style="margin-bottom:0"><b>Try this:</b> before you flip a switch,
+        say out loud what Y will become. Then flip it. Getting the prediction wrong is the fastest way to find the
+        row of the truth table you have not learnt yet.</div>`;
+      return;
+    }
+    predHost.innerHTML = `<div class="eyebrow">Predict before you check</div>`;
+    const nA = A?0:1;
+    const nY = gate==="NOT"?GATE_FN.NOT(nA):GATE_FN[gate](nA,Bv);
+    const q = el("div",{class:"small", style:"margin-bottom:8px"},
+      `If input A flips from <b>${A}</b> to <b>${nA}</b>, what does Y become?`);
+    predHost.appendChild(q);
+    const row = el("div",{class:"btn-row"});
+    [0,1].forEach(v=>{
+      row.appendChild(el("button",{class:"btn sec", onclick:()=>{
+        predict = v;
+        const ok = v===nY;
+        A = nA;
+        render();
+        const fb = el("div",{class:"note small "+(ok?"ok":"err"), style:"margin:10px 0 0"},
+          ok ? `<b>Correct.</b> Y = ${nY}. ${GATE_RULE[gate]}`
+             : `<b>Not this time.</b> Y actually became ${nY}. ${GATE_RULE[gate]} Re-read the highlighted row.`);
+        predHost.appendChild(fb);
+        if(!ok) addMisconception(id, "Predicted the wrong "+gate+" output when an input changed.");
+        labTouch(id,5);
+      }},"Y = "+v));
+    });
+    predHost.appendChild(row);
+  }
+
+  function drawWave(){
+    const n = pattA.length;
+    const outs = pattA.map((a,i)=> gate==="NOT"?GATE_FN.NOT(a):GATE_FN[gate](a,pattB[i]));
+    const W=620,H=190,x0=44,w=W-x0-14;
+    const rowY = [{hi:34,lo:60,lab:"A"},{hi:88,lo:114,lab:"B"},{hi:142,lo:168,lab:"Y"}];
+    const dx = w/n;
+    let ticks = "";
+    for(let i=0;i<=n;i++){
+      ticks += `<line x1="${x0+i*dx}" y1="24" x2="${x0+i*dx}" y2="178" stroke="${GRID}" stroke-dasharray="2 4" stroke-width="1"/>`;
+    }
+    const pA = wavePath(pattA, x0, w, rowY[0].hi, rowY[0].lo);
+    const pB = wavePath(pattB, x0, w, rowY[1].hi, rowY[1].lo);
+    const pY = wavePath(outs , x0, w, rowY[2].hi, rowY[2].lo);
+    const hideB = gate==="NOT";
+
+    waveHost.innerHTML = `
+      <div class="eyebrow">Waveform mode &mdash; click any input square to change the pattern</div>
+      <svg class="viz" viewBox="0 0 ${W} ${H}">
+        <style>.wl{fill:#8fa3b5;font:700 11px system-ui}</style>
+        ${ticks}
+        <text class="wl" x="14" y="52">A</text>
+        <path d="${pA}" fill="none" stroke="#9fb4c7" stroke-width="2.2"/>
+        ${hideB?"":`<text class="wl" x="14" y="106">B</text><path d="${pB}" fill="none" stroke="#9fb4c7" stroke-width="2.2"/>`}
+        <text class="wl" x="14" y="160" fill="${ACC}">Y</text>
+        <path d="${pY}" fill="none" stroke="${ACC}" stroke-width="2.6"/>
+      </svg>`;
+
+    const editor = el("div",{style:"margin-top:10px"});
+    const mk = (arr,label)=>{
+      const r = el("div",{style:"display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap"});
+      r.appendChild(el("span",{class:"tiny muted", style:"width:16px;font-weight:700"},label));
+      arr.forEach((v,i)=>{
+        const c = el("button",{class:"opt", style:"width:34px;height:28px;padding:0;justify-content:center;font-family:var(--mono)",
+          onclick:()=>{ arr[i]=v?0:1; drawWave(); labTouch(id,8); }}, String(v));
+        if(v) c.style.borderColor = ACC;
+        r.appendChild(c);
+      });
+      return r;
+    };
+    editor.appendChild(mk(pattA,"A"));
+    if(!hideB) editor.appendChild(mk(pattB,"B"));
+    waveHost.appendChild(editor);
+    waveHost.appendChild(el("div",{class:"note small", style:"margin-bottom:0"},
+      tier==="proficient"
+        ? "<b>Challenge:</b> without touching the gate selector, find an A and B pattern for which XOR and OR produce identical outputs, and say what must be true of the inputs for that to happen."
+        : "<b>Read it this way:</b> look only at the time slots where A and B differ. That single habit identifies XOR, NAND and NOR faster than reciting tables."));
+  }
+
+  render();
+};
+/* ---------------- M4 · AIRCRAFT LOGIC BENCH ---------------- */
+const GATE_SHAPES = {
+  AND:'<path d="M30,15 L55,15 A25,25 0 0 1 55,65 L30,65 Z"/>',
+  OR :'<path d="M28,15 Q52,40 28,65 Q70,65 82,40 Q70,15 28,15 Z"/>',
+  NOR:'<path d="M28,15 Q52,40 28,65 Q70,65 82,40 Q70,15 28,15 Z"/><circle cx="87" cy="40" r="5"/>',
+  NAND:'<path d="M30,15 L55,15 A25,25 0 0 1 55,65 L30,65 Z"/><circle cx="85" cy="40" r="5"/>'
+};
+function gateGlyph(type,x,y,s,stroke){
+  return `<g transform="translate(${x},${y}) scale(${s})" fill="#16222e" stroke="${stroke||"#7d94a8"}" stroke-width="${2/s}">
+    ${GATE_SHAPES[type]}</g>`;
+}
+function invGlyph(x,y,s,stroke){
+  return `<g transform="translate(${x},${y}) scale(${s})" fill="#16222e" stroke="${stroke||"#7d94a8"}" stroke-width="${2/s}">
+    <path d="M0,-12 L26,0 L0,12 Z"/><circle cx="31" cy="0" r="4.5"/></g>`;
+}
+
+const SCENARIOS = {
+ gear:{
+  name:"Landing gear warning",
+  req:"Sound the gear warning horn when the gear is <b>NOT</b> down-and-locked <b>AND</b> the throttle <b>IS</b> at idle.",
+  inputs:[
+    {k:"gear", lab:"GEAR DOWN", on:"Down &amp; locked", off:"Not down / in transit", inv:true},
+    {k:"thr",  lab:"THR IDLE",  on:"At idle",           off:"Above idle",            inv:false}
+  ],
+  gate:"AND",
+  out:{lab:"GEAR HORN", on:"SOUNDING", off:"silent"},
+  fn:v=> ((v.gear?0:1) && v.thr) ? 1 : 0,
+  why:"The inverter turns 'gear down' into 'gear NOT down'. The AND then requires the throttle to be at idle as well, "+
+      "so the horn stays silent with the gear up in the cruise &mdash; which is exactly what stops it becoming a nuisance warning."
+ },
+ fire:{
+  name:"Fire detection &mdash; three loops",
+  req:"Raise the fire warning if <b>ANY</b> one of the three detection loops signals fire.",
+  inputs:[
+    {k:"l1", lab:"LOOP 1", on:"Fire detected", off:"Normal", inv:false},
+    {k:"l2", lab:"LOOP 2", on:"Fire detected", off:"Normal", inv:false},
+    {k:"l3", lab:"LOOP 3", on:"Fire detected", off:"Normal", inv:false}
+  ],
+  gate:"OR",
+  out:{lab:"FIRE WARN", on:"FIRE", off:"normal"},
+  fn:v=> (v.l1||v.l2||v.l3) ? 1 : 0,
+  why:"OR is chosen deliberately: missing a real fire is far worse than a spurious warning, so any single loop is "+
+      "allowed to annunciate. Compare this with the configuration warnings, which are built the opposite way round."
+ },
+ cabin:{
+  name:"Cabin altitude warning with test inhibit",
+  req:"Warn when cabin altitude exceeds 10,000 ft <b>AND</b> the system is <b>NOT</b> in test mode.",
+  inputs:[
+    {k:"alt",  lab:"CAB ALT &gt;10k", on:"Above 10,000 ft", off:"Below 10,000 ft", inv:false},
+    {k:"test", lab:"TEST MODE",       on:"In test",         off:"Normal ops",      inv:true}
+  ],
+  gate:"AND",
+  out:{lab:"CAB ALT WARN", on:"WARNING", off:"normal"},
+  fn:v=> (v.alt && (v.test?0:1)) ? 1 : 0,
+  why:"The inhibit term is an inverter on the TEST discrete. Get that inverter the wrong way round and the warning "+
+      "only appears during test &mdash; a fault that will pass a functional check on the ground and fail in flight."
+ },
+ vote:{
+  name:"2-out-of-3 channel voting",
+  req:"Raise the warning when <b>any two</b> of the three independent channels agree.",
+  inputs:[
+    {k:"a", lab:"CHANNEL A", on:"Asserted", off:"Clear", inv:false},
+    {k:"b", lab:"CHANNEL B", on:"Asserted", off:"Clear", inv:false},
+    {k:"c", lab:"CHANNEL C", on:"Asserted", off:"Clear", inv:false}
+  ],
+  gate:"VOTE",
+  out:{lab:"VOTED WARN", on:"WARNING", off:"normal"},
+  fn:v=> ((v.a&&v.b)||(v.b&&v.c)||(v.a&&v.c)) ? 1 : 0,
+  why:"(A&middot;B) + (B&middot;C) + (A&middot;C). One failed channel can neither raise the warning on its own nor "+
+      "suppress it when the other two agree &mdash; which is the whole reason for triplicating the channel."
+ }
+};
+
+LABS.m4 = function(host, id, tier){
+  const box = labShell("Aircraft logic bench","Predict first, then flip the switches");
+  const B = box._body;
+  host.appendChild(box);
+  let key = "gear";
+  let V = {};
+  let pending = null;   // prediction state
+
+  const seg = el("div",{class:"seg", style:"margin-bottom:16px"});
+  Object.keys(SCENARIOS).forEach(k=>{
+    const b = el("button",{class:k===key?"on":"", onclick:()=>{
+      key=k; V={}; pending=null; $$("button",seg).forEach(x=>x.classList.remove("on")); b.classList.add("on"); render(); labTouch(id,8);
+    }}, SCENARIOS[k].name.replace(" &mdash; three loops","").replace(" with test inhibit",""));
+    seg.appendChild(b);
+  });
+  B.appendChild(seg);
+
+  const reqBox = el("div",{class:"note", style:"margin-top:0"});
+  B.appendChild(reqBox);
+
+  const schem = el("div"); B.appendChild(schem);
+
+  const cols = el("div",{class:"lab-cols", style:"margin-top:16px"});
+  const left = el("div"), right = el("div");
+  cols.appendChild(left); cols.appendChild(right);
+  B.appendChild(cols);
+
+  const swHost = el("div",{class:"switches"}); left.appendChild(swHost);
+  const outHost = el("div",{style:"margin-top:14px"}); left.appendChild(outHost);
+  const predHost = el("div"); right.appendChild(predHost);
+  const whyHost = el("div",{style:"margin-top:12px"}); right.appendChild(whyHost);
+
+  function out(){ return SCENARIOS[key].fn(V); }
+
+  function drawSchem(){
+    const sc = SCENARIOS[key];
+    const y = out();
+    const n = sc.inputs.length;
+    const H = n===3 ? 210 : 160, W = 620;
+    const rowY = sc.inputs.map((_,i)=> 46 + i*( (H-92)/(Math.max(1,n-1)) || 0 ) );
+    if(n===2){ rowY[0]=52; rowY[1]=110; }
+    if(n===3){ rowY[0]=46; rowY[1]=105; rowY[2]=164; }
+
+    const col = v=> v?HI:LO;
+    const GX = 300;                       // x of every gate's left edge
+    const isVote = sc.gate==="VOTE";
+    const stub = isVote ? 250 : GX;       // where input wires stop
+    let m = "";
+    sc.inputs.forEach((inp,i)=>{
+      const v = V[inp.k]?1:0;
+      const yy = rowY[i];
+      m += `<text x="8" y="${yy-9}" class="sl">${inp.lab}</text>`;
+      m += `<text x="8" y="${yy+13}" class="sv" fill="${col(v)}">${v} &mdash; ${v?inp.on:inp.off}</text>`;
+      m += `<line x1="150" y1="${yy}" x2="${inp.inv?236:stub}" y2="${yy}" stroke="${col(v)}" stroke-width="2.4"/>`;
+      if(inp.inv){
+        m += invGlyph(238, yy, 0.85, col(v?0:1));
+        m += `<line x1="275" y1="${yy}" x2="${stub}" y2="${yy}" stroke="${col(v?0:1)}" stroke-width="2.4"/>`;
+      }
+    });
+
+    if(isVote){
+      const pairs = [["a","b"],["b","c"],["a","c"]];
+      const py = [58,110,162];
+      const iOf = {a:0,b:1,c:2};
+      const s = 0.6, andR = GX + (80-30)*s;                 // AND right edge
+      pairs.forEach((p,i)=>{
+        p.forEach(k=>{
+          m += `<line x1="${stub}" y1="${rowY[iOf[k]]}" x2="${GX}" y2="${py[i]}" stroke="${col(V[k]?1:0)}" stroke-width="1.8"/>`;
+        });
+        const v = (V[p[0]]&&V[p[1]])?1:0;
+        m += gateGlyph("AND", GX-30*s, py[i]-40*s, s, "#7d94a8");
+        m += `<text x="${GX+24*s}" y="${py[i]+4}" class="sg" style="font-size:10px">${p[0].toUpperCase()}&middot;${p[1].toUpperCase()}</text>`;
+        m += `<line x1="${andR}" y1="${py[i]}" x2="392" y2="${py[i]}" stroke="${v?HI:LO}" stroke-width="2.2"/>`;
+      });
+      const so = 1.9, orL = 392, orR = orL + (82-28)*so;
+      m += gateGlyph("OR", orL-28*so, 110-40*so, so, "#7d94a8");
+      m += `<line x1="${orR}" y1="110" x2="512" y2="110" stroke="${col(y)}" stroke-width="2.6"/>`;
+      m += `<circle cx="538" cy="110" r="16" fill="${y?'rgba(255,90,95,.25)':'#16212c'}" stroke="${y?'#ff5a5f':LO}" stroke-width="2.5"/>`;
+      m += `<text x="538" y="115" text-anchor="middle" class="sv" fill="${y?'#ff5a5f':LO}">${y}</text>`;
+      m += `<text x="538" y="144" text-anchor="middle" class="sl">${sc.out.lab}</text>`;
+    }else{
+      const cy = n===3 ? 105 : 81;
+      const wide = sc.gate==="OR" || sc.gate==="NOR";
+      const s = n===3 ? 2.4 : 1.0;
+      const lx = wide ? 28 : 30, rx = wide ? 82 : 80;
+      m += gateGlyph(sc.gate, GX - lx*s, cy - 40*s, s, "#7d94a8");
+      const outX = GX + (rx-lx)*s;
+      m += `<line x1="${outX}" y1="${cy}" x2="${492}" y2="${cy}" stroke="${col(y)}" stroke-width="2.6"/>`;
+      m += `<circle cx="${518}" cy="${cy}" r="16" fill="${y?'rgba(255,90,95,.25)':'#16212c'}" stroke="${y?'#ff5a5f':LO}" stroke-width="2.5"/>`;
+      m += `<text x="${518}" y="${cy+5}" text-anchor="middle" class="sv" fill="${y?'#ff5a5f':LO}">${y}</text>`;
+      m += `<text x="${518}" y="${cy+34}" text-anchor="middle" class="sl">${sc.out.lab}</text>`;
+      m += `<text x="${GX + (rx-lx)*s/2 - (wide?6:0)}" y="${cy+4}" class="sg" fill="#cddae6">${sc.gate}</text>`;
+    }
+
+    schem.innerHTML = `<svg class="viz" viewBox="0 0 ${W} ${H}">
+      <style>
+        .sl{fill:#8fa3b5;font:700 10px system-ui;letter-spacing:.05em}
+        .sv{font:700 11px ui-monospace,monospace}
+        .sg{font:700 11px system-ui;fill:#cddae6;text-anchor:middle}
+      </style>${m}</svg>`;
+  }
+
+  function drawOut(){
+    const sc = SCENARIOS[key], y = out();
+    outHost.innerHTML = "";
+    outHost.appendChild(el("div",{class:"note "+(y?"err":"ok"), style:"margin:0"},
+      `<b>${sc.out.lab}: ${y?sc.out.on:sc.out.off}</b>`));
+  }
+
+  function drawPredict(){
+    const sc = SCENARIOS[key];
+    predHost.innerHTML = `<div class="eyebrow">Predict &rarr; check</div>`;
+    if(pending){
+      const actual = SCENARIOS[key].fn(pending.next);
+      const ok = pending.guess===actual;
+      predHost.appendChild(el("div",{class:"note small "+(ok?"ok":"err"), style:"margin:0 0 10px"},
+        ok? `<b>Correct.</b> ${sc.out.lab} went to <b>${actual}</b>.`
+          : `<b>Missed.</b> ${sc.out.lab} actually went to <b>${actual}</b>. Walk the requirement one word at a time: inverters first, then the gate.`));
+    }
+    const nextIn = sc.inputs[Math.floor(Math.random()*sc.inputs.length)];
+    const nextV = Object.assign({}, V); nextV[nextIn.k] = V[nextIn.k]?0:1;
+    predHost.appendChild(el("div",{class:"small", style:"margin-bottom:9px"},
+      `If <b>${nextIn.lab}</b> changes to <b>${nextV[nextIn.k]?nextIn.on:nextIn.off}</b>, what will ${sc.out.lab} be?`));
+    const row = el("div",{class:"btn-row"});
+    [0,1].forEach(g=>{
+      row.appendChild(el("button",{class:"btn sec", onclick:()=>{
+        const actual = sc.fn(nextV);
+        pending = {guess:g, next:Object.assign({},nextV)};
+        if(g!==actual) addMisconception(id, "Mis-predicted the "+sc.name.replace(/&mdash;/g,"-")+" output when an input changed.");
+        V = nextV;
+        markProg(id,"lab");
+        render();
+      }}, g? "It will be ON (1)" : "It will be OFF (0)"));
+    });
+    predHost.appendChild(row);
+  }
+
+  function render(){
+    const sc = SCENARIOS[key];
+    sc.inputs.forEach(i=>{ if(V[i.k]==null) V[i.k]=0; });
+    reqBox.innerHTML = `<b>Requirement:</b> ${sc.req}`;
+    drawSchem();
+    swHost.innerHTML = "";
+    sc.inputs.forEach(inp=>{
+      swHost.appendChild(switchEl(inp.lab, V[inp.k], ()=>{ V[inp.k]=V[inp.k]?0:1; pending=null; render(); labTouch(id,7); }));
+    });
+    drawOut();
+    drawPredict();
+    whyHost.innerHTML = tier==="foundation"
+      ? `<div class="note small" style="margin:0"><b>How to read it:</b> follow the requirement word by word. "NOT" becomes the triangle with a bubble, "AND" becomes the D-shaped gate, "ANY of" becomes the curved OR.</div>`
+      : `<div class="note small" style="margin:0"><b>Why this arrangement:</b> ${sc.why}</div>`;
+  }
+
+  render();
+};
+
+/* ---------------- M5 · CONVERTER BENCH ---------------- */
+LABS.m5 = function(host, id, tier){
+  const box = labShell("Converter bench","DAC staircase, ADC sampling and a SAR walkthrough");
+  const B = box._body;
+  host.appendChild(box);
+  let tab = "dac";
+
+  const seg = el("div",{class:"seg", style:"margin-bottom:16px"});
+  [["dac","D/A converter"],["adc","A/D converter"],["sar","Successive approximation"]].forEach(([k,lab])=>{
+    const b = el("button",{class:k===tab?"on":"", onclick:()=>{
+      tab=k; $$("button",seg).forEach(x=>x.classList.remove("on")); b.classList.add("on"); paint(); labTouch(id,6);
+    }},lab);
+    seg.appendChild(b);
+  });
+  B.appendChild(seg);
+  const mount = el("div"); B.appendChild(mount);
+
+  /* ---------- DAC ---------- */
+  function dac(){
+    mount.innerHTML = "";
+    const cols = el("div",{class:"lab-cols wide-left"});
+    const left = el("div"), right = el("div");
+    cols.appendChild(left); cols.appendChild(right); mount.appendChild(cols);
+
+    const plot = el("div"); left.appendChild(plot);
+    const ro = el("div",{style:"margin-top:14px"}); left.appendChild(ro);
+
+    const rB = range("dB",2,8,1,8), rV = range("dV",1,12,0.5,5), rC = range("dC",0,255,1,64);
+    right.appendChild(ctrl("Resolution (bits, n)","vdB",rB));
+    right.appendChild(ctrl("Reference voltage V<sub>ref</sub>","vdV",rV));
+    right.appendChild(ctrl("Digital input code","vdC",rC));
+    const cmp = el("div",{class:"card tight", style:"margin:14px 0 0"});
+    cmp.innerHTML = `<div class="eyebrow">Binary weighted vs R-2R</div>
+      <table class="tt" style="font-size:.78rem"><thead><tr><th>Binary weighted</th><th>R-2R ladder</th></tr></thead>
+      <tbody>
+      <tr><td>Many different resistor values</td><td>Only 2 values (R and 2R)</td></tr>
+      <tr><td>Needs high-precision resistors</td><td>Needs matching, not absolute precision</td></tr>
+      <tr><td>Practically limited to ~8 bits</td><td>Scales to high bit counts</td></tr>
+      <tr><td>Greater error, noise-susceptible</td><td>Faster, less prone to noise</td></tr>
+      </tbody></table>
+      <div class="tiny muted" style="margin-top:8px">R-2R is what you find in aircraft equipment, because an aircraft is a noisy place.</div>`;
+    right.appendChild(cmp);
+
+    function draw(){
+      const n = +rB.value, Vref = +rV.value;
+      const maxCode = (1<<n)-1;
+      rC.max = maxCode;
+      if(+rC.value > maxCode) rC.value = maxCode;
+      const code = +rC.value;
+      const step = Vref/maxCode;
+      const vout = code*step;
+
+      $("#vdB").textContent = n+" bits";
+      $("#vdV").textContent = Vref.toFixed(1)+" V";
+      $("#vdC").textContent = code+" / "+maxCode;
+
+      const W=560,H=250,x0=52,y0=210,pw=W-x0-18,ph=y0-24;
+      let d = `M${x0},${y0}`;
+      const sw = pw/(maxCode+1);
+      const show = Math.min(maxCode+1, 256);
+      for(let c=0;c<=maxCode;c++){
+        const y = y0 - (c*step/Vref)*ph;
+        d += ` L${x0+c*sw},${y} L${x0+(c+1)*sw},${y}`;
+      }
+      const cx = x0 + (code+0.5)*sw, cy = y0 - (vout/Vref)*ph;
+      let grid = "";
+      for(let g=0;g<=4;g++){
+        const y = y0 - g/4*ph;
+        grid += `<line x1="${x0}" y1="${y}" x2="${W-10}" y2="${y}" stroke="${GRID}" stroke-width="1"/>
+                 <text x="8" y="${y+4}" class="ax">${(Vref*g/4).toFixed(2)}V</text>`;
+      }
+      plot.innerHTML = `<svg class="viz" viewBox="0 0 ${W} ${H}">
+        <style>.ax{fill:#6f8598;font:600 9px ui-monospace,monospace}.t{fill:#8fa3b5;font:700 10px system-ui}</style>
+        ${grid}
+        <path d="${d}" fill="none" stroke="${ACC}" stroke-width="${n>6?1.6:2.4}"/>
+        <line x1="${cx}" y1="${y0}" x2="${cx}" y2="${cy}" stroke="${AMB}" stroke-dasharray="3 3" stroke-width="1.2"/>
+        <circle cx="${cx}" cy="${cy}" r="5" fill="${AMB}"/>
+        <line x1="${x0}" y1="${y0}" x2="${W-10}" y2="${y0}" stroke="#3b4d60" stroke-width="1.4"/>
+        <text x="${x0}" y="${H-8}" class="t">digital input code &rarr; (0 to ${maxCode})</text>
+        <text x="${x0+4}" y="18" class="t">V&#8202;out staircase &mdash; ${maxCode} steps of ${(step*1000).toFixed(1)} mV</text>
+      </svg>`;
+
+      ro.innerHTML = "";
+      ro.appendChild(readout([
+        {k:"Steps = 2ⁿ − 1", id:"d_s", v:maxCode, cls:"c"},
+        {k:"Step size", id:"d_ss", v:(step*1000).toFixed(1)+" mV", cls:"hl"},
+        {k:"Input code", id:"d_c", v:code.toString(2).padStart(n,"0")},
+        {k:"V out", id:"d_v", v:vout.toFixed(4)+" V", cls:"g"}
+      ]));
+      ro.appendChild(el("div",{class:"note small", style:"margin-bottom:0"},
+        `step size = V<sub>ref</sub> &divide; (2<sup>${n}</sup> &minus; 1) = ${Vref.toFixed(1)} &divide; ${maxCode} =
+         <b>${(step*1000).toFixed(1)} mV</b>. V<sub>out</sub> = code &times; step = ${code} &times; ${(step*1000).toFixed(1)} mV =
+         <b>${vout.toFixed(4)} V</b>.
+         ${n===8 && Math.abs(Vref-5)<0.01 ? " These are exactly the numbers on the 8-bit staircase in your notes: 255 steps of about 19.6 mV, topping out at 4.980 V." : ""}`));
+      if(n<=4) ro.appendChild(el("div",{class:"note warn small", style:"margin-bottom:0"},
+        `<b>Only ${maxCode} steps.</b> Notice how coarse the staircase is. Adding bits does not make the output smooth &mdash; it only makes the steps smaller. There is always a staircase.`));
+    }
+    [rB,rV,rC].forEach(r=>r.addEventListener("input",()=>{ draw(); labTouch(id,8); }));
+    draw();
+  }
+
+  /* ---------- ADC ---------- */
+  function adc(){
+    mount.innerHTML = "";
+    const cols = el("div",{class:"lab-cols wide-left"});
+    const left = el("div"), right = el("div");
+    cols.appendChild(left); cols.appendChild(right); mount.appendChild(cols);
+    const plot = el("div"); left.appendChild(plot);
+    const info = el("div",{style:"margin-top:14px"}); left.appendChild(info);
+
+    const rF = range("aF",1,40,1,5), rS = range("aS",2,120,1,60), rN = range("aN",1,8,1,4);
+    right.appendChild(ctrl("Input signal frequency","vaF",rF));
+    right.appendChild(ctrl("Sampling rate f<sub>s</sub>","vaS",rS));
+    right.appendChild(ctrl("ADC resolution","vaN",rN));
+    const guide = el("div",{class:"card tight", style:"margin:14px 0 0"});
+    guide.innerHTML = `<div class="eyebrow">Three ADC types</div>
+      <ul class="tick" style="font-size:.82rem">
+        <li><b>Ramp generation</b> &mdash; slow; conversion time depends on the input voltage.</li>
+        <li><b>Successive approximation</b> &mdash; fast; fixed time, independent of the input voltage.</li>
+        <li><b>Integration type</b> &mdash; high accuracy and best noise immunity, but slower than SAR.</li>
+      </ul>`;
+    right.appendChild(guide);
+
+    function draw(){
+      const f = +rF.value, fs = +rS.value, n = +rN.value;
+      $("#vaF").textContent = f+" Hz";
+      $("#vaS").textContent = fs+" Hz";
+      $("#vaN").textContent = n+" bits ("+((1<<n)-1)+" steps)";
+
+      const W=560,H=250,x0=44,y0=214,pw=W-x0-16,ph=y0-30;
+      const Twin = 1.0;                       // 1 second window
+      const levels = (1<<n)-1;
+      const sig = t => 0.5 + 0.45*Math.sin(2*Math.PI*f*t);
+      let d="";
+      for(let i=0;i<=400;i++){
+        const t=i/400*Twin, y=y0-sig(t)*ph, x=x0+i/400*pw;
+        d += (i?" L":"M")+x+","+y;
+      }
+      const nS = Math.max(2, Math.floor(fs*Twin));
+      let sd="", pts="";
+      for(let k=0;k<=nS;k++){
+        const t=k/fs;
+        if(t>Twin) break;
+        const raw = sig(t);
+        const q = Math.round(raw*levels)/levels;
+        const x=x0+t/Twin*pw, y=y0-q*ph;
+        const xn = Math.min(x0+pw, x0+(t+1/fs)/Twin*pw);
+        sd += (k?" L":"M")+x+","+y+" L"+xn+","+y;
+        pts += `<circle cx="${x}" cy="${y0-raw*ph}" r="2.6" fill="${CYN}"/>`;
+      }
+      let grid="";
+      for(let g=0;g<=levels && levels<=32;g++){
+        const y=y0-g/levels*ph;
+        grid += `<line x1="${x0}" y1="${y}" x2="${W-8}" y2="${y}" stroke="${GRID}" stroke-width="1"/>`;
+      }
+      const nyq = fs >= 2*f;
+      let aliasPath="";
+      if(!nyq){
+        const fa = Math.abs(f - Math.round(f/fs)*fs);
+        for(let i=0;i<=400;i++){
+          const t=i/400*Twin, y=y0-(0.5+0.45*Math.sin(2*Math.PI*fa*t))*ph, x=x0+i/400*pw;
+          aliasPath += (i?" L":"M")+x+","+y;
+        }
+      }
+      plot.innerHTML = `<svg class="viz" viewBox="0 0 ${W} ${H}">
+        <style>.t{fill:#8fa3b5;font:700 10px system-ui}</style>
+        ${grid}
+        <path d="${d}" fill="none" stroke="#7d94a8" stroke-width="1.8"/>
+        ${aliasPath?`<path d="${aliasPath}" fill="none" stroke="${AMB}" stroke-width="2" stroke-dasharray="6 4"/>`:""}
+        <path d="${sd}" fill="none" stroke="${ACC}" stroke-width="2.2"/>
+        ${pts}
+        <line x1="${x0}" y1="${y0}" x2="${W-8}" y2="${y0}" stroke="#3b4d60" stroke-width="1.3"/>
+        <text x="${x0+4}" y="18" class="t">grey = analogue input &middot; red = quantised digital output${aliasPath?" &middot; amber dashed = the alias the system will actually see":""}</text>
+        <text x="${x0}" y="${H-8}" class="t">time &rarr; (1 second window)</text>
+      </svg>`;
+
+      info.innerHTML = "";
+      info.appendChild(readout([
+        {k:"Samples per cycle", id:"a_sp", v:(fs/f).toFixed(2), cls: nyq?"g":"hl"},
+        {k:"Nyquist minimum", id:"a_ny", v:(2*f)+" Hz"},
+        {k:"Quantisation levels", id:"a_q", v:(levels+1)},
+        {k:"Max quant. error", id:"a_e", v:"±"+(100/levels/2).toFixed(2)+"% FS"}
+      ]));
+      if(!nyq){
+        const fa = Math.abs(f - Math.round(f/fs)*fs);
+        info.appendChild(el("div",{class:"note err small", style:"margin-bottom:0"},
+          `<b>Aliasing.</b> You are sampling a ${f} Hz signal at only ${fs} Hz. The system does not lose the signal &mdash;
+           it reconstructs a completely different one at about <b>${fa.toFixed(1)} Hz</b> (amber dashed), and nothing
+           downstream can tell that it is false. This is why an <b>analogue</b> anti-alias filter must sit ahead of the
+           converter: once the data is sampled it is too late.`));
+        flag(id,"sawAliasing");
+        markProg(id,"lab");
+      }else{
+        info.appendChild(el("div",{class:"note small", style:"margin-bottom:0"},
+          `Sampling above twice the input frequency (${fs} Hz &ge; ${2*f} Hz) keeps the reconstruction faithful in time.
+           The remaining error is <b>quantisation</b>: each sample must be rounded to one of ${levels+1} levels, so it can be
+           wrong by up to half a step. Drop the resolution slider to 1 or 2 bits to see that error become obvious.`));
+      }
+      if(n<=2) info.appendChild(el("div",{class:"note warn small", style:"margin-bottom:0"},
+        "<b>Quantisation error.</b> With this few levels the digital output barely resembles the input even though the "+
+        "sampling rate is fine. Sampling and quantising are two independent errors &mdash; fixing one does not fix the other."));
+    }
+    [rF,rS,rN].forEach(r=>r.addEventListener("input",()=>{ draw(); labTouch(id,8); }));
+    draw();
+  }
+
+  /* ---------- SAR ---------- */
+  function sar(){
+    mount.innerHTML = "";
+    const wrap = el("div");
+    mount.appendChild(wrap);
+    let target = 3.42, n = 8, Vref = 5, bitI = 0, result = [], trial = 0;
+
+    const rT = range("sT",0,5,0.01,target), rN = range("sN",3,8,1,n);
+    const cols = el("div",{class:"lab-cols wide-left"});
+    const left = el("div"), right = el("div");
+    cols.appendChild(left); cols.appendChild(right); wrap.appendChild(cols);
+    right.appendChild(ctrl("Analogue input voltage","vsT",rT));
+    right.appendChild(ctrl("Converter resolution","vsN",rN));
+    const btns = el("div",{class:"btn-row", style:"margin-top:10px"});
+    right.appendChild(btns);
+    right.appendChild(el("div",{class:"note small", style:"margin-top:12px"},
+      "<b>Why it is fast.</b> The SAR tests one bit per clock cycle, from MSB down. It always takes exactly n cycles, "+
+      "whatever the input voltage &mdash; unlike a ramp converter, which counts up and so takes longer for a larger voltage."));
+    const table = el("div"); left.appendChild(table);
+
+    function reset(){
+      n = +rN.value; target = +rT.value; bitI = 0; result = []; trial = 0;
+      $("#vsT").textContent = target.toFixed(2)+" V";
+      $("#vsN").textContent = n+" bits";
+      draw();
+    }
+    function stepOnce(){
+      if(bitI>=n) return;
+      const weight = Vref/(1<<(bitI+1));   // MSB = Vref/2
+      const test = trial + weight;
+      const keep = test <= target;
+      if(keep) trial = test;
+      result.push({bit:bitI, weight, test, keep});
+      bitI++;
+      draw();
+      if(bitI>=n){ markProg(id,"lab"); }
+    }
+    function draw(){
+      btns.innerHTML = "";
+      btns.appendChild(el("button",{class:"btn", onclick:stepOnce, disabled: bitI>=n?"disabled":undefined},
+        bitI>=n? "Conversion complete" : "Clock the next bit ("+(bitI+1)+" of "+n+")"));
+      btns.appendChild(el("button",{class:"btn sec", onclick:()=>{ while(bitI<n) stepOnce(); }},"Run to completion"));
+      btns.appendChild(el("button",{class:"btn sec", onclick:reset},"Reset"));
+
+      let rows = result.map((r,i)=>
+        `<tr><td>${i+1}</td><td>${r.weight.toFixed(4)}</td><td>${r.test.toFixed(4)}</td>
+         <td class="out" style="color:${r.keep?HI:'#ff5a5f'}">${r.keep?"KEEP 1":"DROP 0"}</td></tr>`).join("");
+      const code = result.map(r=>r.keep?1:0).join("");
+      table.innerHTML = `
+        <div class="eyebrow">Binary search, one bit per clock cycle</div>
+        <table class="tt"><thead><tr><th>Cycle</th><th>Bit weight (V)</th><th>Trial total (V)</th><th>Compare</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="4" class="muted">Press &ldquo;Clock the next bit&rdquo; to begin.</td></tr>'}</tbody></table>
+        <div style="margin-top:12px"></div>`;
+      table.appendChild(readout([
+        {k:"Input voltage", v:target.toFixed(3)+" V", id:"s_in"},
+        {k:"Trial DAC output", v:trial.toFixed(4)+" V", id:"s_tr", cls:"hl"},
+        {k:"Code so far", v:code.padEnd(n,"·"), id:"s_cd", cls:"c"},
+        {k:"Error", v:(target-trial).toFixed(4)+" V", id:"s_er", cls:"g"}
+      ]));
+      if(bitI>=n){
+        table.appendChild(el("div",{class:"note ok small", style:"margin-bottom:0"},
+          `<b>Done in exactly ${n} clock cycles.</b> Final code <span class="mono">${code}</span>, representing
+           ${trial.toFixed(4)} V against an input of ${target.toFixed(3)} V. The leftover
+           ${(target-trial).toFixed(4)} V is the quantisation error &mdash; it can never exceed one step of
+           ${(Vref/((1<<n)-1)*1000).toFixed(1)} mV.`));
+      }
+    }
+    rT.addEventListener("input",reset);
+    rN.addEventListener("input",reset);
+    reset();
+  }
+
+  function paint(){ tab==="dac"?dac():tab==="adc"?adc():sar(); }
+  paint();
+};
+
+/* ---------------- M6 · PARITY BENCH ---------------- */
+LABS.m6 = function(host, id, tier){
+  const box = labShell("Parity bench","Generate, transmit, corrupt, check");
+  const B = box._body;
+  host.appendChild(box);
+  let data = [1,0,1,1,0,0,1];
+  let mode = "even";
+  let rx = null;             // received copy (data + parity), null = clean
+  let flips = [];
+
+  const seg = el("div",{class:"seg", style:"margin-bottom:16px;max-width:260px"});
+  [["even","EVEN parity"],["odd","ODD parity"]].forEach(([k,l])=>{
+    const b = el("button",{class:k===mode?"on":"", onclick:()=>{
+      mode=k; $$("button",seg).forEach(x=>x.classList.remove("on")); b.classList.add("on"); resetLink(); labTouch(id,7);
+    }},l);
+    seg.appendChild(b);
+  });
+  B.appendChild(seg);
+
+  const txHost = el("div"); B.appendChild(txHost);
+  const linkHost = el("div",{style:"margin-top:16px"}); B.appendChild(linkHost);
+  const resHost = el("div",{style:"margin-top:16px"}); B.appendChild(resHost);
+
+  function ones(arr){ return arr.reduce((a,b)=>a+b,0); }
+  function parityBit(){
+    const c = ones(data);
+    return mode==="even" ? (c%2===0?0:1) : (c%2===0?1:0);
+  }
+  function txWord(){ return [parityBit()].concat(data); }
+  function resetLink(){ rx = null; flips = []; render(); }
+
+  function render(){
+    const p = parityBit(), tx = txWord();
+    /* transmitter */
+    txHost.innerHTML = `<div class="eyebrow">Transmitter &mdash; click a data bit to change the message</div>`;
+    const bits = el("div",{class:"bits"});
+    data.forEach((b,i)=>{
+      const d = el("div",{class:"bit"+(b?" on":""), onclick:()=>{ data[i]=b?0:1; resetLink(); labTouch(id,7); }});
+      d.innerHTML = `<div class="b">${b}</div><div class="w">D${7-i}</div>`;
+      bits.appendChild(d);
+    });
+    const pb = el("div",{class:"bit"+(p?" on":""), style:"border-color:"+CYN+";margin-left:14px"});
+    pb.innerHTML = `<div class="b" style="color:${CYN}">${p}</div><div class="w" style="color:${CYN}">P</div>`;
+    bits.appendChild(pb);
+    txHost.appendChild(bits);
+    txHost.appendChild(el("div",{class:"note small", style:"margin-bottom:0"},
+      `The data contains <b>${ones(data)}</b> one${ones(data)===1?"":"s"}, which is <b>${ones(data)%2===0?"even":"odd"}</b>.
+       For <b>${mode.toUpperCase()}</b> parity the generator sets the parity bit to <b>${p}</b>, making the total number of
+       1s in the transmitted word <b>${ones(tx)}</b> &mdash; ${ones(tx)%2===0?"even":"odd"}, as required.`));
+
+    /* link */
+    const recv = rx || tx.slice();
+    linkHost.innerHTML = `<div class="eyebrow">Received word &mdash; click a bit to simulate noise flipping it</div>`;
+    const rbits = el("div",{class:"bits"});
+    recv.forEach((b,i)=>{
+      const flipped = flips.indexOf(i)!==-1;
+      const d = el("div",{class:"bit"+(b?" on":"")+(flipped?" flip":""), onclick:()=>{
+        if(!rx) rx = tx.slice();
+        rx[i] = rx[i]?0:1;
+        const k = flips.indexOf(i);
+        if(k===-1) flips.push(i); else flips.splice(k,1);
+        render(); labTouch(id,7);
+      }});
+      d.innerHTML = `<div class="b">${b}</div><div class="w">${i===0?"P":"D"+(8-i)}</div>`;
+      if(i===0) d.style.marginRight = "14px";
+      rbits.appendChild(d);
+    });
+    linkHost.appendChild(rbits);
+    const row = el("div",{class:"btn-row", style:"margin-top:12px"});
+    row.appendChild(el("button",{class:"btn sec", onclick:()=>{
+      rx = tx.slice(); const i = 1+Math.floor(Math.random()*7); rx[i]=rx[i]?0:1; flips=[i]; render(); labTouch(id,4);
+    }},"Inject a 1-bit error"));
+    row.appendChild(el("button",{class:"btn sec", onclick:()=>{
+      rx = tx.slice();
+      let i = 1+Math.floor(Math.random()*7), j = 1+Math.floor(Math.random()*7);
+      while(j===i) j = 1+Math.floor(Math.random()*7);
+      rx[i]=rx[i]?0:1; rx[j]=rx[j]?0:1; flips=[i,j];
+      flag(id,"tried2bit"); markProg(id,"lab");
+      render();
+    }},"Inject a 2-bit error"));
+    row.appendChild(el("button",{class:"btn sec", onclick:resetLink},"Clean line"));
+    linkHost.appendChild(row);
+
+    /* checker */
+    const cnt = ones(recv);
+    const expectEven = mode==="even";
+    const pass = expectEven ? (cnt%2===0) : (cnt%2===1);
+    const corrupted = flips.length>0;
+    resHost.innerHTML = "";
+    resHost.appendChild(readout([
+      {k:"1s received", v:cnt, id:"p_c"},
+      {k:"Parity rule", v:mode.toUpperCase(), id:"p_m", cls:"c"},
+      {k:"Checker says", v:pass?"PASS":"ERROR", id:"p_r", cls:pass?"g":"hl"},
+      {k:"Bits actually flipped", v:flips.length, id:"p_f"}
+    ]));
+
+    let msg, cls;
+    if(!corrupted){
+      msg = "<b>Clean line.</b> The receiver recounts the 1s, finds the count still "+(expectEven?"even":"odd")+
+            ", and accepts the word. Now flip one bit and watch what happens.";
+      cls = "ok";
+    }else if(flips.length%2===1 && !pass){
+      msg = "<b>Error detected.</b> "+flips.length+" bit"+(flips.length>1?"s were":" was")+
+            " flipped, so the count of 1s changed parity and the checker rejects the word. But note what the receiver "+
+            "<i>cannot</i> do: it does not know <b>which</b> bit is wrong, so it cannot repair the data. If the parameter "+
+            "is not time-critical it can request a retransmission; if it is, the word is discarded and the parameter is "+
+            "flagged invalid.";
+      cls = "warn";
+    }else if(flips.length%2===0 && pass){
+      msg = "<b>Error missed &mdash; and this is the important one.</b> "+flips.length+" bits were flipped. One 1 became a 0 "+
+            "and one 0 became a 1, so the total count of 1s kept its parity and the word sails through as valid. "+
+            "The receiver has no idea the data is corrupt. Any <b>even</b> number of errors is invisible to a single parity bit, "+
+            "which is exactly why parity is a cheap first line of defence and not a guarantee.";
+      cls = "err";
+      addMisconception(id, "Parity only detects an ODD number of flipped bits - an even number passes as valid.");
+    }else{
+      msg = "<b>Check the count.</b> Flipped bits: "+flips.length+". Recount the 1s and compare against the "+mode+" rule.";
+      cls = "warn";
+    }
+    resHost.appendChild(el("div",{class:"note "+cls+" small", style:"margin-bottom:0"}, msg));
+
+    if(tier!=="foundation"){
+      resHost.appendChild(el("div",{class:"note small", style:"margin-bottom:0"},
+        "<b>The hardware.</b> Chain XOR gates across the seven data bits and the output is 1 whenever the number of 1s "+
+        "is odd &mdash; that output <i>is</i> the even-parity bit. A handful of XOR gates is all a parity generator ever is, "+
+        "which is why it appears on so many buses: ARINC 429 spends bit 32 of every single word doing exactly this, "+
+        "normally as odd parity."));
+    }
+  }
+
+  render();
+};
+
+/* ============================================================
+   15 · BOOT
+   ============================================================ */
+(function init(){
+  load();
+  $("#resetBtn").onclick = ()=>{
+    if(confirm("Clear all your answers, explanations and progress on this device?")) resetAll();
+  };
+  $("#menuBtn").onclick = ()=> $("#rail").classList.toggle("open");
+  go(S.diagnosticDone ? "m1" : "home");
+})();
+</script>
+</body>
+</html>
