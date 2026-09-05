@@ -15,6 +15,7 @@ flags, Feynman explanations, knowledge summary) stays in the student's own brows
 | 1 | Semiconductors, Integrated Circuits & PCB | 7 | https://daniellow1987-ship-it.github.io/aero-learning-bay/topic1/ |
 | 3 | Logic Circuits & Data Converters | 6 | https://daniellow1987-ship-it.github.io/aero-learning-bay/topic3/ |
 | 5 | Databuses (ARINC 429 & ARINC 629) | 7 | https://daniellow1987-ship-it.github.io/aero-learning-bay/topic5/ |
+| 7 | Electrostatic Sensitive Devices | 6 | https://daniellow1987-ship-it.github.io/aero-learning-bay/topic7/ |
 
 ## How each bay is structured
 
@@ -34,12 +35,20 @@ Add an **Embed / Website** tag to the scenario and paste the topic's URL above.
 The pages are served over HTTPS and are responsive, so they work inside the ThingLink
 iframe on desktop and tablet.
 
+## Sourcing
+
+Every bay is built from the topic's own lecture deck. Where a lecture ILO promises material
+that the slides do not cover, the bay says so on screen rather than inventing it or quietly
+omitting it. Where a figure is brought in from outside the deck — an industry standard used
+to give the deck's numbers a scale — it is cited on the page as such.
+
 ## Repository layout
 
 ```
 topic1/index.html    Topic 1 — Semiconductors, ICs & PCB
 topic3/index.html    Topic 3 — Logic Circuits & Data Converters
 topic5/index.html    Topic 5 — Databuses
+topic7/index.html    Topic 7 — Electrostatic Sensitive Devices
 ```
 
 Published with GitHub Pages from `main` / root. To update a topic, drop a file named
