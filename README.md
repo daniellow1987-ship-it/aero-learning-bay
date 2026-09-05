@@ -10,10 +10,11 @@ flags, Feynman explanations, knowledge summary) stays in the student's own brows
 
 ## Live topics
 
-| Topic | Title | Embed URL |
-|---|---|---|
-| 1 | Semiconductors, Integrated Circuits & PCB | https://daniellow1987-ship-it.github.io/aero-learning-bay/topic1/ |
-| 3 | Logic Circuits & Data Converters | https://daniellow1987-ship-it.github.io/aero-learning-bay/topic3/ |
+| Topic | Title | Modules | Embed URL |
+|---|---|---|---|
+| 1 | Semiconductors, Integrated Circuits & PCB | 7 | https://daniellow1987-ship-it.github.io/aero-learning-bay/topic1/ |
+| 3 | Logic Circuits & Data Converters | 6 | https://daniellow1987-ship-it.github.io/aero-learning-bay/topic3/ |
+| 5 | Databuses (ARINC 429 & ARINC 629) | 7 | https://daniellow1987-ship-it.github.io/aero-learning-bay/topic5/ |
 
 ## How each bay is structured
 
@@ -38,6 +39,9 @@ iframe on desktop and tablet.
 ```
 topic1/index.html    Topic 1 — Semiconductors, ICs & PCB
 topic3/index.html    Topic 3 — Logic Circuits & Data Converters
+topic5/index.html    Topic 5 — Databuses
 ```
 
-Published with GitHub Pages from `main` / root.
+Published with GitHub Pages from `main` / root. To update a topic, drop a file named
+`index.html` into that topic's folder and commit to `main`; the URL never changes, so
+existing ThingLink tags keep working.
