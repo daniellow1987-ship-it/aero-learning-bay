@@ -16,6 +16,7 @@ flags, Feynman explanations, knowledge summary) stays in the student's own brows
 | 3 | Logic Circuits & Data Converters | 6 | https://daniellow1987-ship-it.github.io/aero-learning-bay/topic3/ |
 | 5 | Databuses (ARINC 429 & ARINC 629) | 7 | https://daniellow1987-ship-it.github.io/aero-learning-bay/topic5/ |
 | 7 | Electrostatic Sensitive Devices | 6 | https://daniellow1987-ship-it.github.io/aero-learning-bay/topic7/ |
+| 9 | Electronic Displays (CRT, LCD & LED) | 8 | https://daniellow1987-ship-it.github.io/aero-learning-bay/topic9/ |
 
 ## How each bay is structured
 
@@ -40,7 +41,9 @@ iframe on desktop and tablet.
 Every bay is built from the topic's own lecture deck. Where a lecture ILO promises material
 that the slides do not cover, the bay says so on screen rather than inventing it or quietly
 omitting it. Where a figure is brought in from outside the deck — an industry standard used
-to give the deck's numbers a scale — it is cited on the page as such.
+to give the deck's numbers a scale — it is cited on the page as such. Where the deck states a
+behaviour in words but gives no curve, the bench model is built to reproduce the deck's own
+stated endpoints and is labelled on screen as an illustration rather than measured data.
 
 ## Repository layout
 
@@ -49,6 +52,7 @@ topic1/index.html    Topic 1 — Semiconductors, ICs & PCB
 topic3/index.html    Topic 3 — Logic Circuits & Data Converters
 topic5/index.html    Topic 5 — Databuses
 topic7/index.html    Topic 7 — Electrostatic Sensitive Devices
+topic9/index.html    Topic 9 — Electronic Displays
 ```
 
 Published with GitHub Pages from `main` / root. To update a topic, drop a file named
