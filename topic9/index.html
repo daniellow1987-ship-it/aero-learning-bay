@@ -3849,7 +3849,7 @@ LABS.m6 = function(host, id, tier){
 
     const W = 470, H = 216;
     const y0 = 44, hgt = 108;
-    const xs = [30, 108, 186, 264, 342];      /* lamp, pol1, crystal, pol2, mirror/eye */
+    const xs = [30, 108, 186, 284, 358];      /* lamp, pol1, crystal, pol2, mirror/eye */
     let g = "";
     const layer=(x,w,fill,stroke,lab,sub)=>{
       g += `<rect x="${x}" y="${y0}" width="${w}" height="${hgt}" rx="3" fill="${fill}" stroke="${stroke}"/>`;
@@ -3881,7 +3881,7 @@ LABS.m6 = function(host, id, tier){
       g += `<text x="${xs[2]+31}" y="${y0+hgt/2}" class="cs" text-anchor="middle" fill="${ACC}">nothing to rotate the light</text>`;
     }
     /* second polariser */
-    layer(xs[3], 16, "#20303f", "#3c5165", "polariser 2", "horizontal &mdash; crossed");
+    layer(xs[3], 16, "#20303f", "#3c5165", "polariser 2", "horizontal");
     for(let i=0;i<6;i++) g += `<line x1="${xs[3]+2}" y1="${y0+8+i*18}" x2="${xs[3]+14}" y2="${y0+8+i*18}" stroke="#587490" stroke-width="0.9"/>`;
     /* light beam through the stack */
     const beamY = y0 + hgt/2;
@@ -3904,7 +3904,7 @@ LABS.m6 = function(host, id, tier){
     g += `<text x="${xs[4]+46}" y="${y0-10}" class="cs" text-anchor="middle">the segment</text>`;
     g += `<text x="${xs[4]+46}" y="${y0+hgt+14}" class="cs" text-anchor="middle" fill="${s.visible?ACC:HI}">${
       !lampOn ? "nothing visible" : (s.visible ? "BLACK &mdash; visible" : "not visible")}</text>`;
-    g += `<text x="235" y="${H-4}" class="cs" text-anchor="middle">${LCD_SOURCE}</text>`;
+    g += `<text x="235" y="${H-4}" class="cs" text-anchor="middle">the two polarisers are crossed &middot; ${LCD_SOURCE}</text>`;
 
     anim.innerHTML = `<svg class="viz" viewBox="0 0 ${W} ${H}">
       <style>.cs{fill:#8fa3b5;font:600 9.5px system-ui}</style>${g}</svg>`;
