@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transistor Match · Topic 1 Semiconductors</title>
+<style>
+:root{
+  --ink:#16222e; --muted:#5b6b7a; --bg:#f3f5f8; --card:#fff; --line:#d6dee6;
+  --blue:#1f5f9e; --blue-soft:#e3eef9; --ok:#1e8a4c; --ok-soft:#e2f4ea; --bad:#b83a3a; --bad-soft:#fbe7e7;
+  --amber:#b7791f; --amber-soft:#fdf3e1; --air:#1f5f9e; --home:#7a4fa0;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{background:#12324f;color:#fff}
+.hwrap{max-width:1180px;margin:0 auto;padding:14px 20px 12px}
+.htop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+h1{font-size:20px;margin:0}
+.hsub{font-size:13px;opacity:.8;margin:2px 0 0}
+.hlink{color:#cfe3f7;font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:4px 10px;white-space:nowrap}
+.hlink:hover{background:rgba(255,255,255,.1)}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:13px;align-items:center}
+.stat{background:rgba(255,255,255,.1);border-radius:99px;padding:3px 12px}
+.stat b{font-variant-numeric:tabular-nums}
+.rounds{display:flex;gap:4px;align-items:center}
+.rounds i{width:26px;height:6px;border-radius:9px;background:rgba(255,255,255,.2);display:block}
+.rounds i.on{background:#7fb8ec}.rounds i.done{background:#48d17a}
+button.linkish{background:none;border:none;color:#cfe3f7;font-size:12.5px;text-decoration:underline;cursor:pointer;padding:0 4px}
+main{max-width:1180px;margin:0 auto;padding:16px 20px 40px}
+.intro{background:#fff;border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:14px}
+.intro b{color:var(--blue)}
+.board{display:grid;grid-template-columns:minmax(260px,340px) minmax(0,1fr);gap:16px;align-items:start}
+
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+.panel h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px;display:flex;justify-content:space-between;align-items:center}
+.tray{display:flex;flex-direction:column;gap:8px;min-height:60px}
+@media (max-width:820px){.trayWrap{position:sticky;top:0;z-index:5;box-shadow:0 6px 14px rgba(0,0,0,.06)} .tray{flex-direction:row;overflow-x:auto;padding-bottom:4px} .tray .card{min-width:230px;max-width:260px;touch-action:pan-x}}
+.card{position:relative;background:#fff;border:1.5px solid #c7d2dc;border-radius:10px;padding:9px 11px 9px 11px;cursor:grab;text-align:left;font:inherit;font-size:13.5px;line-height:1.4;color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none;width:100%}
+.card:hover{border-color:#8fb0cf}
+.card.sel{border-color:var(--blue);background:var(--blue-soft);box-shadow:0 0 0 3px rgba(31,95,158,.18)}
+.card.wrongback{border-color:var(--bad);background:var(--bad-soft)}
+.card .hint{display:block;margin-top:6px;font-size:12.5px;color:var(--bad)}
+.tag{display:inline-block;font-size:11px;font-weight:700;border-radius:99px;padding:1px 8px;margin-bottom:4px;letter-spacing:.02em}
+.tag.air{background:#e3eef9;color:var(--air)}.tag.home{background:#f0e8f7;color:var(--home)}
+.empty{font-size:13px;color:var(--muted);padding:10px;text-align:center;border:1.5px dashed var(--line);border-radius:10px}
+.bins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.bin{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:8px;min-height:120px;display:flex;flex-direction:column;gap:6px;transition:border-color .12s,background .12s}
+.bin.armed{border-color:#8fb0cf;border-style:dashed;cursor:pointer}
+.bin.over{border-color:var(--blue);background:var(--blue-soft)}
+.bhead{display:flex;align-items:center;gap:8px;border-bottom:1px solid #edf1f5;padding-bottom:6px}
+.bhead svg{width:66px;height:44px;flex:0 0 66px}
+.bname{font-weight:700;font-size:14px;line-height:1.2}
+.bdoes{font-size:11.5px;color:var(--muted);line-height:1.3}
+.chip{position:relative;border:1.5px solid #c7d2dc;border-radius:8px;padding:5px 8px;font-size:12.5px;line-height:1.35;background:#fbfcfd;cursor:pointer;text-align:left;font-family:inherit;color:var(--ink);touch-action:manipulation;width:100%}
+.chip.locked{border-color:#9fd3b3;background:var(--ok-soft);cursor:default}
+.chip.locked.whyq{cursor:pointer}
+.chip .wb{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;border-radius:99px;padding:0 7px;vertical-align:1px}
+.wb.q{background:var(--amber);color:#fff}.wb.ok{background:var(--ok);color:#fff}.wb.miss{background:#9aa6b1;color:#fff}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+button.btn{border:none;border-radius:8px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff;font-family:inherit}
+button.btn.sec{background:#fff;color:var(--ink);border:1px solid #c7d2dc}
+button.btn:disabled{opacity:.45;cursor:not-allowed}
+.msg{font-size:13.5px;color:var(--muted)}
+.ghost{position:fixed;z-index:50;pointer-events:none;opacity:.92;transform:rotate(-2deg);box-shadow:0 10px 24px rgba(0,0,0,.18);max-width:300px}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(18,50,79,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+.modal.on{display:flex}
+.mbox{background:#fff;border-radius:14px;max-width:560px;width:100%;padding:18px 18px 16px;box-shadow:0 20px 50px rgba(0,0,0,.25);max-height:92vh;overflow:auto}
+.mbox h3{margin:0 0 4px;font-size:16px}
+.mbox .scen{background:#f6f8fa;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13.5px;margin:8px 0 10px}
+.mdev{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--ok)}
+.mdev svg{width:60px;height:40px}
+.opt{display:block;width:100%;text-align:left;border:1.5px solid #c7d2dc;background:#fff;border-radius:9px;padding:8px 11px;margin:6px 0;font:inherit;font-size:13.5px;cursor:pointer;color:var(--ink)}
+.opt:hover:not(:disabled){border-color:#8fb0cf;background:#f5f9fd}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.explain{display:none;margin-top:8px;font-size:13.5px;background:#f3f7fb;border:1px solid #cddcec;border-radius:9px;padding:8px 11px}
+.explain.on{display:block}
+.mfoot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:8px}
+.qcount{font-size:12.5px;color:var(--muted)}
+/* summary */
+.done{display:none}
+.done.on{display:block}
+.bigscore{display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 14px}
+.bs{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 16px}
+.bs span{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.bs b{font-size:24px;font-variant-numeric:tabular-nums}
+table.sum{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:13.5px}
+table.sum th,table.sum td{padding:8px 10px;border-bottom:1px solid #e6ebf0;text-align:left;vertical-align:top}
+table.sum th{background:#f6f8fa;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+table.sum td svg{width:66px;height:44px}
+table.sum ul{margin:0;padding-left:16px}
+table.sum li.miss{color:var(--bad)}
+@media (max-width:700px){table.sum thead{display:none} table.sum tr{display:block;border-bottom:2px solid var(--line)} table.sum td{display:block;border:none;padding:4px 10px} table.sum td[data-l]::before{content:attr(data-l);display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}}
+.note{font-size:12.5px;color:var(--muted);margin-top:10px}
+footer{max-width:1180px;margin:0 auto;padding:0 20px 30px;font-size:12px;color:var(--muted)}
+/* phone overrides (kept last so they win) */
+@media (max-width:820px){.board{grid-template-columns:minmax(0,1fr)} .trayWrap{min-width:0} .tray{align-items:flex-start} .bins{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px} .bin{min-height:96px;padding:6px} .bhead{flex-direction:column;align-items:flex-start;gap:2px} .bhead svg{width:54px;height:36px;flex:0 0 36px} .bname{font-size:13px} .bdoes{font-size:11px}}
+</style>
+</head>
+<body>
+<header><div class="hwrap">
+  <div class="htop">
+    <div><h1>Transistor Match</h1><div class="hsub">Topic 1 · Semiconductors: switch, amplifier or FET?</div></div>
+    <a class="hlink" href="../topic1b-tutorial/">← Transistor Bench (Tutorial 1B)</a>
+  </div>
+  <div class="stats">
+    <span class="stat">Round <b id="rNum">1</b> of 3</span><span class="rounds" id="rBar"><i></i><i></i><i></i></span>
+    <span class="stat">Matched first try <b id="sMatch">0</b>/<b id="sTot">20</b></span>
+    <span class="stat">Why correct <b id="sWhy">0</b></span>
+    <button class="linkish" id="resetAll">Start over</button>
+  </div>
+</div></header>
+<main>
+  <div id="play">
+    <div class="intro"><b>How to play.</b> Each card describes a transistor at work, either on an aircraft (<span class="tag air">✈ Aircraft</span>) or at home (<span class="tag home">⌂ Everyday</span>). Some cards are readings you might take with a meter. Decide whether the BJT is <b>switched OFF</b> (cutoff), <b>switched ON</b> (saturation) or <b>amplifying</b> (active region), or whether the job needs a <b>FET</b> input. Drag each card into its bin, or tap a card and then tap a bin. Press <b>Check</b>: cards in the right bin lock in green and you'll be asked <b>why</b>. Wrong cards come back with a hint.</div>
+    <div class="board">
+      <div class="panel trayWrap"><h2><span>Application cards</span><span id="trayCount"></span></h2><div class="tray" id="tray"></div></div>
+      <div>
+        <div class="bins" id="bins"></div>
+        <div class="actions"><button class="btn" id="checkBtn">Check</button><button class="btn sec" id="whyBtn" style="display:none">Answer the why questions</button><button class="btn" id="nextBtn" style="display:none">Next round →</button><span class="msg" id="msg"></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="done" id="done">
+    <div class="intro"><b>All three rounds done.</b> The table below is your knowledge summary: each bin, what is going on inside the transistor, and every card you matched to it. Anything you got wrong the first time is in red, so revise those.</div>
+    <div class="bigscore" id="bigscore"></div>
+    <table class="sum" id="sumTable"><thead><tr><th>Job</th><th>What is going on</th><th>✈ On the aircraft</th><th>⌂ Everyday</th></tr></thead><tbody></tbody></table>
+    <p class="note">Tutorial 1B links: the region and bias table (Short Q3), I<sub>C</sub> not controlled by I<sub>B</sub> in saturation (MCQ 6), forward biasing B–E to switch on (MCQ 9), BJT low input impedance (MCQ 8), JFET highest input impedance (MCQ 10), JFET controlled by V<sub>GS</sub> (MCQ 4).</p>
+    <div class="actions"><button class="btn" id="againBtn">Play again with new rounds</button><a class="hlink" style="color:var(--blue);border-color:#c7d2dc" href="../topic1b-tutorial/">Go to the Transistor Bench →</a></div>
+  </div>
+</main>
+<div class="modal" id="whyModal" role="dialog" aria-modal="true" aria-labelledby="whyTitle"><div class="mbox">
+  <h3 id="whyTitle">Why?</h3>
+  <div class="mdev" id="whyDev"></div>
+  <div class="scen" id="whyScen"></div>
+  <div id="whyOpts"></div>
+  <div class="explain" id="whyEx"></div>
+  <div class="mfoot"><span class="qcount" id="whyCount"></span><button class="btn" id="whyNext" disabled>Next</button></div>
+</div></div>
+<div class="modal" id="roundModal" role="dialog" aria-modal="true"><div class="mbox" id="roundBox"></div></div>
+<footer>Aircraft examples are simplified to show the transistor's role, and exact designs vary by aircraft type. Your progress is saved in this browser only.</footer>
+<script>
+/* ============ ICONS (original drawings) ============ */
+const K = '#16222e';
+function dsvg(inner, w=90, h=60){ return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" stroke="${K}" stroke-width="2.2" fill="none" aria-hidden="true">${inner}</svg>`; }
+
+/* The four bins: three BJT operating regions + the FET job */
+const DEV = [
+  {k:'cut', name:'Switch OFF: cutoff', lc:'cutoff', the:'cutoff region', wq:'Why is this transistor in cutoff?',
+   does:'Both junctions reverse biased. No base current, so I_C ≈ 0 and V_CE ≈ V_CC: an open switch.',
+   sym: dsvg(`<line x1="5" y1="34" x2="28" y2="34"/><circle cx="31" cy="34" r="3" fill="${K}"/><line x1="33" y1="32" x2="58" y2="14"/><circle cx="62" cy="34" r="3"/><line x1="65" y1="34" x2="85" y2="34"/><text x="45" y="54" font-size="11" fill="${K}" stroke="none" text-anchor="middle">OFF</text>`)},
+  {k:'sat', name:'Switch ON: saturation', lc:'saturation', the:'saturation region', wq:'Why is this transistor saturated?',
+   does:'Both junctions forward biased. V_CE ≈ 0.2 V and I_C is set by the load, not by I_B: a closed switch.',
+   sym: dsvg(`<line x1="5" y1="34" x2="28" y2="34"/><circle cx="31" cy="34" r="3" fill="${K}"/><line x1="33" y1="33" x2="60" y2="31"/><circle cx="62" cy="34" r="3" fill="${K}"/><line x1="65" y1="34" x2="85" y2="34"/><text x="45" y="54" font-size="11" fill="${K}" stroke="none" text-anchor="middle">ON</text>`)},
+  {k:'act', name:'BJT amplifier: active region', lc:'the active region', the:'active region', wq:'Why is this transistor in the active region?',
+   does:'B–E forward, B–C reverse biased. I_C = β·I_B follows the input: an amplifier.',
+   sym: dsvg(`<path d="M30,10 L30,50 L64,30 Z"/><path d="M4,30 q4,-6 8,0 t8,0" stroke-width="1.8"/><line x1="20" y1="30" x2="30" y2="30"/><line x1="64" y1="30" x2="70" y2="30"/><path d="M70,30 q4,-14 8,0 t8,0" stroke-width="1.8"/>`)},
+  {k:'fet', name:'FET input stage', lc:'a FET input stage', the:'FET', wq:'Why does this job need a FET?',
+   does:'Voltage controlled: V_GS sets I_D and the gate draws almost no current, so the input impedance is very high.',
+   sym: dsvg(`<line x1="44" y1="10" x2="44" y2="50"/><path d="M44,16 L66,16 L66,4 M44,44 L66,44 L66,56"/><line x1="12" y1="44" x2="44" y2="44"/><polygon points="44,44 34,39 34,49" fill="${K}"/><g stroke="none" fill="${K}" font-size="10"><text x="70" y="12">D</text><text x="70" y="56">S</text><text x="6" y="40">G</text></g>`)}
+];
+const DEVK = Object.fromEntries(DEV.map(d=>[d.k,d]));
+
+/* why[0] is the correct reason (options are shuffled on screen). trap = card-specific hint for a wrong bin. */
+const CARDS = [
+ // ---- Cutoff (open switch)
+ {id:'c1', dev:'cut', ctx:'air', short:'Relay driver, switch OFF (V_CE = 28 V)',
+  t:'A BJT driving the landing light relay, with the cockpit switch OFF: 0 V on the base, the full 28 V across collector–emitter, relay de-energised.',
+  why:['No base current flows, so I_C ≈ 0 and the whole supply appears across C–E: an open switch','It is fully on, so V_CE rises to 28 V','Its gate voltage has pinched off the channel'],
+  ex:'Short Q3 table: cutoff means both junctions are reverse biased and the transistor operates as an open switch. With no collector current there is no voltage drop across the relay coil, so all 28 V sits across the transistor.',
+  trap:{sat:'Saturation would put V_CE near 0.2 V. Here the whole 28 V is across the transistor. What does that tell you about the current?'}},
+ {id:'c2', dev:'cut', ctx:'air', short:'CAUTION light driver, no fault',
+  t:'The BJT driving a master CAUTION light while no fault is present: the flight computer holds its base low, so the light stays dark.',
+  why:['With the base held low the B–E junction isn\'t forward biased, so no base or collector current flows','It is amplifying a very small fault signal','Its collector current is limited by the lamp'],
+  ex:'MCQ 9: a BJT only switches on once its B–E junction is forward biased. Held low, it stays in cutoff and the lamp gets no current.'},
+ {id:'c3', dev:'cut', ctx:'home', short:'Torch LED driver, torch off',
+  t:'The BJT that drives a phone\'s torch LED, while the torch is switched off.',
+  why:['No base drive, so I_B = 0, I_C ≈ 0 and the switch is open','It sits half-way along the load line','It draws a large gate current to stay off'],
+  ex:'Cutoff is the "off" end of the load line: I_C ≈ 0, V_CE ≈ supply.'},
+ {id:'c4', dev:'cut', ctx:'air', short:'Fault: V_BE = 0.05 V, V_CE = supply',
+  t:'Troubleshooting: a switched output never comes on. On the BJT you measure V_BE = 0.05 V, and V_CE equal to the supply voltage.',
+  why:['0.05 V is far below the ~0.7 V needed to forward bias B–E, so it is held in cutoff: check the base drive first','V_CE equal to the supply means it is saturated','It is working normally as an amplifier'],
+  ex:'MCQ 9: to switch a BJT on, B–E must be forward biased (about 0.7 V for silicon). The transistor is doing what its base tells it to, so look upstream at the drive signal before replacing it.',
+  trap:{sat:'A saturated transistor would read about 0.2 V across C–E, not the full supply. And 0.05 V on the base can\'t drive any base current.'}},
+ {id:'c5', dev:'cut', ctx:'home', short:'Buzzer driver, silent gap',
+  t:'A microcontroller drives a buzzer through a BJT. This is the silent gap in the beep pattern: the microcontroller output is at 0 V.',
+  why:['0 V on the base means no base current, so no collector current: the buzzer is off','The transistor is saturated between beeps','The buzzer current is controlled by the gate voltage'],
+  ex:'The same transistor spends its life flipping between cutoff (silent) and saturation (beep). It passes through the active region only briefly.'},
+ // ---- Saturation (closed switch)
+ {id:'s1', dev:'sat', ctx:'air', short:'Relay driver, switch ON (V_CE = 0.2 V)',
+  t:'The same landing light relay driver with the switch ON: V_CE reads 0.2 V and the relay is energised.',
+  why:['Both junctions are forward biased and I_C is set by the relay coil and supply, not by I_B: a closed switch','Only a small part of the base current reaches the collector','The B–C junction is reverse biased, so it is amplifying'],
+  ex:'Short Q3: saturation means both junctions are forward biased and the transistor operates as a closed switch. MCQ 6: in saturation I_C is no longer controlled by I_B.',
+  trap:{act:'In the active region V_CE would sit somewhere well above 0.2 V. A reading of 0.2 V means the transistor is fully on.'}},
+ {id:'s2', dev:'sat', ctx:'air', short:'V_CE = 0.1 V, base overdriven 3×',
+  t:'Measured on a BJT lamp driver: V_CE = 0.1 V, and the base current is three times what I_C ÷ β would need. More base drive makes no difference to the lamp.',
+  why:['I_C is limited by the load, so extra base current changes nothing: the transistor is saturated','The transistor is in cutoff','β has tripled'],
+  ex:'This is the deck\'s transfer task. V_CE near 0 V, with base drive well above I_C/β, means saturation. Designers overdrive the base on purpose so the switch is hard on.',
+  trap:{act:'In the active region I_C would follow I_B, but here it doesn\'t (the base drive is 3× what I_C/β needs). Which region stops obeying I_C = β·I_B?'}},
+ {id:'s3', dev:'sat', ctx:'home', short:'Desk fan switched fully on',
+  t:'A BJT driven hard to switch a small DC desk fan fully on.',
+  why:['Driven hard, it saturates: V_CE is tiny and the fan gets almost the full supply','It amplifies the fan\'s speed','It is off, so the fan current bypasses it'],
+  ex:'A saturated switch drops only ~0.2 V, so nearly all the supply reaches the load.'},
+ {id:'s4', dev:'sat', ctx:'air', short:'Reading light driver ON, stays cool',
+  t:'A cabin reading light driven by a BJT, switched ON. The transistor stays almost cold even though it carries the full lamp current.',
+  why:['At saturation V_CE is tiny, so its heat (V_CE × I_C) is small','Transistors always run cold in the active region','It is in cutoff, so no current flows'],
+  ex:'Station 3 of the Transistor Bench shows this: fully on, the transistor dissipates milliwatts. Underdrive it into the active region and it gets hot, because V_CE × I_C becomes large.',
+  trap:{act:'In the active region there would be several volts across the transistor while it carries the lamp current, so it would get hot. This one stays cold.'}},
+ {id:'s5', dev:'sat', ctx:'home', short:'Logic output pulling to 0 (≈0.2 V)',
+  t:'In a digital circuit, a BJT output pulls a signal line hard down to logic 0, at about 0.2 V.',
+  why:['Switched fully on, V_CE ≈ 0.2 V, which the next gate reads as a solid 0','It is in cutoff, which makes the line 0','It is amplifying the logic signal linearly'],
+  ex:'Logic uses the two ends of the load line only: saturation for one state, cutoff for the other.',
+  trap:{cut:'In cutoff the transistor would be off and the line would be pulled up, not down to 0.2 V.'}},
+ // ---- Active (amplifier)
+ {id:'a1', dev:'act', ctx:'air', short:'Interphone mic preamp (BJT)',
+  t:'A BJT preamplifier for the cabin interphone microphone: a few millivolts in, a larger undistorted copy out.',
+  why:['Biased in the active region, I_C = β·I_B follows the input signal','It switches fully on and off at the audio frequency','Its gate draws no current'],
+  ex:'Short Q3: the active region means B–E forward biased and B–C reverse biased, so the transistor operates as an amplifier. The Q-point sits mid-load-line so the signal can swing both ways without clipping.'},
+ {id:'a2', dev:'act', ctx:'air', short:'VHF receiver RF amplifier (BJT)',
+  t:'The BJT RF amplifier at the front of a VHF comm receiver, boosting a weak station signal.',
+  why:['In the active region the output is a larger copy of the input','It saturates on every cycle to boost the signal','It is off until a strong signal arrives'],
+  ex:'Any linear amplifier stage lives in the active region. Hit saturation or cutoff and the waveform clips (the amplifier on Transistor Bench station 3 shows it).'},
+ {id:'a3', dev:'act', ctx:'home', short:'Headphone amplifier (BJT)',
+  t:'A small BJT audio amplifier driving a pair of headphones.',
+  why:['Its Q-point is in the active region so the music is amplified without clipping','It switches between cutoff and saturation to make sound','It relies on a very high input impedance to work'],
+  ex:'Clean audio needs the whole waveform to stay in the active region. Bias it too high and it clips at saturation. Bias it too low and it clips at cutoff.'},
+ {id:'a4', dev:'act', ctx:'air', short:'V_CE ≈ 10 V on a 20 V stage',
+  t:'Measured on a BJT amplifier stage with a 20 V supply: V_CE sits at about 10 V, and I_C ÷ I_B works out at about β.',
+  why:['V_CE is well away from both 0 V and the supply, and I_C = β·I_B, so it is in the active region','V_CE = 10 V means it is saturated','It must be in cutoff because the supply is 20 V'],
+  ex:'A healthy amplifier is biased mid-way. A reading of about 0.2 V would mean saturated; a reading of 20 V would mean cut off.',
+  trap:{sat:'Saturation would put V_CE near 0.2 V, not half the supply.', cut:'Cutoff would put the whole 20 V across the transistor and make I_C ≈ 0.'}},
+ {id:'a5', dev:'act', ctx:'home', short:'Hearing aid amplifier (BJT)',
+  t:'A BJT stage in a hearing aid, making quiet speech louder without distorting it.',
+  why:['The active region gives I_C = β·I_B, a larger copy of the input','Saturation makes quiet sounds louder','It works because the gate draws no current'],
+  ex:'Same job as the interphone preamp: small signal in, bigger copy out, with the Q-point kept in the active region.'},
+ // ---- FET input stage
+ {id:'f1', dev:'fet', ctx:'air', short:'Engine vibration sensor front end',
+  t:'The first stage after a piezoelectric vibration sensor on an engine. The sensor can supply almost no current.',
+  why:['The gate draws almost no current, so its very high input impedance doesn\'t load the sensor','It needs a large base current to work','It switches the sensor on and off'],
+  ex:'MCQ 10: the JFET has the highest input impedance. A BJT would draw base current and pull the sensor\'s signal down; see the loading test on the Transistor Bench.',
+  trap:{act:'A BJT amplifier could amplify, but it draws base current, and this sensor can\'t supply any. Which device draws almost no input current?'}},
+ {id:'f2', dev:'fet', ctx:'air', short:'Capacitive fuel probe conditioning',
+  t:'Signal conditioning for a capacitive fuel quantity probe, whose signal source has a very high impedance.',
+  why:['Voltage control with almost no gate current means the probe\'s signal isn\'t loaded','It needs base current from the probe','It saturates to measure the fuel'],
+  ex:'The deck lists capacitive sensors among the high-impedance sources that need a FET front end.',
+  trap:{act:'The probe can\'t deliver base current without its signal collapsing. What kind of input draws almost none?'}},
+ {id:'f3', dev:'fet', ctx:'home', short:'Multimeter input stage (10 MΩ)',
+  t:'The input stage of a digital multimeter, which needs about 10 MΩ input resistance so it doesn\'t disturb the circuit it measures.',
+  why:['A FET input draws almost no current, so the meter barely loads the circuit','A BJT\'s low input impedance is ideal for meters','It is switched on and off by the probes'],
+  ex:'MCQ 8: a BJT has low input impedance, which is exactly what a meter must avoid.',
+  trap:{act:'A BJT has low input impedance (MCQ 8), so it would load the circuit being measured. What has a very high input impedance?'}},
+ {id:'f4', dev:'fet', ctx:'home', short:'Electret microphone buffer',
+  t:'The tiny transistor built into an electret microphone capsule, which buffers the capsule\'s very high-impedance signal without loading it.',
+  why:['Its gate draws almost no current, so the capsule\'s tiny charge signal isn\'t drained away','It amplifies by drawing base current from the capsule','It switches the microphone on and off'],
+  ex:'Electret capsules contain a JFET for exactly this reason: the capsule behaves like a charged capacitor with almost no current to spare.',
+  trap:{act:'It does amplify, but the capsule can\'t supply base current. The key requirement here is a very high input impedance.'}},
+ {id:'f5', dev:'fet', ctx:'air', short:'Smoke detector photodiode amplifier',
+  t:'The input amplifier after the photodiode in a cargo smoke detector, where the photodiode\'s signal current is only nanoamps.',
+  why:['A FET input draws almost none of that tiny signal current','It needs milliamps of base current','It saturates whenever smoke is present'],
+  ex:'The deck names photodiodes among the high-impedance sources that call for a FET input: the front end must not steal the signal it is trying to measure.',
+  trap:{act:'A BJT would need base current comparable to the whole nanoamp signal. What draws almost no input current?'}}
+];
+
+/* ============ STATE ============ */
+const KEY = 'transistorMatch.v1';
+const $ = s => document.querySelector(s);
+const CARDK = Object.fromEntries(CARDS.map(c=>[c.id,c]));
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const esc = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fx = s => esc(s).replace(/([A-Za-zβ])_([A-Za-z()]+)/g,'$1<sub>$2</sub>');
+
+let S = null;
+function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && s.v===1 && s.rounds && s.rounds.flat().length===CARDS.length && s.rounds.flat().every(id=>CARDK[id])) return s; }catch(e){} return null; }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+/* Deal the cards into 3 rounds so every round has at least one card for every bin */
+function newGame(){
+  const rounds=[[],[],[]]; let r=Math.floor(Math.random()*3);
+  DEV.forEach(d=>{ shuffle(CARDS.filter(c=>c.dev===d.k)).forEach(c=>{ rounds[r].push(c.id); r=(r+1)%3; }); });
+  const cards={}; CARDS.forEach(c=>cards[c.id]={bin:null, locked:false, tries:0, firstOk:null, why:null, whyOrder:shuffle([0,1,2]), hint:null});
+  S={v:1, rounds:rounds.map(shuffle), r:0, cards, finished:false};
+  save();
+}
+
+/* ============ RENDER ============ */
+let selId = null;
+const roundIds = () => S.rounds[S.r];
+const tagHtml = c => c.ctx==='air' ? '<span class="tag air">✈ Aircraft</span>' : '<span class="tag home">⌂ Everyday</span>';
+
+function renderStats(){
+  const all=Object.values(S.cards);
+  $('#rNum').textContent = Math.min(S.r+1,3);
+  $('#sMatch').textContent = all.filter(c=>c.firstOk===true).length;
+  $('#sTot').textContent = CARDS.length;
+  $('#sWhy').textContent = all.filter(c=>c.why==='ok').length;
+  [...$('#rBar').children].forEach((el,i)=>{ el.className = (S.finished||i<S.r)?'done':(i===S.r?'on':''); });
+}
+
+function render(){
+  renderStats();
+  if(S.finished){ $('#play').style.display='none'; $('#done').classList.add('on'); renderDone(); return; }
+  $('#play').style.display=''; $('#done').classList.remove('on');
+  const ids = roundIds();
+  const inTray = ids.filter(id=>!S.cards[id].bin);
+  $('#tray').innerHTML = inTray.length ? inTray.map(id=>{ const c=CARDK[id], st=S.cards[id];
+      return `<button class="card${selId===id?' sel':''}${st.hint?' wrongback':''}" data-id="${id}" aria-pressed="${selId===id}">${tagHtml(c)}<br>${fx(c.t)}${st.hint?`<span class="hint">${st.hint}</span>`:''}</button>`; }).join('')
+    : `<div class="empty">${ids.every(id=>S.cards[id].locked) ? 'All cards matched.' : 'All cards placed. Press <b>Check</b>.'}</div>`;
+  $('#trayCount').textContent = inTray.length+' of '+ids.length+' left';
+  $('#bins').innerHTML = DEV.map(d=>{
+    const chips = ids.filter(id=>S.cards[id].bin===d.k).map(id=>{ const c=CARDK[id], st=S.cards[id];
+      const wb = st.locked ? (st.why==='ok'?'<span class="wb ok">why ✓</span>':st.why==='miss'?'<span class="wb miss">why ✗</span>':'<span class="wb q">why?</span>') : '';
+      return `<button class="chip${st.locked?' locked':''}${st.locked&&!st.why?' whyq':''}" data-id="${id}" title="${st.locked?'':'Tap to send back to the tray'}">${c.ctx==='air'?'✈':'⌂'} ${fx(c.short)}${wb}</button>`; }).join('');
+    return `<div class="bin${selId?' armed':''}" data-k="${d.k}" role="button" tabindex="0" aria-label="${esc(d.name)}"><div class="bhead">${d.sym}<div><div class="bname">${esc(d.name)}</div><div class="bdoes">${fx(d.does)}</div></div></div>${chips}</div>`;
+  }).join('');
+  const placed = ids.filter(id=>S.cards[id].bin && !S.cards[id].locked).length;
+  const pendingWhy = ids.filter(id=>S.cards[id].locked && !S.cards[id].why).length;
+  const roundDone = ids.every(id=>S.cards[id].locked && S.cards[id].why);
+  $('#checkBtn').disabled = placed===0;
+  $('#checkBtn').style.display = roundDone?'none':'';
+  $('#whyBtn').style.display = pendingWhy && !roundDone ? '' : 'none';
+  $('#nextBtn').style.display = roundDone ? '' : 'none';
+  $('#nextBtn').textContent = S.r<2 ? 'Next round →' : 'See my summary →';
+  if(roundDone) $('#msg').textContent = 'Round complete.';
+  else if(selId) $('#msg').textContent = 'Now tap the bin that fits this card.';
+  else if(!placed && !pendingWhy) $('#msg').textContent = `Round ${S.r+1} of 3: sort these ${ids.length} cards. The next set appears on this same page when you finish.`;
+}
+
+/* ============ ACTIONS ============ */
+function place(id,k){ const st=S.cards[id]; if(!st||st.locked) return; st.bin=k; st.hint=null; selId=null; save(); render(); }
+function unplace(id){ const st=S.cards[id]; if(!st||st.locked) return; st.bin=null; save(); render(); }
+function tapCard(id){ selId = selId===id?null:id; render(); }
+
+function check(){
+  const ids=roundIds(); let right=0, wrong=0;
+  ids.forEach(id=>{ const st=S.cards[id], c=CARDK[id]; if(!st.bin||st.locked) return;
+    st.tries++;
+    if(st.bin===c.dev){ st.locked=true; if(st.firstOk===null) st.firstOk=(st.tries===1); right++; }
+    else { const d=DEVK[st.bin]; st.hint = (c.trap&&c.trap[st.bin]) ? fx(c.trap[st.bin]) : `Not ${esc(d.lc)}. ${esc(d.lc.charAt(0).toUpperCase()+d.lc.slice(1))}: ${fx(d.does.charAt(0).toLowerCase()+d.does.slice(1))} Is that what this job needs?`;
+      st.firstOk=false; st.bin=null; wrong++; }
+  });
+  selId=null; save(); render();
+  $('#msg').textContent = `${right} right${wrong?`, ${wrong} back in the tray with a hint`:''}.`;
+  openWhy();
+}
+
+/* ---- why modal ---- */
+let whyQ=[], whyIdx=0;
+function openWhy(onlyId){
+  whyQ = onlyId ? [onlyId] : roundIds().filter(id=>S.cards[id].locked && !S.cards[id].why);
+  whyIdx=0; if(!whyQ.length) return afterWhy();
+  $('#whyModal').classList.add('on'); showWhy();
+}
+function showWhy(){
+  const id=whyQ[whyIdx], c=CARDK[id], st=S.cards[id], d=DEVK[c.dev];
+  $('#whyDev').innerHTML = `${d.sym}<span>✓ ${esc(d.name)}. Correct match.</span>`;
+  $('#whyScen').innerHTML = `${tagHtml(c)}<br>${fx(c.t)}`;
+  $('#whyTitle').textContent = d.wq;
+  $('#whyOpts').innerHTML = st.whyOrder.map(i=>`<button class="opt" data-i="${i}">${fx(c.why[i])}</button>`).join('');
+  $('#whyEx').classList.remove('on'); $('#whyEx').innerHTML='';
+  $('#whyNext').disabled=true; $('#whyNext').textContent = whyIdx<whyQ.length-1?'Next':'Done';
+  $('#whyCount').textContent = whyQ.length>1 ? `${whyIdx+1} of ${whyQ.length}` : '';
+  const first=$('#whyOpts .opt'); if(first) first.focus();
+}
+function pickWhy(i){
+  const id=whyQ[whyIdx], c=CARDK[id], st=S.cards[id];
+  if(st.why) return;
+  st.why = i===0 ? 'ok' : 'miss';
+  document.querySelectorAll('#whyOpts .opt').forEach(b=>{ const bi=+b.dataset.i; b.disabled=true; if(bi===0) b.classList.add('right'); else if(bi===i) b.classList.add('wrong'); });
+  $('#whyEx').innerHTML = (i===0?'<b style="color:var(--ok)">Yes.</b> ':'<b style="color:var(--bad)">Not quite.</b> The green answer is the reason. ') + fx(c.ex);
+  $('#whyEx').classList.add('on'); $('#whyNext').disabled=false; $('#whyNext').focus();
+  save(); renderStats();
+}
+function nextWhy(){ whyIdx++; if(whyIdx<whyQ.length) showWhy(); else { $('#whyModal').classList.remove('on'); afterWhy(); } }
+function afterWhy(){ render(); const ids=roundIds(); if(ids.every(id=>S.cards[id].locked && S.cards[id].why)) showRoundModal(); }
+
+function roundStats(ids){ return {n:ids.length, first:ids.filter(id=>S.cards[id].firstOk).length, why:ids.filter(id=>S.cards[id].why==='ok').length}; }
+function showRoundModal(){
+  const st=roundStats(roundIds()); const last=S.r===2;
+  $('#roundBox').innerHTML = `<h3>Round ${S.r+1} complete</h3>
+    <div class="bigscore"><div class="bs"><span>Matched first try</span><b>${st.first}/${st.n}</b></div><div class="bs"><span>Why correct</span><b>${st.why}/${st.n}</b></div></div>
+    <p class="msg">${st.first===st.n&&st.why===st.n?'A perfect round.':'Cards you missed are marked in red on the summary at the end.'}</p>
+    <div class="mfoot"><button class="btn sec" id="rStay">Stay and review</button><button class="btn" id="rGo">${last?'See my summary →':'Next round →'}</button></div>`;
+  $('#roundModal').classList.add('on'); $('#rGo').focus();
+  $('#rStay').onclick=()=>$('#roundModal').classList.remove('on');
+  $('#rGo').onclick=()=>{ $('#roundModal').classList.remove('on'); nextRound(); };
+}
+function nextRound(){ if(S.r<2){ S.r++; } else { S.finished=true; } selId=null; save(); render(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+function renderDone(){
+  const all=Object.values(S.cards), n=CARDS.length;
+  const f=all.filter(c=>c.firstOk).length, w=all.filter(c=>c.why==='ok').length;
+  $('#bigscore').innerHTML = `<div class="bs"><span>Matched first try</span><b>${f}/${n}</b></div><div class="bs"><span>Why correct</span><b>${w}/${n}</b></div><div class="bs"><span>Overall</span><b>${Math.round((f+w)/(2*n)*100)}%</b></div>`;
+  const li = c => { const st=S.cards[c.id]; const miss = st.firstOk===false || st.why==='miss';
+    return `<li class="${miss?'miss':''}" title="${esc(c.t)}">${fx(c.short)}${miss?` <small>(${[st.firstOk===false?'match':'',st.why==='miss'?'why':''].filter(Boolean).join(' + ')} missed)</small>`:''}</li>`; };
+  $('#sumTable tbody').innerHTML = DEV.map(d=>{ const cs=CARDS.filter(c=>c.dev===d.k);
+    return `<tr><td data-l="Job">${d.sym}<br><b>${esc(d.name)}</b></td><td data-l="What is going on">${fx(d.does)}</td><td data-l="✈ On the aircraft"><ul>${cs.filter(c=>c.ctx==='air').map(li).join('')||'<li>—</li>'}</ul></td><td data-l="⌂ Everyday"><ul>${cs.filter(c=>c.ctx==='home').map(li).join('')||'<li>—</li>'}</ul></td></tr>`; }).join('');
+}
+
+/* ============ POINTER: drag or tap ============ */
+let drag=null, suppressClick=false;
+function dropTarget(x,y){ const el=document.elementFromPoint(x,y); if(!el) return null; const b=el.closest('.bin'); if(b) return {bin:b.dataset.k, el:b}; if(el.closest('.trayWrap')) return {tray:true, el:$('.trayWrap')}; return null; }
+function clearOver(){ document.querySelectorAll('.bin.over').forEach(b=>b.classList.remove('over')); }
+document.addEventListener('pointerdown', e=>{
+  const el=e.target.closest('.card, .chip:not(.locked)'); if(!el || e.button>0) return;
+  drag={id:el.dataset.id, el, x:e.clientX, y:e.clientY, on:false, pid:e.pointerId};
+});
+document.addEventListener('pointermove', e=>{
+  if(!drag || e.pointerId!==drag.pid) return;
+  if(!drag.on){ if(Math.hypot(e.clientX-drag.x, e.clientY-drag.y)<7) return;
+    drag.on=true; const r=drag.el.getBoundingClientRect(); drag.dx=e.clientX-r.left; drag.dy=e.clientY-r.top;
+    drag.g=drag.el.cloneNode(true); drag.g.classList.add('ghost'); drag.g.classList.remove('sel'); drag.g.style.width=Math.min(r.width,300)+'px'; document.body.appendChild(drag.g); drag.el.style.opacity=.35; }
+  e.preventDefault();
+  drag.g.style.left=(e.clientX-drag.dx)+'px'; drag.g.style.top=(e.clientY-drag.dy)+'px';
+  clearOver(); const t=dropTarget(e.clientX,e.clientY); if(t&&t.bin) t.el.classList.add('over');
+}, {passive:false});
+function endDrag(e, cancel){
+  if(!drag || (e && e.pointerId!==drag.pid)) return;
+  if(drag.on){ suppressClick=true; setTimeout(()=>suppressClick=false,0); drag.g.remove(); drag.el.style.opacity=''; clearOver();
+    if(!cancel){ const t=dropTarget(e.clientX,e.clientY); if(t&&t.bin) place(drag.id,t.bin); else if(t&&t.tray) unplace(drag.id); } }
+  drag=null;
+}
+document.addEventListener('pointerup', e=>endDrag(e,false));
+document.addEventListener('pointercancel', e=>endDrag(e,true));
+
+document.addEventListener('click', e=>{
+  if(suppressClick){ suppressClick=false; return; }
+  const card=e.target.closest('#tray .card'); if(card){ tapCard(card.dataset.id); return; }
+  const chip=e.target.closest('.chip'); if(chip){ const st=S.cards[chip.dataset.id]; if(!st.locked) unplace(chip.dataset.id); else if(!st.why) openWhy(chip.dataset.id); return; }
+  const bin=e.target.closest('.bin'); if(bin && selId){ place(selId, bin.dataset.k); return; }
+  const opt=e.target.closest('#whyOpts .opt'); if(opt){ pickWhy(+opt.dataset.i); return; }
+});
+document.addEventListener('keydown', e=>{
+  if((e.key==='Enter'||e.key===' ') && e.target.classList && e.target.classList.contains('bin') && selId){ e.preventDefault(); place(selId, e.target.dataset.k); }
+  if(e.key==='Escape'){ if($('#roundModal').classList.contains('on')) $('#roundModal').classList.remove('on'); else if(selId){ selId=null; render(); } }
+});
+
+$('#checkBtn').onclick=check;
+$('#whyBtn').onclick=()=>openWhy();
+$('#whyNext').onclick=nextWhy;
+$('#nextBtn').onclick=()=>{ if(roundIds().every(id=>S.cards[id].locked && S.cards[id].why)) nextRound(); };
+$('#againBtn').onclick=()=>{ newGame(); selId=null; render(); window.scrollTo({top:0}); };
+let resetArm=null;
+$('#resetAll').onclick=()=>{ const b=$('#resetAll'); if(resetArm){ clearTimeout(resetArm); resetArm=null; b.textContent='Start over'; newGame(); selId=null; render(); return; }
+  b.textContent='Sure? Click again to wipe your progress'; resetArm=setTimeout(()=>{ resetArm=null; b.textContent='Start over'; },3500); };
+
+/* ============ BOOT ============ */
+S = load(); if(!S) newGame();
+render();
+if(!S.finished && roundIds().some(id=>S.cards[id].locked && !S.cards[id].why)) $('#msg').textContent='You have why questions waiting.';
+
+</script>
+</body>
+</html>
