@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transistor Bench · Tutorial 1B Semiconductors-Transistors</title>
+<style>
+:root{
+  --ink:#16222e; --muted:#5b6b7a; --bg:#f3f5f8; --card:#fff; --line:#d6dee6;
+  --blue:#1f5f9e; --blue-soft:#e3eef9; --ok:#1e8a4c; --ok-soft:#e2f4ea; --bad:#b83a3a; --bad-soft:#fbe7e7;
+  --amber:#b7791f; --amber-soft:#fdf3e1; --fwd:#d8efe0; --rev:#dce9f7; --brk:#f7dfe9;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{background:#12324f;color:#fff}
+.hwrap{max-width:1120px;margin:0 auto;padding:14px 20px 0}
+h1{font-size:20px;margin:0}
+.hsub{font-size:13px;opacity:.8;margin:2px 0 10px}
+.progress{display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:10px}
+.pbar{flex:1;max-width:320px;height:8px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:#48d17a;transition:width .3s}
+nav.tabs{display:flex;gap:2px;overflow-x:auto}
+nav.tabs button{background:transparent;border:none;color:#c9d8e6;padding:9px 14px;font-size:13.5px;font-weight:600;cursor:pointer;border-radius:8px 8px 0 0;white-space:nowrap}
+nav.tabs button.on{background:var(--bg);color:var(--ink)}
+nav.tabs button .ct{font-weight:500;opacity:.75;margin-left:4px;font-size:12px}
+main{max-width:1120px;margin:0 auto;padding:18px 20px 40px}
+section.station{display:none}
+section.station.on{display:block}
+.intro{background:#fff;border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:14px}
+.intro b{color:var(--blue)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+@media (max-width:880px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+.card h3{margin:0 0 8px;font-size:15px}
+.card h4{margin:10px 0 4px;font-size:13.5px}
+.muted{color:var(--muted);font-size:13px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+label.sl{display:block;font-size:13px;color:var(--muted);margin:8px 0 2px}
+input[type=range]{width:100%}
+.readout{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:10px}
+.ro{background:#f6f8fa;border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.ro span{display:block;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.ro b{font-size:17px;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12.5px;font-weight:700}
+.pill.fwd{background:var(--fwd);color:#17693a}.pill.rev{background:var(--rev);color:#1f5f9e}.pill.brk{background:var(--brk);color:#a3345f}
+button.btn{border:none;border-radius:8px;padding:8px 14px;font-size:13.5px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff}
+button.btn.sec{background:#fff;color:var(--ink);border:1px solid #c7d2dc}
+button.btn.warn{background:var(--amber)}
+button.btn:disabled{opacity:.45;cursor:not-allowed}
+select{font:inherit;font-size:13.5px;padding:5px 8px;border-radius:7px;border:1px solid #c7d2dc;background:#fff}
+svg text{font-family:inherit}
+/* question cards */
+.qs{margin-top:16px}
+.qs > h3{font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 8px}
+.q{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.q.done-ok{border-left:4px solid var(--ok)} .q.done-part{border-left:4px solid var(--amber)}
+.q .qn{font-size:12px;font-weight:700;color:var(--blue);letter-spacing:.04em}
+.q .qt{margin:2px 0 8px;font-weight:600}
+.q .opt{display:flex;gap:8px;align-items:flex-start;padding:5px 8px;border-radius:7px;cursor:pointer;margin:2px 0}
+.q .opt:hover{background:#f3f6f9}
+.q .opt.right{background:var(--ok-soft)} .q .opt.wrong{background:var(--bad-soft)}
+.q .fb{margin-top:8px;font-size:13.5px;padding:8px 10px;border-radius:7px;display:none}
+.q .fb.ok{display:block;background:var(--ok-soft)} .q .fb.bad{display:block;background:var(--bad-soft)}
+.q textarea{width:100%;min-height:64px;font:inherit;font-size:13.5px;border:1px solid #c7d2dc;border-radius:7px;padding:6px 8px}
+.q .model{display:none;margin-top:8px;background:#f3f7fb;border:1px solid #cddcec;border-radius:8px;padding:8px 12px;font-size:13.5px}
+.q .model.on{display:block}
+.q .model ul{margin:4px 0;padding-left:18px}
+.q .rate{display:none;margin-top:8px;font-size:13px}
+.q .rate.on{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.q .rate button{border:1px solid #c7d2dc;background:#fff;border-radius:99px;padding:3px 10px;font-size:12.5px;cursor:pointer}
+.q .rate button.sel{background:var(--blue);color:#fff;border-color:var(--blue)}
+.q .qfig{margin:4px 0 8px}
+/* DMM bench */
+.dmm{background:#2b2f33;border-radius:14px;padding:12px;color:#fff;width:210px}
+.lcd{background:#b9c7a4;color:#1d2415;font:700 34px/1 "Courier New",monospace;text-align:right;padding:10px 12px;border-radius:6px;letter-spacing:1px;min-height:54px}
+.lcd small{font-size:13px;display:block;letter-spacing:0;font-weight:700}
+.dial{margin-top:8px;font-size:12px;color:#c8ccd0;text-align:center}
+.parts{display:flex;flex-wrap:wrap;gap:10px}
+.part{border:2px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;background:#fff;text-align:center;min-width:92px}
+.part.sel{border-color:var(--blue);background:var(--blue-soft)}
+.part .pl{font-weight:700;font-size:13px}
+.part .dg{font-size:11.5px;color:var(--muted)}
+table.diag{border-collapse:collapse;width:100%;font-size:13.5px;margin-top:6px}
+table.diag td,table.diag th{border-bottom:1px solid #e6ebf0;padding:5px 6px;text-align:left}
+table.diag td.okc{color:var(--ok);font-weight:700} table.diag td.badc{color:var(--bad);font-weight:700}
+.checklist label{display:flex;gap:8px;align-items:flex-start;padding:4px 6px;border-radius:6px;font-size:13.5px}
+.checklist label.right{background:var(--ok-soft)} .checklist label.wrong{background:var(--bad-soft)}
+/* symbols */
+.symgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.sym{border:1px solid var(--line);border-radius:9px;padding:6px;text-align:center;background:#fff}
+.sym.right{background:var(--ok-soft);border-color:#9fd3b3} .sym.wrong{background:var(--bad-soft);border-color:#e5a9a9}
+.sym select{width:100%;margin-top:4px;font-size:12.5px}
+.hl{color:#cfe3f7;font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:4px 10px;white-space:nowrap}
+.hl:hover{background:rgba(255,255,255,.1)}
+.seg{display:inline-flex;border:1px solid #c7d2dc;border-radius:9px;overflow:hidden}
+.seg button{border:none;background:#fff;padding:7px 14px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--ink)}
+.seg button.on{background:var(--blue);color:#fff}
+.symq{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.symq .sym svg{width:100px;height:100px}
+table.q3{border-collapse:collapse;width:100%;font-size:13.5px}
+table.q3 th,table.q3 td{border:1px solid #d6dee6;padding:6px 8px;text-align:left}
+table.q3 th{background:#f6f8fa}
+table.q3 td.right{background:var(--ok-soft)} table.q3 td.wrong{background:var(--bad-soft)}
+table.q3 select{width:100%}
+.order{list-style:none;padding:0;margin:0;counter-reset:o}
+.order li{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:5px 0;background:#fff;font-size:13.5px}
+.order li::before{counter-increment:o;content:counter(o);font-weight:700;color:var(--blue);min-width:18px}
+.order li span{flex:1}
+.order li button{border:1px solid #c7d2dc;background:#fff;border-radius:6px;width:28px;height:26px;cursor:pointer;font-size:13px}
+.order li.right{background:var(--ok-soft);border-color:#9fd3b3} .order li.wrong{background:var(--bad-soft);border-color:#e5a9a9}
+.meter{height:14px;background:#e9eef3;border-radius:99px;overflow:hidden;margin:4px 0}
+.meter i{display:block;height:100%;background:var(--blue);transition:width .25s}
+.ro b em{font-style:normal}
+.pill.cut{background:#e8ecf0;color:#44525f}.pill.sat{background:var(--brk);color:#a3345f}.pill.act{background:var(--fwd);color:#17693a}
+#tcsvg *:not(rect){pointer-events:none}
+.lamp{transition:fill .15s, filter .15s}
+.note{font-size:12.5px;color:var(--muted);margin-top:8px}
+.task{font-size:13.5px;margin:6px 0 0;padding-left:18px}
+.task li{margin:3px 0}
+.task li.done{color:var(--ok)}
+.task li.done::marker{content:"✔ "}
+.allq .q{margin-bottom:8px}
+.goto{font-size:12px;margin-left:8px;color:var(--blue);cursor:pointer;text-decoration:underline}
+footer{max-width:1120px;margin:0 auto;padding:0 20px 30px;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header><div class="hwrap">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap"><h1>Transistor Bench</h1><span style="display:flex;gap:6px;flex-wrap:wrap"><a class="hl" href="../topic1-tutorial/">← Diode Bench (1A)</a><a class="hl" href="../topic1b-transistor-match/">Transistor Match: switch, amplifier or FET? →</a></span></div>
+  <div class="hsub">Tutorial 1B · Semiconductors – Transistors · Aircraft Electronics &amp; Digital Systems</div>
+  <div class="progress"><span id="ptext">0 / 14 complete</span><div class="pbar"><i id="pfill"></i></div><button class="btn sec" id="resetAll" style="padding:3px 10px;font-size:12px">Reset progress</button></div>
+  <nav class="tabs" id="tabs">
+    <button data-t="s1" class="on">1 · Anatomy &amp; current<span class="ct" data-c="s1"></span></button>
+    <button data-t="s2">2 · Curve tracer<span class="ct" data-c="s2"></span></button>
+    <button data-t="s3">3 · Switch vs amplifier<span class="ct" data-c="s3"></span></button>
+    <button data-t="s4">4 · BJT vs JFET<span class="ct" data-c="s4"></span></button>
+    <button data-t="s5">5 · Safe handling<span class="ct" data-c="s5"></span></button>
+    <button data-t="all">All 14 questions<span class="ct" data-c="all"></span></button>
+  </nav>
+</div></header>
+<main>
+<!-- ============ STATION 1 : ANATOMY ============ -->
+<section class="station on" id="s1">
+  <div class="intro"><b>Station 1 · Anatomy and current flow.</b> Choose NPN or PNP and watch which way conventional current flows through each terminal. Change the base current and gain and check that the currents always add up. Then do the two symbol tasks: together they are short question 1A.</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>The transistor</h3>
+      <div class="row"><div class="seg" id="anType"><button data-t="npn" class="on">NPN</button><button data-t="pnp">PNP</button></div><span class="muted" id="anMnem"></span></div>
+      <div id="anSym" style="margin-top:6px"></div>
+      <label class="sl" for="anIb">Base current I<sub>B</sub>: <b id="anIbT">100 µA</b></label>
+      <input type="range" id="anIb" min="0" max="300" step="10" value="100">
+      <label class="sl" for="anB">DC current gain β<sub>DC</sub>: <b id="anBT">100</b></label>
+      <input type="range" id="anB" min="50" max="250" step="10" value="100">
+      <div class="readout">
+        <div class="ro"><span>I<sub>B</sub></span><b id="anIbR">–</b></div>
+        <div class="ro"><span>I<sub>C</sub> = β·I<sub>B</sub></span><b id="anIcR">–</b></div>
+        <div class="ro"><span>I<sub>E</sub> = I<sub>B</sub> + I<sub>C</sub></span><b id="anIeR">–</b></div>
+      </div>
+      <p class="note" id="anNote"></p>
+    </div>
+    <div class="card">
+      <h3>Task 1: NPN or PNP? (Short Q1A)</h3>
+      <p class="muted" style="margin-top:0">These are drawn in different orientations. Look only at the emitter arrow.</p>
+      <div class="symq" id="symQ"></div>
+      <div class="row" style="margin-top:8px"><button class="btn" id="symQCheck">Check</button><span id="symQFb" class="muted"></span></div>
+      <h3 style="margin-top:14px">Task 2: label the terminals</h3>
+      <div class="row" style="align-items:center;gap:14px"><div id="lblSym"></div><div id="lblSel" style="flex:1;min-width:150px"></div></div>
+      <div class="row" style="margin-top:8px"><button class="btn" id="lblCheck">Check</button><span id="lblFb" class="muted"></span></div>
+      <h4>Try this</h4>
+      <ol class="task" id="anTasks">
+        <li data-k="npn">Watch the NPN: which terminals does current flow in by, and which out by?</li>
+        <li data-k="pnp">Switch to PNP. Which way does the current flow now?</li>
+        <li data-k="kcl">Change I<sub>B</sub> and β. Is I<sub>E</sub> always I<sub>B</sub> + I<sub>C</sub>?</li>
+        <li data-k="sym">Get all four symbols right, and all three terminals.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="qs" id="q-s1"><h3>Checkpoint questions</h3></div>
+</section>
+
+<!-- ============ STATION 2 : CURVE TRACER ============ -->
+<section class="station" id="s2">
+  <div class="intro"><b>Station 2 · Curve tracer.</b> This is an NPN transistor in a common-emitter circuit. The base supply V<sub>BB</sub> drives base current through R<sub>B</sub>. The collector supply V<sub>CC</sub> feeds the collector through R<sub>C</sub>. The red load line shows every point the circuit allows, and the orange dot is where the transistor sits (the Q-point). Label the three regions yourself: that is short question 1B.</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Output characteristic (I<sub>C</sub> against V<sub>CE</sub>)</h3>
+      <div id="tcPlot"></div>
+      <div class="row" style="margin-top:6px"><span class="muted">Label the regions:</span>
+        <button class="btn sec" data-lab="sat">Saturation</button><button class="btn sec" data-lab="act">Active</button><button class="btn sec" data-lab="cut">Cutoff</button></div>
+      <div id="tcLabFb" class="note"></div>
+    </div>
+    <div class="card">
+      <h3>The circuit</h3>
+      <div id="tcCirc"></div>
+      <label class="sl" for="tcVbb">Base supply V<sub>BB</sub>: <b id="tcVbbT">2.2 V</b> (R<sub>B</sub> = 15 kΩ)</label>
+      <input type="range" id="tcVbb" min="0" max="5" step="0.05" value="2.2">
+      <label class="sl" for="tcVcc">Collector supply V<sub>CC</sub>: <b id="tcVccT">20 V</b></label>
+      <input type="range" id="tcVcc" min="0" max="24" step="0.5" value="20">
+      <div class="row" style="margin-top:6px"><span class="muted">Collector resistor R<sub>C</sub>:</span><select id="tcRc"><option value="1">1 kΩ</option><option value="2.2">2.2 kΩ</option><option value="0.47">470 Ω</option></select></div>
+      <div class="readout">
+        <div class="ro"><span>Region</span><b id="tcReg">–</b></div>
+        <div class="ro"><span>I<sub>B</sub></span><b id="tcIb">–</b></div>
+        <div class="ro"><span>I<sub>C</sub></span><b id="tcIc">–</b></div>
+        <div class="ro"><span>V<sub>CE</sub></span><b id="tcVce">–</b></div>
+        <div class="ro"><span>I<sub>C</sub> ÷ I<sub>B</sub></span><b id="tcBeta">–</b></div>
+      </div>
+      <h4>Try this</h4>
+      <ol class="task" id="tcTasks">
+        <li data-k="cut">Turn V<sub>BB</sub> down until no base current flows. Where is the Q-point?</li>
+        <li data-k="act">Find a Q-point in the active region. Is I<sub>C</sub> = β·I<sub>B</sub> (β = 100 here)?</li>
+        <li data-k="sat">Push V<sub>BB</sub> up until the transistor saturates. Does I<sub>C</sub> still follow I<sub>B</sub>?</li>
+        <li data-k="rc">Change R<sub>C</sub>. How does the load line move, and when does it saturate?</li>
+      </ol>
+      <p class="note">Model: silicon NPN, β<sub>DC</sub> = 100, V<sub>BE</sub> = 0.7 V, V<sub>CE(sat)</sub> ≈ 0.2 V. The curves are drawn for I<sub>B</sub> = 50 to 300 µA in 50 µA steps, as in the tutorial's sketch. Breakdown is shaded but V<sub>CC</sub> is kept below it.</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3>Predict first: current gain calculator</h3>
+    <div class="row">
+      <label>β<sub>DC</sub> <input type="number" id="gcB" style="width:80px"></label>
+      <label>I<sub>C</sub> (mA) <input type="number" id="gcIc" style="width:80px" step="any"></label>
+      <label>Your I<sub>B</sub> (mA) <input type="number" id="gcIb" style="width:90px" step="any"></label>
+      <button class="btn" id="gcCheck">Check</button><button class="btn sec" id="gcNew">New numbers</button>
+    </div>
+    <p id="gcFb" class="note"></p>
+  </div>
+  <div class="qs" id="q-s2"><h3>Checkpoint questions</h3></div>
+</section>
+
+<!-- ============ STATION 3 : SWITCH vs AMPLIFIER ============ -->
+<section class="station" id="s3">
+  <div class="intro"><b>Station 3 · Switch or amplifier?</b> The same transistor does two jobs, depending on where it is biased. As a switch it lives at the two ends of the load line, in cutoff or saturation. As an amplifier it sits in the middle, in the active region. Then fill in the bias table: that is short question 3.</div>
+  <div class="row" style="margin-bottom:12px"><div class="seg" id="swMode"><button data-m="sw" class="on">As a switch</button><button data-m="amp">As an amplifier</button></div></div>
+  <div class="grid2" id="swPane">
+    <div class="card">
+      <h3>28 V annunciator lamp driver</h3>
+      <div id="swCirc"></div>
+      <div class="row" style="margin-top:6px"><span class="muted">Control signal from the computer:</span><div class="seg" id="swCtl"><button data-v="0" class="on">0 V (OFF)</button><button data-v="1">5 V (ON)</button></div></div>
+      <label class="sl" for="swDrive">Base drive when ON: <b id="swDriveT">1.5 mA</b></label>
+      <input type="range" id="swDrive" min="0.1" max="3" step="0.1" value="1.5">
+      <div class="readout">
+        <div class="ro"><span>Region</span><b id="swReg">–</b></div>
+        <div class="ro"><span>V<sub>CE</sub></span><b id="swVce">–</b></div>
+        <div class="ro"><span>Lamp current</span><b id="swIc">–</b></div>
+        <div class="ro"><span>Heat in transistor</span><b id="swP">–</b></div>
+        <div class="ro"><span>B–E junction</span><b id="swBE">–</b></div>
+        <div class="ro"><span>B–C junction</span><b id="swBC">–</b></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>What to notice</h3>
+      <ol class="task" id="swTasks">
+        <li data-k="off">Control at 0 V: the lamp is off. Which region, and how are both junctions biased?</li>
+        <li data-k="on">Control at 5 V with plenty of base drive: the lamp is fully on. Which region now?</li>
+        <li data-k="half">Turn the base drive down while ON until the lamp dims. Why does the transistor get hot?</li>
+      </ol>
+      <p class="note">Model: lamp 28 V, 100 mA (280 Ω), β = 100. Full brightness needs I<sub>B</sub> ≥ 1 mA. Underdrive it and the transistor sits in the active region with a lot of voltage across it, so it dissipates V<sub>CE</sub> × I<sub>C</sub> as heat. A good switch avoids the active region.</p>
+    </div>
+  </div>
+  <div class="grid2" id="ampPane" style="display:none">
+    <div class="card">
+      <h3>Common-emitter amplifier</h3>
+      <div id="ampPlot"></div>
+      <label class="sl" for="ampBias">Bias (DC base current at the Q-point): <b id="ampBiasT">100 µA</b></label>
+      <input type="range" id="ampBias" min="0" max="200" step="5" value="100">
+      <label class="sl" for="ampIn">Input signal amplitude: <b id="ampInT">40 µA</b></label>
+      <input type="range" id="ampIn" min="0" max="120" step="5" value="40">
+      <div class="readout">
+        <div class="ro"><span>Q-point region</span><b id="ampReg">–</b></div>
+        <div class="ro"><span>Output</span><b id="ampOut">–</b></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>What to notice</h3>
+      <ol class="task" id="ampTasks">
+        <li data-k="clean">Set the bias so the output is a clean, larger, upside-down copy of the input.</li>
+        <li data-k="csat">Bias it too high: the output flattens at the bottom. Which region is it hitting?</li>
+        <li data-k="ccut">Bias it too low: the output flattens at the top. Which region is it hitting?</li>
+      </ol>
+      <p class="note">Model: V<sub>CC</sub> = 20 V, R<sub>C</sub> = 1 kΩ, β = 100. Output is V<sub>CE</sub> = V<sub>CC</sub> − I<sub>C</sub>R<sub>C</sub>. More input current means more I<sub>C</sub> and less V<sub>CE</sub>, which is why the output is inverted.</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3>Task: complete the bias table (Short Q3)</h3>
+    <div style="overflow-x:auto"><table class="q3" id="q3t"></table></div>
+    <div class="row" style="margin-top:8px"><button class="btn" id="q3Check">Check table</button><span id="q3Fb" class="muted"></span></div>
+  </div>
+  <div class="qs" id="q-s3"><h3>Checkpoint questions</h3></div>
+</section>
+
+<!-- ============ STATION 4 : BJT vs JFET ============ -->
+<section class="station" id="s4">
+  <div class="intro"><b>Station 4 · BJT or JFET?</b> A BJT is controlled by a current: it has to draw base current. A JFET is controlled by a voltage: its gate draws almost nothing. Drive the JFET, then connect a weak sensor to each one and see which transistor can read it.</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>N-channel JFET: transfer characteristic</h3>
+      <div id="jfPlot"></div>
+      <label class="sl" for="jfV">Gate–source voltage V<sub>GS</sub>: <b id="jfVT">−1.0 V</b></label>
+      <input type="range" id="jfV" min="-5" max="0" step="0.05" value="-1">
+      <div class="readout">
+        <div class="ro"><span>Drain current I<sub>D</sub></span><b id="jfId">–</b></div>
+        <div class="ro"><span>Gate current I<sub>G</sub></span><b id="jfIg">–</b></div>
+        <div class="ro"><span>State</span><b id="jfSt">–</b></div>
+      </div>
+      <p class="note">I<sub>D</sub> = I<sub>DSS</sub>(1 − V<sub>GS</sub>/V<sub>GS(off)</sub>)², with I<sub>DSS</sub> = 10 mA and V<sub>GS(off)</sub> = −4 V. The gate–source junction is reverse biased, so the gate current is only leakage: nanoamps or less.</p>
+    </div>
+    <div class="card">
+      <h3>Loading test: read a weak sensor</h3>
+      <p class="muted" style="margin-top:0">The sensor produces 1.000 V but has 1 MΩ of internal resistance, like a capacitive or piezo sensor. Connect it to each input stage.</p>
+      <div class="row"><div class="seg" id="ldSel"><button data-d="none" class="on">Not connected</button><button data-d="bjt">BJT input</button><button data-d="jfet">JFET input</button></div></div>
+      <div id="ldCirc" style="margin-top:8px"></div>
+      <div class="readout">
+        <div class="ro"><span>Input impedance</span><b id="ldZ">–</b></div>
+        <div class="ro"><span>Current drawn from sensor</span><b id="ldI">–</b></div>
+        <div class="ro"><span>Voltage the stage sees</span><b id="ldV">–</b></div>
+      </div>
+      <div class="meter"><i id="ldBar" style="width:0"></i></div>
+      <h4>Try this</h4>
+      <ol class="task" id="jfTasks">
+        <li data-k="idss">Set V<sub>GS</sub> = 0 V. That is I<sub>DSS</sub>, the maximum drain current.</li>
+        <li data-k="off">Make V<sub>GS</sub> more negative until I<sub>D</sub> reaches zero (pinch-off). Did the gate ever draw current?</li>
+        <li data-k="bjt">Connect the sensor to the BJT. How much of the 1 V survives?</li>
+        <li data-k="jfet">Now connect it to the JFET.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="qs" id="q-s4"><h3>Checkpoint questions</h3></div>
+</section>
+
+<!-- ============ STATION 5 : SAFE HANDLING ============ -->
+<section class="station" id="s5">
+  <div class="intro"><b>Station 5 · Safe handling.</b> You are replacing a faulty transistor on an avionics board and then checking the stage with a signal generator and an oscilloscope. Pick out the real precautions, then put the job in a safe order. Then answer short question 2 in your own words.</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Which of these are real precautions?</h3>
+      <div class="checklist" id="safety"></div>
+      <div class="row" style="margin-top:8px"><button class="btn" id="safetyCheck">Check precautions</button><span id="safetyFb" class="muted"></span></div>
+    </div>
+    <div class="card">
+      <h3>Put the job in a safe order</h3>
+      <p class="muted" style="margin-top:0">Use the arrows to move each step.</p>
+      <ol class="order" id="order"></ol>
+      <div class="row" style="margin-top:8px"><button class="btn" id="orderCheck">Check order</button><button class="btn sec" id="orderShuffle">Shuffle</button><span id="orderFb" class="muted"></span></div>
+    </div>
+  </div>
+  <div class="qs" id="q-s5"><h3>Checkpoint questions</h3></div>
+</section>
+
+<!-- ============ ALL QUESTIONS ============ -->
+<section class="station" id="all">
+  <div class="intro"><b>All 14 tutorial questions</b>, in tutorial order. The same questions appear at the stations; your answers are shared. Use this page to revise or to find what you have not attempted yet.</div>
+  <div class="allq" id="allq"></div>
+</section>
+</main>
+<footer>Questions and model answers: Tutorial 1B Semiconductors-Transistors, Temasek Polytechnic, Aircraft Electronics &amp; Digital Systems. Your progress is saved in this browser only.</footer>
+
+<script>
+/* ============ QUESTION BANK: Tutorial 1B (wording as in the tutorial; two typos fixed) ============ */
+const Q = [
+ {id:'M1', st:'s1', t:'When a PNP transistor conducts, the current flows from ___________.', o:['collector to emitter','emitter to base','emitter to collector'], a:2,
+  why:'In a PNP transistor, conventional current enters at the emitter (the arrow points in) and leaves by the collector, with a small part leaving by the base. Switch the station to PNP and watch the direction of the dots.'},
+ {id:'M2', st:'s1', t:'When the arrow points toward the transistor base, this is a ___________ transistor.', o:['NPN','PNP','SCR'], a:1,
+  why:'The emitter arrow shows the direction of conventional current through the B–E junction. Pointing in, toward the base, means PNP ("Pointing iN"). NPN is "Not Pointing iN".'},
+ {id:'M3', st:'s1', t:'The emitter, base and collector currents follow the Kirchhoff\'s current laws as ___________.', o:['I<sub>B</sub>=I<sub>E</sub>-I<sub>C</sub>','I<sub>B</sub>=I<sub>E</sub>+I<sub>C</sub>','I<sub>B</sub>=I<sub>C</sub>-I<sub>E</sub>'], a:0,
+  why:'Everything that flows in must flow out: I<sub>E</sub> = I<sub>B</sub> + I<sub>C</sub>, so I<sub>B</sub> = I<sub>E</sub> − I<sub>C</sub>. The current readouts on this station always add up this way.'},
+ {id:'M4', st:'s4', t:'Junction field effect transistor (JFET) is a ___________ controlled device, and its drain current (I<sub>D</sub>) is controlled by ___________.', o:['current, I<sub>G</sub>','voltage, I<sub>S</sub>','voltage, V<sub>GS</sub>'], a:2,
+  why:'The gate–source voltage widens or narrows the channel, which sets I<sub>D</sub>. The gate draws essentially no current, so I<sub>G</sub> can\'t be the control. Move the V<sub>GS</sub> slider and watch the gate current stay at zero.'},
+ {id:'M5', st:'s2', t:'Bipolar junction transistor (BJT) is a ___________ device.', o:['current controlled','voltage controlled','two terminals'], a:0,
+  why:'A small base current I<sub>B</sub> controls a larger collector current: I<sub>C</sub> = β·I<sub>B</sub> in the active region. A BJT has three terminals.'},
+ {id:'M6', st:'s2', t:'When a transistor is operating in the saturation region, the collector current (I<sub>C</sub>) is not controlled by ___________.', o:['base current I<sub>B</sub>','emitter current I<sub>E</sub>','supply voltage V<sub>CC</sub>'], a:0,
+  why:'In saturation the transistor is fully on, so I<sub>C</sub> is limited by the circuit (≈ V<sub>CC</sub> ÷ R<sub>C</sub>). Adding more base current changes nothing. Push the tracer into saturation and watch I<sub>C</sub> stop following I<sub>B</sub>.'},
+ {id:'M7', st:'s2', t:'A bipolar junction transistor (BJT) has a DC current gain of 180 and the collector current is 45 mA. What is its base current?', o:['0.25 mA','0.60 mA','2.50 mA'], a:0,
+  why:'I<sub>B</sub> = I<sub>C</sub> ÷ β<sub>DC</sub> = 45 mA ÷ 180 = 0.25 mA.'},
+ {id:'M8', st:'s4', t:'The bipolar junction transistor (BJT) has ___________ input impedance.', o:['high','low','infinite'], a:1,
+  why:'A BJT\'s base–emitter junction is forward biased and draws base current, so its input impedance is low compared with a FET. The loading test on this station shows what that does to a weak sensor.'},
+ {id:'M9', st:'s3', t:'To switch on a bipolar junction transistor (BJT), the base-emitter junction must be ___________.', o:['forward biased','reverse biased','unbiased'], a:0,
+  why:'Base current only flows once the B–E junction is forward biased (about 0.7 V for silicon). With it reverse biased or unbiased, the transistor stays in cutoff: an open switch.'},
+ {id:'M10', st:'s4', t:'Which of the following transistors has the highest input impedance?', o:['Junction field-effect transistor (JFET)','NPN bipolar junction transistor (BJT)','PNP bipolar junction transistor (BJT)'], a:0,
+  why:'The JFET gate is a reverse-biased junction, so it draws almost no current and its input impedance is very high. NPN and PNP BJTs both draw base current, so both have low input impedance.'},
+
+ {id:'S1A', st:'s1', short:true, noText:true, t:'A. Sketch the schematic symbols of an NPN and a PNP transistor.',
+  task:'Complete the symbol tasks on this station (identify the four symbols and label the terminals). They count as your sketch.',
+  model:'<div class="qfig" data-fig="npnpnp"></div><p>NPN: the emitter arrow points <b>out</b>, away from the base. PNP: the emitter arrow points <b>in</b>, toward the base.</p>'},
+ {id:'S1B', st:'s2', short:true, noText:true, t:'B. Sketch the typical NPN transistor characteristic curve and indicate the saturation, active and cutoff regions.',
+  task:'Complete the region-labelling task on the curve tracer; it counts as your sketch.',
+  model:'<div class="qfig" data-fig="curves"></div><p><b>Saturation region</b>: the steep part next to the I<sub>C</sub> axis, where V<sub>CE</sub> is very small. <b>Active region</b>: the flat part of the curves; at the active region I<sub>C</sub> = β<sub>DC</sub>I<sub>B</sub>. <b>Cutoff region</b>: along the V<sub>CE</sub> axis, where I<sub>B</sub> = 0 and I<sub>C</sub> ≈ 0. (<b>Breakdown region</b>: at high V<sub>CE</sub>, beyond the transistor\'s rating.)</p>'},
+ {id:'S2', st:'s5', short:true, t:'List some safety precautions when you are handling and working with transistor circuits.',
+  model:'<p>Observe the following safety precautions for transistor circuits:</p><ul><li>All circuits should be checked for defects and power must be removed before replacing a transistor.</li><li>Always connect a ground between test equipment and circuit before attempting to inject or monitor a signal.</li></ul>'},
+ {id:'S3', st:'s3', short:true, t:'State which region is the transistor biased in when it is working as a/an (open or closed) switch and as an amplifier.',
+  model:'<table class="q3"><tr><th>Operating Region</th><th>Cutoff</th><th>Saturation</th><th>Active</th></tr><tr><th>B - E Junction</th><td>reverse biased</td><td>forward biased</td><td>forward biased</td></tr><tr><th>B - C Junction</th><td>reverse biased</td><td>forward biased</td><td>reverse biased</td></tr><tr><th>Operate as</th><td>an open switch</td><td>a closed switch</td><td>an amplifier</td></tr></table>'}
+];
+
+const QBY = Object.fromEntries(Q.map(q=>[q.id,q]));
+
+/* ============ STATE ============ */
+const LS='transistorBench.v1';
+let STATE = {ans:{}, rate:{}, notes:{}, iv:{}, tasks:{}};
+try{ const s=JSON.parse(localStorage.getItem(LS)||'null'); if(s) STATE=Object.assign(STATE,s); }catch(e){}
+function save(){ try{ localStorage.setItem(LS, JSON.stringify(STATE)); }catch(e){} updateProgress(); }
+function isDone(id){ const q=QBY[id]; if(q.short) return !!STATE.rate[id]; return STATE.ans[id]!==undefined && STATE.ans[id]===q.a; }
+
+/* ============ RENDER A QUESTION ============ */
+function qNum(id){ return (id[0]==='M'?'MCQ ':'Short Q')+id.slice(1); }
+function renderQ(id){
+  const q=QBY[id]; const el=document.createElement('div'); el.className='q'; el.dataset.q=id;
+  let h=`<div class="qn">${qNum(id)}</div><div class="qt">${q.t}</div>`;
+  if(q.fig) h+=`<div class="qfig" data-fig="${q.fig}"></div>`;
+  if(!q.short){
+    q.o.forEach((o,i)=>{ h+=`<label class="opt"><input type="radio" name="r-${id}-${Math.random().toString(36).slice(2,6)}" value="${i}"> <span><b>${'ABC'[i]}.</b> ${o}</span></label>`; });
+    h+=`<div class="fb"></div>`;
+  } else {
+    if(q.task) h+=`<p class="muted" style="margin:0 0 6px">${q.task}</p>`;
+    if(!q.noText) h+=`<textarea placeholder="Write your answer first, then compare with the model answer."></textarea>`;
+    h+=`<div class="row" style="margin-top:6px"><button class="btn sec showm">Show model answer</button></div>
+        <div class="model">${q.model}</div>
+        <div class="rate"><span class="muted">How did your answer compare?</span><button data-r="got">Got it</button><button data-r="part">Partly</button><button data-r="miss">Missed it</button></div>`;
+  }
+  el.innerHTML=h;
+  el.querySelectorAll('.qfig').forEach(f=>f.innerHTML=FIG[f.dataset.fig]||'');
+  if(!q.short){
+    el.querySelectorAll('input[type=radio]').forEach(r=>r.addEventListener('change',()=>{ STATE.ans[id]=+r.value; save(); syncQ(id); }));
+  } else {
+    const ta=el.querySelector('textarea');
+    if(ta){ ta.value=STATE.notes[id]||''; ta.addEventListener('input',()=>{ STATE.notes[id]=ta.value; save(); syncNotes(id,ta); }); }
+    el.querySelector('.showm').addEventListener('click',()=>{ STATE.shown=STATE.shown||{}; STATE.shown[id]=1; save(); syncQ(id); });
+    el.querySelectorAll('.rate button').forEach(b=>b.addEventListener('click',()=>{ STATE.rate[id]=b.dataset.r; save(); syncQ(id); }));
+  }
+  return el;
+}
+function syncNotes(id,src){ document.querySelectorAll(`.q[data-q="${id}"] textarea`).forEach(t=>{ if(t!==src) t.value=STATE.notes[id]||''; }); }
+function syncQ(id){
+  const q=QBY[id];
+  document.querySelectorAll(`.q[data-q="${id}"]`).forEach(el=>{
+    el.classList.remove('done-ok','done-part');
+    if(!q.short){
+      const a=STATE.ans[id]; const opts=el.querySelectorAll('.opt'); const fb=el.querySelector('.fb');
+      opts.forEach((o,i)=>{ o.classList.remove('right','wrong'); const r=o.querySelector('input'); r.checked=(a===i); });
+      fb.className='fb';
+      if(a!==undefined){
+        if(a===q.a){ opts[a].classList.add('right'); fb.classList.add('ok'); fb.innerHTML=`<b>Correct: ${'ABC'[q.a]}.</b> ${q.why}`; el.classList.add('done-ok'); }
+        else { opts[a].classList.add('wrong'); fb.classList.add('bad'); fb.innerHTML=`<b>Not quite.</b> Have another look at the station, then try again.`; }
+      }
+    } else {
+      const shown=STATE.shown&&STATE.shown[id];
+      el.querySelector('.model').classList.toggle('on',!!shown);
+      el.querySelector('.rate').classList.toggle('on',!!shown);
+      el.querySelectorAll('.rate button').forEach(b=>b.classList.toggle('sel',STATE.rate[id]===b.dataset.r));
+      if(STATE.rate[id]==='got') el.classList.add('done-ok'); else if(STATE.rate[id]) el.classList.add('done-part');
+      el.querySelectorAll('.qfig').forEach(f=>{ if(!f.innerHTML) f.innerHTML=FIG[f.dataset.fig]||''; });
+    }
+  });
+}
+function updateProgress(){
+  const done=Q.filter(q=>isDone(q.id)).length;
+  document.getElementById('ptext').textContent=`${done} / ${Q.length} complete`;
+  document.getElementById('pfill').style.width=(100*done/Q.length)+'%';
+  ['s1','s2','s3','s4','s5'].forEach(s=>{ const qs=Q.filter(q=>q.st===s); const d=qs.filter(q=>isDone(q.id)).length; document.querySelector(`[data-c="${s}"]`).textContent=`${d}/${qs.length}`; });
+  document.querySelector('[data-c="all"]').textContent=`${done}/${Q.length}`;
+}
+function mountQuestions(){
+  ['s1','s2','s3','s4','s5'].forEach(s=>{ const box=document.getElementById('q-'+s); Q.filter(q=>q.st===s).forEach(q=>box.appendChild(renderQ(q.id))); });
+  const all=document.getElementById('allq');
+  Q.forEach(q=>{ const el=renderQ(q.id); const g=document.createElement('span'); g.className='goto'; g.textContent='go to station '+q.st.slice(1); g.onclick=()=>showTab(q.st); el.querySelector('.qn').appendChild(g); all.appendChild(el); });
+  Q.forEach(q=>syncQ(q.id)); updateProgress();
+}
+
+/* ============ helpers ============ */
+const $ = s=>document.querySelector(s);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const K='#16222e';
+function markTask(listSel, key){ const li=document.querySelector(`${listSel} li[data-k="${key}"]`); if(li && !li.classList.contains('done')){ li.classList.add('done'); STATE.tasks[listSel+'|'+key]=1; save(); } }
+function restoreTasks(){ Object.keys(STATE.tasks||{}).forEach(k=>{ const [sel,key]=k.split('|'); if(!key) return; const li=document.querySelector(`${sel} li[data-k="${key}"]`); if(li) li.classList.add('done'); }); }
+function fmtmA(mA){ const a=Math.abs(mA); if(a>=1) return mA.toFixed(a>=10?1:2)+' mA'; if(a>=0.001) return (mA*1000).toFixed(a>=0.1?0:1)+' µA'; return (mA*1e6).toFixed(1)+' nA'; }
+function seg(sel, cb){ const box=$(sel); box.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ box.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); cb(b); })); }
+function segSet(sel, attr, val){ $(sel).querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset[attr]===String(val))); }
+(function(){ const st=document.createElement('style'); st.textContent='@keyframes flow{to{stroke-dashoffset:-24}} .flow{fill:none;stroke-dasharray:3 9;stroke-linecap:round;animation:flow linear infinite}'; document.head.appendChild(st); })();
+
+/* ============ TRANSISTOR SYMBOL (original drawing) ============ */
+// Geometry in a 100x100 box: base lead from the left, collector up-right, emitter down-right.
+const TP={B:[4,50], C:[62,4], E:[62,96], bar:[36,32,36,68], cIn:[36,40], cMid:[62,22], eIn:[36,60], eMid:[62,78]};
+function arrowPts(tip, dir, s){ const [dx,dy]=dir, px=-dy, py=dx; return `${tip[0]},${tip[1]} ${tip[0]-dx*s+px*s*.55},${tip[1]-dy*s+py*s*.55} ${tip[0]-dx*s-px*s*.55},${tip[1]-dy*s-py*s*.55}`; }
+function tSymInner(type){
+  const ex=TP.eMid[0]-TP.eIn[0], ey=TP.eMid[1]-TP.eIn[1], L=Math.hypot(ex,ey), u=[ex/L,ey/L];
+  const tip = type==='npn' ? [TP.eIn[0]+u[0]*L*.85, TP.eIn[1]+u[1]*L*.85] : [TP.eIn[0]+u[0]*L*.2, TP.eIn[1]+u[1]*L*.2];
+  const dir = type==='npn' ? u : [-u[0],-u[1]];
+  return `<circle cx="50" cy="50" r="34" fill="none" stroke="${K}" stroke-width="2"/>
+   <line x1="${TP.B[0]}" y1="50" x2="36" y2="50" stroke="${K}" stroke-width="2.4"/>
+   <line x1="36" y1="32" x2="36" y2="68" stroke="${K}" stroke-width="4"/>
+   <polyline points="${TP.cIn} ${TP.cMid} ${TP.C}" fill="none" stroke="${K}" stroke-width="2.4"/>
+   <polyline points="${TP.eIn} ${TP.eMid} ${TP.E}" fill="none" stroke="${K}" stroke-width="2.4"/>
+   <polygon points="${arrowPts(tip,dir,9)}" fill="${K}"/>`;
+}
+function tSym(type, o={}){ // o: {rot, mirror, flipV, labels, size}
+  const sz=o.size||110; let tf='';
+  if(o.flipV) tf+=' translate(0,100) scale(1,-1)';
+  if(o.mirror) tf+=' translate(100,0) scale(-1,1)';
+  if(o.rot) tf=` rotate(${o.rot} 50 50)`+tf;
+  let lab='';
+  if(o.labels){ const P=o.pts||termPts(o); lab=['B','C','E'].map(k=>`<text x="${P[k][0]}" y="${P[k][1]}" font-size="${o.fs||16}" font-weight="700" fill="${o.labelColor||'#1f5f9e'}" text-anchor="middle" dominant-baseline="middle">${o.labels[k]||k}</text>`).join(''); }
+  return `<svg viewBox="-14 -14 128 128" width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg"><g transform="${tf.trim()}">${tSymInner(type)}</g>${lab}</svg>`;
+}
+function tf(p,o){ let [x,y]=p; if(o.mirror) x=100-x; if(o.flipV) y=100-y; if(o.rot){ const a=o.rot*Math.PI/180, dx=x-50, dy=y-50; x=50+dx*Math.cos(a)-dy*Math.sin(a); y=50+dx*Math.sin(a)+dy*Math.cos(a); } return [x,y]; }
+function termPts(o){ // label positions just beyond each lead end
+  const off=(p,q)=>{ const d=[p[0]-q[0],p[1]-q[1]], L=Math.hypot(...d)||1; return [p[0]+d[0]/L*9, p[1]+d[1]/L*9]; };
+  return { B: off(tf(TP.B,o),tf([36,50],o)), C: off(tf(TP.C,o),tf(TP.cMid,o)), E: off(tf(TP.E,o),tf(TP.eMid,o)) };
+}
+
+/* ============ FIGURES for model answers ============ */
+function tcFamilySvg(W,H,opts={}){
+  const X=v=>46+v/30*(W-60), Y=i=>H-30-i/35*(H-50);
+  let s=`<rect x="${X(25)}" y="${Y(35)}" width="${X(30)-X(25)}" height="${Y(0)-Y(35)}" fill="#fdf0c9"/><text x="${(X(25)+X(30))/2}" y="${Y(20)}" font-size="11" fill="#9a6b12" text-anchor="middle" transform="rotate(-90 ${(X(25)+X(30))/2} ${Y(20)})">Breakdown</text>`;
+  s+=`<line x1="46" y1="${Y(0)}" x2="${W-10}" y2="${Y(0)}" stroke="#34495e"/><line x1="46" y1="${Y(0)}" x2="46" y2="10" stroke="#34495e"/>
+      <text x="${W-12}" y="${H-10}" font-size="11" text-anchor="end" fill="#5b6b7a">V<tspan font-size="8" dy="2">CE</tspan></text><text x="50" y="16" font-size="11" fill="#5b6b7a">I<tspan font-size="8" dy="2">C</tspan></text>`;
+  [10,20,30].forEach(i=>s+=`<text x="40" y="${Y(i)+4}" font-size="10" text-anchor="end" fill="#5b6b7a">${i} mA</text>`);
+  [0,5,10,15,20,25].forEach(v=>s+=`<text x="${X(v)}" y="${Y(0)+14}" font-size="10" text-anchor="middle" fill="#5b6b7a">${v}</text>`);
+  for(let k=1;k<=6;k++){ const ib=0.05*k; let p=''; for(let v=0;v<=27.2;v+=0.1){ p+=(p?'L':'M')+X(v).toFixed(1)+','+Y(Math.min(icModel(v,ib),36)).toFixed(1); }
+    s+=`<path d="${p}" stroke="${opts.hl && Math.abs(opts.hl-ib)<1e-6?'#e8742a':'#3b6fa6'}" stroke-width="${opts.hl && Math.abs(opts.hl-ib)<1e-6?2.6:1.4}" fill="none"/><text x="${X(20.5)}" y="${Y(icModel(20.5,ib))-4}" font-size="9.5" fill="#3b6fa6">I<tspan font-size="7" dy="2">B</tspan><tspan dy="-2">=${ib*1000|0} µA</tspan></text>`; }
+  return {s,X,Y};
+}
+function icModel(vce, ib){ const beta=100; let ic=beta*ib*(1-Math.exp(-vce/0.2)); if(vce>25.2) ic+=Math.exp((vce-26.2)/0.35); return ic; }
+const FIG = {
+  npnpnp: `<div class="row" style="gap:28px">${[['npn',{}],['pnp',{flipV:true}]].map(([t,o])=>`<div style="text-align:center">${tSym(t,Object.assign({labels:{B:'B',C:'C',E:'E'},labelColor:K,size:96},o))}<div class="muted">${t.toUpperCase()}</div></div>`).join('')}</div>`,
+  curves: (()=>{ const W=420,H=240, f=tcFamilySvg(W,H), X=f.X, Y=f.Y;
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px">${f.s}
+     <rect x="${X(0)}" y="${Y(33)}" width="${X(0.7)-X(0)}" height="${Y(0)-Y(33)}" fill="rgba(163,52,95,.25)"/><text x="${X(0.9)}" y="${Y(33)}" font-size="11" fill="#a3345f" font-weight="700">Saturation</text>
+     <text x="${X(9)}" y="${Y(33)}" font-size="12" fill="#17693a" font-weight="700">Active: I<tspan font-size="8" dy="2">C</tspan><tspan dy="-2"> = β</tspan><tspan font-size="8" dy="2">DC</tspan><tspan dy="-2">I</tspan><tspan font-size="8" dy="2">B</tspan></text>
+     <rect x="${X(0.7)}" y="${Y(0)-5}" width="${X(25)-X(0.7)}" height="5" fill="#8a96a3"/><text x="${X(12)}" y="${Y(0)-9}" font-size="11" fill="#44525f" font-weight="700">Cutoff (I<tspan font-size="8" dy="2">B</tspan><tspan dy="-2"> = 0)</tspan></text></svg>`; })()
+};
+
+/* ============ STATION 1 : ANATOMY ============ */
+const AN={type:'npn'};
+function anDraw(ev){
+  const ib=+$('#anIb').value/1000, beta=+$('#anB').value, ic=beta*ib, ie=ib+ic, t=AN.type;
+  $('#anIbT').textContent=Math.round(ib*1000)+' µA'; $('#anBT').textContent=beta;
+  $('#anIbR').textContent=fmtmA(ib); $('#anIcR').textContent=fmtmA(ic); $('#anIeR').textContent=fmtmA(ie);
+  const dur=i=> i<=0 ? 0 : clamp(1.6/Math.sqrt(i/5+0.02),0.35,6);
+  const w=i=> i<=0?0: clamp(1.5+Math.log10(1+i*20)*1.6,1.5,5.5);
+  // conventional current: NPN in at B and C, out at E. PNP: in at E, out at B and C.
+  const inward = t==='npn';
+  const pB = inward ? `M4,50 L36,50` : `M36,50 L4,50`;
+  const pC = inward ? `M62,4 L62,22 L36,40` : `M36,40 L62,22 L62,4`;
+  const pE = inward ? `M36,60 L62,78 L62,96` : `M62,96 L62,78 L36,60`;
+  const fl=(d,i,col)=> i>0?`<path class="flow" d="${d}" stroke="${col}" style="stroke-width:${w(i)};animation-duration:${dur(i)}s"/>`:'';
+  const inner=tSymInner(t)+fl(pB,ib,'#e8742a')+fl(pC,ic,'#1e8a4c')+fl(pE,ie,'#1f5f9e');
+  const arrow=(x,y,rot,col)=>`<polygon points="0,-5 9,0 0,5" fill="${col}" transform="translate(${x},${y}) rotate(${rot})"/>`;
+  const aB = inward? arrow(12,42,0,'#e8742a') : arrow(20,42,180,'#e8742a');
+  const aC = inward? arrow(70,10,90,'#1e8a4c') : arrow(70,18,-90,'#1e8a4c');
+  const aE = inward? arrow(70,86,90,'#1f5f9e') : arrow(70,94,-90,'#1f5f9e');
+  $('#anSym').innerHTML=`<svg viewBox="-60 -18 240 136" width="100%" style="max-width:440px">${inner}
+    ${aB}${aC}${aE}
+    <text x="-6" y="54" font-size="11" font-weight="700" text-anchor="end" fill="${K}">B</text><text x="62" y="-6" font-size="11" font-weight="700" text-anchor="middle" fill="${K}">C</text><text x="62" y="112" font-size="11" font-weight="700" text-anchor="middle" fill="${K}">E</text>
+    <text x="-6" y="68" font-size="10" text-anchor="end" fill="#b35e1f">I<tspan font-size="7" dy="2">B</tspan><tspan dy="-2"> ${inward?'in':'out'}</tspan></text>
+    <text x="80" y="12" font-size="10" fill="#17693a">I<tspan font-size="7" dy="2">C</tspan><tspan dy="-2"> ${inward?'in':'out'} = ${fmtmA(ic)}</tspan></text>
+    <text x="80" y="96" font-size="10" fill="#1f5f9e">I<tspan font-size="7" dy="2">E</tspan><tspan dy="-2"> ${inward?'out':'in'} = ${fmtmA(ie)}</tspan></text></svg>`;
+  $('#anMnem').innerHTML = t==='npn' ? 'Emitter arrow points <b>out</b>, away from the base: NPN, "Not Pointing iN".' : 'Emitter arrow points <b>in</b>, toward the base: PNP, "Pointing iN".';
+  $('#anNote').innerHTML = t==='npn' ? 'NPN: conventional current flows <b>in</b> at the collector and base and <b>out</b> at the emitter.' : 'PNP: conventional current flows <b>in</b> at the emitter and <b>out</b> at the base and collector. The main current path is emitter → collector.';
+  if(t==='npn') markTask('#anTasks','npn'); else markTask('#anTasks','pnp');
+  if(ev==='ib'||ev==='b'){ AN.moved=AN.moved||{}; AN.moved[ev]=1; if(AN.moved.ib&&AN.moved.b) markTask('#anTasks','kcl'); }
+}
+const SYMQ_OPTS=[{rot:0},{rot:90},{rot:180,mirror:true},{rot:270},{mirror:true},{flipV:true},{rot:90,mirror:true},{rot:180}];
+function newSymQ(){ STATE.an=STATE.an||{}; STATE.an.q=[0,1,2,3].map(i=>({t:Math.random()<.5?'npn':'pnp', o:SYMQ_OPTS[Math.floor(Math.random()*SYMQ_OPTS.length)]}));
+  if(STATE.an.q.every(x=>x.t===STATE.an.q[0].t)) STATE.an.q[3].t = STATE.an.q[0].t==='npn'?'pnp':'npn';
+  STATE.an.perm=['B','C','E'].sort(()=>Math.random()-.5); STATE.an.qOk=0; STATE.an.lOk=0;
+  const types=['npn','pnp']; STATE.an.l={t:types[Math.floor(Math.random()*2)], o:SYMQ_OPTS[1+Math.floor(Math.random()*(SYMQ_OPTS.length-1))]}; save(); }
+function drawSymQ(){
+  $('#symQ').innerHTML=STATE.an.q.map((x,i)=>`<div class="sym" data-i="${i}">${tSym(x.t,Object.assign({size:100},x.o))}<select><option value="">— which? —</option><option value="npn">NPN</option><option value="pnp">PNP</option></select></div>`).join('');
+  const L=STATE.an.l, P=termPts(L.o), nums={B:'?',C:'?',E:'?'}; const order=['B','C','E']; // number the terminals 1,2,3 in a fixed shuffled order
+  const perm=STATE.an.perm||(STATE.an.perm=['C','E','B']); perm.forEach((k,i)=>nums[k]=String(i+1));
+  $('#lblSym').innerHTML=tSym(L.t,Object.assign({size:120,labels:nums,pts:P},L.o));
+  $('#lblSel').innerHTML=perm.map((k,i)=>`<div class="row" style="margin:3px 0"><b style="width:18px">${i+1}</b><select data-k="${k}"><option value="">— terminal —</option><option value="B">Base</option><option value="C">Collector</option><option value="E">Emitter</option></select></div>`).join('');
+}
+function checkSymDone(){ if(STATE.an.qOk && STATE.an.lOk) markTask('#anTasks','sym'); }
+function initS1(){
+  seg('#anType', b=>{ AN.type=b.dataset.t; anDraw('t'); });
+  $('#anIb').addEventListener('input',()=>anDraw('ib')); $('#anB').addEventListener('input',()=>anDraw('b'));
+  STATE.an=STATE.an||{}; if(!STATE.an.q) newSymQ(); drawSymQ();
+  $('#symQCheck').onclick=()=>{ let ok=0; document.querySelectorAll('#symQ .sym').forEach(d=>{ const v=d.querySelector('select').value, t=STATE.an.q[+d.dataset.i].t; d.classList.remove('right','wrong'); if(v===t){ ok++; d.classList.add('right'); } else d.classList.add('wrong'); });
+    $('#symQFb').innerHTML= ok===4?'<span style="color:var(--ok)">✔ All four right. The arrow decides it, not the orientation.</span>':`${ok} / 4. Find the emitter (the lead with the arrow). Does the arrow point toward the base bar or away from it?`;
+    if(ok===4){ STATE.an.qOk=1; save(); checkSymDone(); } };
+  $('#lblCheck').onclick=()=>{ let ok=0; document.querySelectorAll('#lblSel select').forEach(s=>{ const r=s.value===s.dataset.k; s.style.background=r?'var(--ok-soft)':'var(--bad-soft)'; if(r) ok++; });
+    $('#lblFb').innerHTML= ok===3?'<span style="color:var(--ok)">✔ All three terminals right.</span>':`${ok} / 3. The base goes to the thick bar. The emitter carries the arrow. The collector is the other lead.`;
+    if(ok===3){ STATE.an.lOk=1; save(); checkSymDone(); } };
+  anDraw('init');
+}
+
+/* ============ STATION 2 : CURVE TRACER ============ */
+const TC={W:560,H:320, lab:null};
+function solveQ(ib, vcc, rc, model=icModel){ // rc in kOhm, returns {vce, ic}
+  if(vcc<=0) return {vce:0, ic:0};
+  if(ib<=0) return {vce:vcc, ic:0};
+  let lo=0, hi=vcc; for(let k=0;k<60;k++){ const m=(lo+hi)/2, f=model(m,ib)-(vcc-m)/rc; if(f>0) hi=m; else lo=m; }
+  const vce=(lo+hi)/2; return {vce, ic:(vcc-vce)/rc};
+}
+function tcRegion(ib,vce){ if(ib<=0) return 'cut'; if(vce<0.46) return 'sat'; return 'act'; }
+const REGNAME={cut:'Cutoff',sat:'Saturation',act:'Active'};
+function tcDraw(ev){
+  const vbb=+$('#tcVbb').value, vcc=+$('#tcVcc').value, rc=+$('#tcRc').value;
+  const ib=Math.max(0,(vbb-0.7)/15); const q=solveQ(ib,vcc,rc); const reg=tcRegion(ib,q.vce);
+  $('#tcVbbT').textContent=vbb.toFixed(2)+' V'; $('#tcVccT').textContent=vcc+' V';
+  const W=TC.W,H=TC.H, f=tcFamilySvg(W,H,{}), X=f.X, Y=f.Y;
+  let s=f.s;
+  if(ib>0){ let p=''; for(let v=0;v<=27.2;v+=0.1) p+=(p?'L':'M')+X(v).toFixed(1)+','+Y(Math.min(icModel(v,ib),36)).toFixed(1); s+=`<path d="${p}" stroke="#e8742a" stroke-width="2.4" fill="none" stroke-dasharray="6 3"/>`; }
+  // load line
+  if(vcc>0){ const i0=vcc/rc; let x0=0,y0=i0; if(i0>35){ y0=35; x0=vcc-35*rc; } s+=`<line x1="${X(x0)}" y1="${Y(y0)}" x2="${X(vcc)}" y2="${Y(0)}" stroke="#b83a3a" stroke-width="2"/><text x="${X(x0)+8}" y="${Y(y0)+14}" font-size="10" fill="#b83a3a">load line</text>`; }
+  // clickable regions
+  const regs={sat:[X(0),Y(33),X(0.8)-X(0),Y(0)-Y(33)], act:[X(0.8),Y(33),X(25)-X(0.8),Y(0)-14-Y(33)], cut:[X(0.8),Y(0)-14,X(25)-X(0.8),18]};
+  const lab=STATE.tcLab||{};
+  Object.entries(regs).forEach(([k,[x,y,w,h]])=>{ s+=`<rect class="rg" data-reg="${k}" x="${x}" y="${y}" width="${w}" height="${h}" fill="${lab[k]?(k==='sat'?'rgba(163,52,95,.18)':k==='act'?'rgba(30,138,76,.08)':'rgba(90,100,110,.25)'):'transparent'}" style="cursor:${TC.lab?'crosshair':'default'}"/>`; });
+  if(lab.sat) s+=`<text x="${X(0.9)}" y="${Y(33)}" font-size="11" fill="#a3345f" font-weight="700">Saturation ✓</text>`;
+  if(lab.act) s+=`<text x="${X(8)}" y="${Y(33)}" font-size="12" fill="#17693a" font-weight="700">Active ✓ (I<tspan font-size="8" dy="2">C</tspan><tspan dy="-2"> = β·I</tspan><tspan font-size="8" dy="2">B</tspan><tspan dy="-2">)</tspan></text>`;
+  if(lab.cut) s+=`<text x="${X(12)}" y="${Y(0)-18}" font-size="11" fill="#44525f" font-weight="700">Cutoff ✓</text>`;
+  s+=`<circle cx="${X(q.vce)}" cy="${Y(Math.min(q.ic,35))}" r="7" fill="#e8742a" stroke="#fff" stroke-width="2"/><text x="${X(q.vce)+10}" y="${Y(Math.min(q.ic,35))-8}" font-size="11" font-weight="700" fill="#b35e1f">Q</text>`;
+  $('#tcPlot').innerHTML=`<svg id="tcsvg" viewBox="0 0 ${W} ${H}" width="100%">${s}</svg>`;
+  document.querySelectorAll('#tcsvg rect.rg').forEach(r=>r.addEventListener('click',()=>tcLabel(r.dataset.reg)));
+  $('#tcReg').innerHTML=`<em class="pill ${reg}">${REGNAME[reg]}</em>`;
+  $('#tcIb').textContent=fmtmA(ib); $('#tcIc').textContent=fmtmA(q.ic); $('#tcVce').textContent=q.vce.toFixed(2)+' V';
+  $('#tcBeta').textContent= ib>0 ? (q.ic/ib).toFixed(0)+(reg==='sat'?' (below β!)':'') : '—';
+  // circuit
+  $('#tcCirc').innerHTML=`<svg viewBox="-28 0 330 150" width="100%" style="max-width:360px" stroke="${K}" stroke-width="1.8" fill="none">
+    <path d="M30,120 L30,80"/><line x1="20" y1="80" x2="40" y2="80"/><line x1="24" y1="72" x2="36" y2="72" stroke-width="3"/><path d="M30,72 L30,60 L60,60"/>
+    <rect x="60" y="54" width="36" height="12"/><path d="M96,60 L140,60"/>
+    <g transform="translate(125,35) scale(.5)">${tSymInner('npn')}</g>
+    <path d="M156,37 L156,20 L200,20"/><rect x="200" y="14" width="36" height="12"/><path d="M236,20 L270,20 L270,50"/><line x1="260" y1="50" x2="280" y2="50"/><line x1="264" y1="58" x2="276" y2="58" stroke-width="3"/><path d="M270,58 L270,120"/>
+    <path d="M156,83 L156,120"/><path d="M30,120 L270,120"/>
+    <g stroke="none" fill="${K}" font-size="11"><text x="-26" y="80">V<tspan font-size="8" dy="2">BB</tspan></text><text x="62" y="48">R<tspan font-size="8" dy="2">B</tspan><tspan dy="-2"> 15k</tspan></text><text x="200" y="10">R<tspan font-size="8" dy="2">C</tspan><tspan dy="-2"> ${rc>=1?rc+'k':rc*1000+'Ω'}</tspan></text><text x="282" y="56">V<tspan font-size="8" dy="2">CC</tspan></text>
+    <text x="104" y="54" fill="#b35e1f">I<tspan font-size="8" dy="2">B</tspan></text><text x="160" y="14" fill="#17693a">I<tspan font-size="8" dy="2">C</tspan></text><text x="160" y="104">V<tspan font-size="8" dy="2">CE</tspan><tspan dy="-2"> ${q.vce.toFixed(1)} V</tspan></text></g></svg>`;
+  if(reg==='cut' && ev==='vbb') markTask('#tcTasks','cut');
+  if(reg==='act' && ib>0 && q.vce>2) markTask('#tcTasks','act');
+  if(reg==='sat') markTask('#tcTasks','sat');
+  if(ev==='rc') markTask('#tcTasks','rc');
+}
+function tcLabel(reg){
+  if(!TC.lab) return;
+  if(TC.lab===reg){ STATE.tcLab=STATE.tcLab||{}; STATE.tcLab[reg]=1; save(); $('#tcLabFb').innerHTML=`<span style="color:var(--ok)">✔ That's the ${REGNAME[reg].toLowerCase()} region.</span>`+(Object.keys(STATE.tcLab).length===3?' All three labelled.':''); }
+  else $('#tcLabFb').innerHTML=`<span style="color:var(--bad)">That's not the ${REGNAME[TC.lab].toLowerCase()} region.</span> ${TC.lab==='sat'?'Saturation is the steep strip next to the I<sub>C</sub> axis, where V<sub>CE</sub> is tiny.':TC.lab==='cut'?'Cutoff lies along the V<sub>CE</sub> axis, where I<sub>B</sub> = 0 and no collector current flows.':'The active region is the flat part of the curves, where I<sub>C</sub> = β·I<sub>B</sub>.'}`;
+  TC.lab=null; document.querySelectorAll('#s2 [data-lab]').forEach(b=>b.classList.remove('on')); tcDraw('lab');
+}
+function gcNew(){ const b=[80,100,120,150,200,250][Math.floor(Math.random()*6)], ic=[5,8,12,15,24,30,36,50][Math.floor(Math.random()*8)]; $('#gcB').value=b; $('#gcIc').value=ic; $('#gcIb').value=''; $('#gcFb').textContent=''; }
+function initS2(){
+  ['tcVbb','tcVcc'].forEach(id=>$('#'+id).addEventListener('input',()=>tcDraw(id==='tcVbb'?'vbb':'vcc')));
+  $('#tcRc').addEventListener('change',()=>tcDraw('rc'));
+  document.querySelectorAll('#s2 [data-lab]').forEach(b=>b.addEventListener('click',()=>{ TC.lab=b.dataset.lab; document.querySelectorAll('#s2 [data-lab]').forEach(x=>x.classList.toggle('on',x===b)); $('#tcLabFb').textContent='Now click that region on the graph.'; tcDraw('lab'); }));
+  gcNew(); $('#gcNew').onclick=gcNew;
+  $('#gcCheck').onclick=()=>{ const b=+$('#gcB').value, ic=+$('#gcIc').value, you=parseFloat($('#gcIb').value); if(!(b>0&&ic>0)){ $('#gcFb').textContent='Enter β and I_C first.'; return; } const ans=ic/b;
+    $('#gcFb').innerHTML = isFinite(you) && Math.abs(you-ans)<=ans*0.02+0.0005 ? `<span style="color:var(--ok)">✔ Correct.</span> I<sub>B</sub> = I<sub>C</sub> ÷ β = ${ic} ÷ ${b} = ${ans.toFixed(3)} mA, and I<sub>E</sub> = I<sub>B</sub> + I<sub>C</sub> = ${(ic+ans).toFixed(3)} mA.` : `<span style="color:var(--bad)">Not quite.</span> Rearrange I<sub>C</sub> = β·I<sub>B</sub> for I<sub>B</sub>, and watch your units (mA).`; };
+  tcDraw('init');
+}
+
+/* ============ STATION 3 : SWITCH / AMPLIFIER ============ */
+const SW={ctl:0};
+function swDraw(){
+  const drive=+$('#swDrive').value, on=SW.ctl===1, ib=on?drive:0, vcc=28, rl=0.28;
+  $('#swDriveT').textContent=drive.toFixed(1)+' mA';
+  const q=solveQ(ib,vcc,rl); const reg=tcRegion(ib,q.vce);
+  const vbe = on?0.7:0, vbc=vbe-q.vce;
+  const p=q.vce*q.ic; // mW
+  $('#swReg').innerHTML=`<em class="pill ${reg}">${REGNAME[reg]}</em>`;
+  $('#swVce').textContent=q.vce.toFixed(2)+' V'; $('#swIc').textContent=fmtmA(q.ic);
+  $('#swP').innerHTML= `<em style="color:${p>300?'var(--bad)':p>60?'var(--amber)':'var(--ok)'}">${p>=1000?(p/1000).toFixed(2)+' W':p.toFixed(0)+' mW'}</em>`;
+  $('#swBE').textContent= on?'forward biased (0.7 V)':'reverse/zero biased (0 V)';
+  $('#swBC').textContent= vbc>0?`forward biased (+${vbc.toFixed(1)} V)`:`reverse biased (${vbc.toFixed(1)} V)`;
+  const b=clamp(q.ic/99,0,1), hot=clamp(p/800,0,1);
+  $('#swCirc').innerHTML=`<svg viewBox="0 0 320 170" width="100%" style="max-width:380px" stroke="${K}" stroke-width="1.8" fill="none">
+    <path d="M200,10 L200,30"/><text x="208" y="16" stroke="none" fill="${K}" font-size="11">+28 V</text>
+    <circle cx="200" cy="48" r="16" fill="rgba(255,196,40,${b})" style="filter:${b>0.05?'drop-shadow(0 0 '+(4+16*b)+'px rgba(255,190,40,.9))':'none'}"/><path d="M189,37 L211,59 M211,37 L189,59" stroke-width="1.4"/>
+    <text x="222" y="52" stroke="none" fill="${K}" font-size="10">lamp</text>
+    <path d="M200,64 L200,82"/>
+    <g transform="translate(163,78) scale(.6)"><circle cx="50" cy="50" r="40" fill="rgba(184,58,58,${hot*0.5})" stroke="none"/>${tSymInner('npn')}</g>
+    <path d="M200,136 L200,152"/><line x1="188" y1="152" x2="212" y2="152"/><line x1="193" y1="157" x2="207" y2="157"/>
+    <path d="M165,108 L130,108"/><rect x="94" y="102" width="36" height="12"/><path d="M94,108 L50,108"/>
+    <rect x="14" y="94" width="36" height="28" rx="4" fill="${on?'#e3eef9':'#f3f5f8'}"/><text x="32" y="112" stroke="none" fill="${K}" font-size="10" text-anchor="middle">${on?'5 V':'0 V'}</text>
+    <text x="14" y="88" stroke="none" fill="#5b6b7a" font-size="9.5">computer</text>
+    <text x="232" y="112" stroke="none" fill="${K}" font-size="11">V<tspan font-size="8" dy="2">CE</tspan><tspan dy="-2"> = ${q.vce.toFixed(1)} V</tspan></text>
+    <text x="232" y="128" stroke="none" fill="${p>300?'#b83a3a':'#5b6b7a'}" font-size="10">${p>300?'transistor hot!':''}</text></svg>`;
+  if(!on) markTask('#swTasks','off');
+  if(on && reg==='sat') markTask('#swTasks','on');
+  if(on && reg==='act' && p>300) markTask('#swTasks','half');
+}
+function ampDraw(){
+  const bias=+$('#ampBias').value/1000, A=+$('#ampIn').value/1000, beta=100, vcc=20, rc=1, icsat=(vcc-0.2)/rc;
+  $('#ampBiasT').textContent=Math.round(bias*1000)+' µA'; $('#ampInT').textContent=Math.round(A*1000)+' µA';
+  const W=520,H=260, N=200; let pin='',pout='', clipS=false, clipC=false, vmin=1e9, vmax=-1e9;
+  const Xt=k=>40+k/N*(W-56), Yi=i=>62-(i)/0.35*45, Yo=v=>H-24-v/20*(H-120);
+  for(let k=0;k<=N;k++){ const t=k/N*2*2*Math.PI; const ibt=bias+A*Math.sin(t); let ib=ibt; if(ib<0){ ib=0; if(A>0) clipC=true; }
+    let ic=beta*ib; if(ic>icsat){ ic=icsat; clipS=true; } const vce=vcc-ic*rc; vmin=Math.min(vmin,vce); vmax=Math.max(vmax,vce);
+    pin+=(k?'L':'M')+Xt(k).toFixed(1)+','+Yi(ibt).toFixed(1); pout+=(k?'L':'M')+Xt(k).toFixed(1)+','+Yo(vce).toFixed(1); }
+  const regQ = bias<=0?'cut': beta*bias>=icsat?'sat':'act';
+  $('#ampPlot').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%">
+    <text x="40" y="12" font-size="11" fill="#b35e1f">Input: base current (µA)</text><line x1="40" y1="${Yi(0)}" x2="${W-16}" y2="${Yi(0)}" stroke="#ddd"/><text x="34" y="${Yi(0)+4}" font-size="9" text-anchor="end" fill="#5b6b7a">0</text>
+    <path d="${pin}" stroke="#e8742a" stroke-width="2" fill="none"/>
+    <text x="40" y="${Yo(20)-8}" font-size="11" fill="#1f5f9e">Output: V<tspan font-size="8" dy="2">CE</tspan><tspan dy="-2"> (V)</tspan></text>
+    <line x1="40" y1="${Yo(20)}" x2="${W-16}" y2="${Yo(20)}" stroke="#8a96a3" stroke-dasharray="4 3"/><text x="${W-16}" y="${Yo(20)-3}" font-size="9.5" text-anchor="end" fill="#44525f">cutoff limit: V<tspan font-size="7" dy="2">CE</tspan><tspan dy="-2"> = V</tspan><tspan font-size="7" dy="2">CC</tspan><tspan dy="-2"> = 20 V</tspan></text>
+    <line x1="40" y1="${Yo(0.2)}" x2="${W-16}" y2="${Yo(0.2)}" stroke="#a3345f" stroke-dasharray="4 3"/><text x="${W-16}" y="${Yo(0.2)-3}" font-size="9.5" text-anchor="end" fill="#a3345f">saturation limit: V<tspan font-size="7" dy="2">CE</tspan><tspan dy="-2"> ≈ 0.2 V</tspan></text>
+    <line x1="40" y1="${Yo(10)}" x2="${W-16}" y2="${Yo(10)}" stroke="#eee"/><text x="34" y="${Yo(10)+4}" font-size="9" text-anchor="end" fill="#5b6b7a">10</text>
+    <path d="${pout}" stroke="#1f5f9e" stroke-width="2.6" fill="none"/></svg>`;
+  $('#ampReg').innerHTML=`<em class="pill ${regQ}">${REGNAME[regQ]}</em>`;
+  $('#ampOut').innerHTML = (clipS&&clipC)?'<em style="color:var(--bad)">clipped both ways</em>': clipS?'<em style="color:var(--bad)">clipped: hitting saturation</em>': clipC?'<em style="color:var(--bad)">clipped: hitting cutoff</em>': A>0?`clean, ${(vmax-vmin).toFixed(1)} V p-p, inverted`:'no signal';
+  if(regQ==='act' && !clipS && !clipC && A>=0.02) markTask('#ampTasks','clean');
+  if(clipS && !clipC) markTask('#ampTasks','csat');
+  if(clipC && !clipS) markTask('#ampTasks','ccut');
+}
+const Q3ANS={be:['rev','fwd','fwd'], bc:['rev','fwd','rev'], op:['open','closed','amp']};
+function drawQ3(){
+  const bias=[['','—'],['fwd','forward biased'],['rev','reverse biased']], ops=[['','—'],['open','an open switch'],['closed','a closed switch'],['amp','an amplifier']];
+  const sel=(row,col,opts)=>{ const v=(STATE.q3||{})[row+col]||''; return `<td data-r="${row}" data-c="${col}"><select>${opts.map(([k,l])=>`<option value="${k}"${k===v?' selected':''}>${l}</option>`).join('')}</select></td>`; };
+  $('#q3t').innerHTML=`<tr><th>Operating Region</th><th>Cutoff</th><th>Saturation</th><th>Active</th></tr>
+   <tr><th>B - E Junction</th>${[0,1,2].map(c=>sel('be',c,bias)).join('')}</tr>
+   <tr><th>B - C Junction</th>${[0,1,2].map(c=>sel('bc',c,bias)).join('')}</tr>
+   <tr><th>Operate as</th>${[0,1,2].map(c=>sel('op',c,ops)).join('')}</tr>`;
+  $('#q3t').querySelectorAll('select').forEach(s=>s.addEventListener('change',()=>{ const td=s.parentElement; STATE.q3=STATE.q3||{}; STATE.q3[td.dataset.r+td.dataset.c]=s.value; td.classList.remove('right','wrong'); save(); }));
+}
+function initS3(){
+  seg('#swMode', b=>{ const sw=b.dataset.m==='sw'; $('#swPane').style.display=sw?'':'none'; $('#ampPane').style.display=sw?'none':''; if(!sw) ampDraw(); });
+  seg('#swCtl', b=>{ SW.ctl=+b.dataset.v; swDraw(); });
+  $('#swDrive').addEventListener('input',swDraw);
+  $('#ampBias').addEventListener('input',ampDraw); $('#ampIn').addEventListener('input',ampDraw);
+  drawQ3();
+  $('#q3Check').onclick=()=>{ let ok=0; $('#q3t').querySelectorAll('td').forEach(td=>{ const r=td.dataset.r, c=+td.dataset.c, v=td.querySelector('select').value; const good=v===Q3ANS[r][c]; td.classList.toggle('right',good); td.classList.toggle('wrong',!good); if(good) ok++; });
+    $('#q3Fb').innerHTML = ok===9?'<span style="color:var(--ok)">✔ All nine cells right. Compare with the model answer to Short Q3 below.</span>':`${ok} / 9 right. Use the switch and amplifier readouts above: they show both junctions in each region.`; };
+  swDraw(); ampDraw();
+}
+
+/* ============ STATION 4 : BJT vs JFET ============ */
+const JF={IDSS:10, VOFF:-4};
+const jfId=v=> v<=JF.VOFF?0: JF.IDSS*Math.pow(1-v/JF.VOFF,2);
+function jfDraw(){
+  const v=+$('#jfV').value, id=jfId(v);
+  $('#jfVT').textContent=(v>-0.001?'0.00':v.toFixed(2))+' V';
+  const W=460,H=250, X=x=>50+(x+5)/5*(W-70), Y=i=>H-32-i/10.5*(H-55);
+  let p=''; for(let x=-5;x<=0.0001;x+=0.02) p+=(p?'L':'M')+X(x).toFixed(1)+','+Y(jfId(x)).toFixed(1);
+  $('#jfPlot').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%">
+    <line x1="50" y1="${Y(0)}" x2="${W-14}" y2="${Y(0)}" stroke="#34495e"/><line x1="${X(0)}" y1="${Y(0)}" x2="${X(0)}" y2="12" stroke="#34495e"/>
+    ${[-5,-4,-3,-2,-1,0].map(x=>`<text x="${X(x)}" y="${Y(0)+14}" font-size="10" text-anchor="middle" fill="#5b6b7a">${x}</text>`).join('')}
+    ${[5,10].map(i=>`<line x1="${X(0)-4}" y1="${Y(i)}" x2="${X(0)}" y2="${Y(i)}" stroke="#34495e"/><text x="${X(0)-8}" y="${Y(i)+4}" font-size="10" text-anchor="end" fill="#5b6b7a">${i} mA</text>`).join('')}
+    <text x="${W-14}" y="${H-6}" font-size="11" text-anchor="end" fill="#5b6b7a">V<tspan font-size="8" dy="2">GS</tspan><tspan dy="-2"> (V)</tspan></text><text x="${X(0)+6}" y="18" font-size="11" fill="#5b6b7a">I<tspan font-size="8" dy="2">D</tspan></text>
+    <line x1="${X(-4)}" y1="${Y(0)}" x2="${X(-4)}" y2="${Y(3)}" stroke="#b83a3a" stroke-dasharray="3 3"/><text x="${X(-4)}" y="${Y(3)-4}" font-size="10" text-anchor="middle" fill="#b83a3a">V<tspan font-size="7" dy="2">GS(off)</tspan></text>
+    <text x="${X(0)-50}" y="${Y(10)+4}" font-size="10" text-anchor="end" fill="#17693a">I<tspan font-size="7" dy="2">DSS</tspan></text>
+    <path d="${p}" stroke="#1f5f9e" stroke-width="2.6" fill="none"/>
+    <circle cx="${X(v)}" cy="${Y(id)}" r="7" fill="#e8742a" stroke="#fff" stroke-width="2"/>
+    <g transform="translate(70,20)" stroke="${K}" stroke-width="2" fill="none"><line x1="30" y1="0" x2="30" y2="40"/><path d="M30,6 L50,6 L50,-4 M30,34 L50,34 L50,44"/><path d="M0,34 L30,34"/><polygon points="30,34 21,29 21,39" fill="${K}"/>
+      <g stroke="none" fill="${K}" font-size="9"><text x="54" y="-2">D</text><text x="54" y="48">S</text><text x="-2" y="30">G</text></g></g></svg>`;
+  $('#jfId').textContent=id.toFixed(2)+' mA'; $('#jfIg').textContent='≈ 0 (< 1 nA leakage)';
+  $('#jfSt').innerHTML= v<=JF.VOFF?'pinched off: I<sub>D</sub> = 0': v>-0.02?'I<sub>D</sub> = I<sub>DSS</sub>':'channel narrowing';
+  if(v>-0.02) markTask('#jfTasks','idss'); if(v<=JF.VOFF) markTask('#jfTasks','off');
+}
+function ldDraw(d){
+  const Rs=1e6, E=1.0; const zin = d==='bjt'?2.5e3: d==='jfet'?1e10: Infinity;
+  const i = isFinite(zin)? E/(Rs+zin) : 0, vin = isFinite(zin)? E*zin/(Rs+zin) : E;
+  $('#ldZ').textContent = d==='bjt'?'≈ 2.5 kΩ': d==='jfet'?'≈ 10 GΩ':'—';
+  $('#ldI').textContent = d==='none'?'0': i>=1e-6?(i*1e6).toFixed(3)+' µA':(i*1e9).toFixed(2)+' nA';
+  $('#ldV').innerHTML = d==='none'?'(open circuit: 1.000 V)': vin<0.01? `<em style="color:var(--bad)">${(vin*1000).toFixed(2)} mV</em>`:`<em style="color:var(--ok)">${vin.toFixed(4)} V</em>`;
+  $('#ldBar').style.width=(d==='none'?0:vin*100)+'%';
+  const box = d==='none'?'':`<rect x="200" y="30" width="96" height="60" rx="8" fill="${d==='bjt'?'#fbe7e7':'#e2f4ea'}" stroke="${K}"/><text x="248" y="56" text-anchor="middle" font-size="12" font-weight="700" fill="${K}" stroke="none">${d==='bjt'?'BJT':'JFET'} input</text><text x="248" y="74" text-anchor="middle" font-size="10" fill="${K}" stroke="none">${d==='bjt'?'draws base current':'gate draws ~0'}</text>`;
+  $('#ldCirc').innerHTML=`<svg viewBox="0 0 310 120" width="100%" style="max-width:360px" stroke="${K}" stroke-width="1.8" fill="none">
+    <rect x="6" y="20" width="120" height="80" rx="10" stroke-dasharray="4 3"/><text x="66" y="14" text-anchor="middle" font-size="10" fill="#5b6b7a" stroke="none">weak sensor</text>
+    <circle cx="36" cy="60" r="14"/><text x="36" y="64" text-anchor="middle" font-size="10" fill="${K}" stroke="none">1 V</text>
+    <path d="M36,46 L36,36 L60,36"/><path d="M60,36 l5,-6 l6,12 l6,-12 l6,12 l6,-12 l5,6"/><text x="82" y="56" text-anchor="middle" font-size="10" fill="${K}" stroke="none">1 MΩ</text>
+    <path d="M94,36 L126,36 ${d==='none'?'':'L200,36'}"/><path d="M36,74 L36,90 L126,90 ${d==='none'?'':'L200,90'}"/>${box}</svg>`;
+  if(d==='bjt') markTask('#jfTasks','bjt'); if(d==='jfet') markTask('#jfTasks','jfet');
+}
+function initS4(){ $('#jfV').addEventListener('input',jfDraw); seg('#ldSel', b=>ldDraw(b.dataset.d)); jfDraw(); ldDraw('none'); }
+
+/* ============ STATION 5 : SAFE HANDLING ============ */
+const SAFETY=[
+ ['Check the circuit for defects and remove power before you replace the transistor.',1],
+ ['Replace the transistor with the power on, as long as you work quickly.',0],
+ ['Connect a ground lead between the test equipment and the circuit before you inject or monitor a signal.',1],
+ ['Clip on the signal probe first and add the ground lead afterwards.',0],
+ ['Wear an earthed wrist strap and keep FETs in their conductive packaging until fitted, because static easily destroys their gates.',1],
+ ['Touch a FET\'s gate lead with your finger to discharge it before fitting it.',0],
+ ['Avoid overheating the leads when soldering the new transistor in.',1],
+ ['If the new transistor has the same case, it doesn\'t matter which lead goes in which hole.',0]
+];
+const STEPS=['Remove power from the circuit.','Remove the faulty transistor and check the surrounding circuit for defects.','Fit the new transistor, checking which lead is the base, collector and emitter.','Restore power to the circuit.','Connect the ground lead of the signal generator and oscilloscope to the circuit.','Inject the test signal and monitor the output.'];
+function drawOrder(){ const o=STATE.order; $('#order').innerHTML=o.map((k,i)=>`<li data-k="${k}"><span>${STEPS[k]}</span><button data-mv="-1" data-i="${i}" aria-label="Move up">▲</button><button data-mv="1" data-i="${i}" aria-label="Move down">▼</button></li>`).join('');
+  $('#order').querySelectorAll('button').forEach(b=>b.onclick=()=>{ const i=+b.dataset.i, j=i+ +b.dataset.mv; if(j<0||j>=o.length) return; [o[i],o[j]]=[o[j],o[i]]; save(); drawOrder(); $('#orderFb').textContent=''; }); }
+function shuffleOrder(){ let o; do{ o=[0,1,2,3,4,5].sort(()=>Math.random()-.5); }while(o.every((k,i)=>k===i)); STATE.order=o; save(); drawOrder(); $('#orderFb').textContent=''; }
+function initS5(){
+  $('#safety').innerHTML=SAFETY.map(([t,c])=>`<label data-c="${c}"><input type="checkbox"> <span>${t}</span></label>`).join('');
+  $('#safetyCheck').onclick=()=>{ let right=0; document.querySelectorAll('#safety label').forEach(l=>{ const c=+l.dataset.c, on=l.querySelector('input').checked; l.classList.remove('right','wrong'); if(c===+on){ right++; if(on) l.classList.add('right'); } else l.classList.add('wrong'); });
+    $('#safetyFb').innerHTML = right===SAFETY.length?'<span style="color:var(--ok)">✔ All correct: exactly four real precautions.</span>':`${right} / ${SAFETY.length} statements judged correctly. Red ones need another look.`; };
+  if(!STATE.order) shuffleOrder(); else drawOrder();
+  $('#orderShuffle').onclick=shuffleOrder;
+  $('#orderCheck').onclick=()=>{ let ok=0; $('#order').querySelectorAll('li').forEach((li,i)=>{ const good=+li.dataset.k===i; li.classList.toggle('right',good); li.classList.toggle('wrong',!good); if(good) ok++; });
+    $('#orderFb').innerHTML = ok===6?'<span style="color:var(--ok)">✔ Safe order. Power off before you touch the transistor, and the ground goes on before any signal.</span>':`${ok} / 6 in the right place.`; };
+}
+
+/* ============ TABS + BOOT ============ */
+function showTab(t){ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t)); document.querySelectorAll('section.station').forEach(s=>s.classList.toggle('on',s.id===t)); try{ localStorage.setItem(LS+'.tab',t);}catch(e){} window.scrollTo(0,0); }
+document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.t)));
+$('#resetAll').onclick=()=>{ if(!confirm('Clear all your answers and progress on this device?')) return; try{ localStorage.removeItem(LS);}catch(e){} location.reload(); };
+mountQuestions(); initS1(); initS2(); initS3(); initS4(); initS5(); restoreTasks();
+try{ const t=localStorage.getItem(LS+'.tab'); if(t && document.getElementById(t)) showTab(t); }catch(e){}
+
+</script>
+</body>
+</html>
