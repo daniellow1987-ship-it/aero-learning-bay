@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topic 2 Practice · Servomechanisms</title>
+<style>
+:root{--ink:#16222e;--muted:#5b6b7a;--bg:#f3f5f8;--line:#d6dee6;--blue:#1f5f9e;--blue-soft:#e3eef9;--ok:#1e8a4c;--ok-soft:#e2f4ea;--amber:#b7791f;--amber-soft:#fdf3e1}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{background:#12324f;color:#fff}
+.hwrap{max-width:980px;margin:0 auto;padding:18px 20px 16px}
+h1{font-size:22px;margin:0}
+.hsub{font-size:13.5px;opacity:.82;margin:3px 0 0}
+main{max-width:980px;margin:0 auto;padding:18px 20px 40px}
+.intro{background:#fff;border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:14.5px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+a.card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;text-decoration:none;color:inherit;transition:border-color .12s,box-shadow .12s,transform .12s}
+a.card:hover,a.card:focus-visible{border-color:var(--blue);box-shadow:0 6px 18px rgba(18,50,79,.12);transform:translateY(-1px);outline:none}
+.step{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--blue)}
+.card svg{width:100%;height:92px;margin:8px 0 6px;background:#f7f9fb;border-radius:8px}
+.card h2{font-size:17px;margin:2px 0 4px}
+.card p{margin:0 0 10px;font-size:13.5px;color:var(--muted);flex:1}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px}
+.pill{border-radius:99px;padding:2px 10px;background:#eef2f6;color:var(--muted);white-space:nowrap}
+.pill.go{background:var(--amber-soft);color:var(--amber)}
+.pill.done{background:var(--ok-soft);color:var(--ok)}
+.open{color:var(--blue);font-weight:600;white-space:nowrap}
+.bar{height:6px;border-radius:9px;background:#e6ebf0;margin:0 0 10px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--blue);border-radius:9px}
+h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:26px 0 8px}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:13.5px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#f6f8fa;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+tr:last-child td{border-bottom:none}
+footer{max-width:980px;margin:0 auto;padding:0 20px 30px;font-size:12px;color:var(--muted)}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)} .card svg{height:76px} th:nth-child(3),td:nth-child(3){display:none}}
+</style>
+</head>
+<body>
+<header><div class="hwrap">
+  <h1>Topic 2 Practice</h1>
+  <div class="hsub">Servomechanisms: synchros, resolvers, LVDTs, tachogenerators and closed-loop control</div>
+</div></header>
+<main>
+  <div class="intro"><b>Start here.</b> Work through the three activities in order. The <b>Servo Bench</b> covers every Tutorial 2 question with hands-on stations. <b>Servo Match</b> checks that you can pick the right device for a real job. The <b>MCAS Loop</b> puzzle puts it all together in a real aircraft closed-loop system. Your progress is saved in this browser.</div>
+
+  <div class="grid">
+    <a class="card" href="../topic2-tutorial/" id="cBench">
+      <span class="step">Step 1 · Tutorial 2</span>
+      <svg viewBox="0 0 240 92" aria-hidden="true" fill="none" stroke="#16222e" stroke-width="2">
+        <circle cx="52" cy="46" r="26"/><line x1="52" y1="46" x2="68" y2="28" stroke="#b35e1f" stroke-width="4"/>
+        <circle cx="188" cy="46" r="26"/><line x1="188" y1="46" x2="204" y2="28" stroke="#b35e1f" stroke-width="4"/>
+        <line x1="78" y1="38" x2="162" y2="38"/><line x1="78" y1="46" x2="162" y2="46"/><line x1="78" y1="54" x2="162" y2="54"/>
+        <text x="52" y="86" font-size="11" fill="#5b6b7a" stroke="none" text-anchor="middle">TX</text><text x="188" y="86" font-size="11" fill="#5b6b7a" stroke="none" text-anchor="middle">TR</text>
+        <text x="120" y="30" font-size="10" fill="#5b6b7a" stroke="none" text-anchor="middle">S1 S2 S3</text>
+      </svg>
+      <h2>Servo Bench</h2>
+      <p>Five lab stations: torque synchros, differentials, a control synchro servo, loop response and sensors. All 25 tutorial questions, with model answers.</p>
+      <div class="bar"><i id="bBar"></i></div>
+      <div class="meta"><span class="pill" id="bPill">Not started</span><span class="open">Open →</span></div>
+    </a>
+    <a class="card" href="../topic2-servo-match/" id="cMatch">
+      <span class="step">Step 2 · Apply it</span>
+      <svg viewBox="0 0 240 92" aria-hidden="true" fill="none" stroke="#16222e" stroke-width="2">
+        <rect x="14" y="18" width="62" height="40" rx="6" fill="#e3eef9" stroke="#1f5f9e"/><rect x="24" y="30" width="62" height="40" rx="6" fill="#fff"/>
+        <line x1="34" y1="44" x2="72" y2="44" stroke="#5b6b7a"/><line x1="34" y1="54" x2="62" y2="54" stroke="#5b6b7a"/>
+        <path d="M96 50 H130" stroke="#1f5f9e" stroke-width="3"/><path d="M124 43 L132 50 L124 57" stroke="#1f5f9e" stroke-width="3"/>
+        <rect x="146" y="14" width="36" height="28" rx="5"/><rect x="190" y="14" width="36" height="28" rx="5"/>
+        <rect x="146" y="50" width="36" height="28" rx="5" fill="#e2f4ea" stroke="#1e8a4c"/><rect x="190" y="50" width="36" height="28" rx="5"/>
+      </svg>
+      <h2>Servo Match</h2>
+      <p>Sort 24 aircraft and everyday jobs into six devices: torque synchro, control synchro servo, differential, resolver, LVDT or tachogenerator. Then explain why.</p>
+      <div class="bar"><i id="mBar"></i></div>
+      <div class="meta"><span class="pill" id="mPill">Not started</span><span class="open">Open →</span></div>
+    </a>
+    <a class="card" href="../mcas-loop/" id="cLoop">
+      <span class="step">Step 3 · Put it together</span>
+      <svg viewBox="0 0 240 92" aria-hidden="true" fill="none" stroke="#16222e" stroke-width="2">
+        <circle cx="40" cy="36" r="12"/><line x1="32" y1="28" x2="48" y2="44"/><line x1="48" y1="28" x2="32" y2="44"/>
+        <line x1="52" y1="36" x2="84" y2="36"/><rect x="84" y="22" width="44" height="28" rx="4"/>
+        <line x1="128" y1="36" x2="160" y2="36"/><rect x="160" y="22" width="56" height="28" rx="4"/>
+        <path d="M216 36 H228 V76 H40 V48" stroke="#1f5f9e"/><path d="M34 54 L40 46 L46 54" stroke="#1f5f9e"/>
+        <text x="106" y="40" font-size="10" fill="#16222e" stroke="none" text-anchor="middle">FCC</text><text x="188" y="40" font-size="10" fill="#16222e" stroke="none" text-anchor="middle">Trim</text>
+        <text x="134" y="88" font-size="10" fill="#1f5f9e" stroke="none" text-anchor="middle">AOA feedback</text>
+      </svg>
+      <h2>MCAS Loop</h2>
+      <p>Build the MCAS closed-loop servo system: slot the reference, comparator, amplifier, trim motor, stabilizer and AOA feedback into the loop.</p>
+      <div class="bar"><i></i></div>
+      <div class="meta"><span class="pill">Puzzle</span><span class="open">Open →</span></div>
+    </a>
+  </div>
+
+  <h3>What each activity covers</h3>
+  <table>
+    <thead><tr><th>Idea from Tutorial 2</th><th>Where to practise</th><th>Questions</th></tr></thead>
+    <tbody>
+      <tr><td>Torque synchros: zero position, S1/S3 reversal, holding the receiver</td><td>Servo Bench 1, Servo Match</td><td>MCQ 1–3, 5, 15 · Short Q1, Q5a</td></tr>
+      <tr><td>Differential synchros (TDX and TDR) in addition and subtraction</td><td>Servo Bench 2, Servo Match</td><td>Short Q3, Q4</td></tr>
+      <tr><td>Control synchro servo: CT, error amplitude and phase, AC vs DC servo</td><td>Servo Bench 3, Servo Match</td><td>MCQ 4, 12, 13 · Short Q5b, Q5c, Q6, Q8</td></tr>
+      <tr><td>Closed vs open loop, error detector, response, damping</td><td>Servo Bench 4, MCAS Loop</td><td>MCQ 6–8, 10, 14</td></tr>
+      <tr><td>Resolver, LVDT and tachogenerator</td><td>Servo Bench 5, Servo Match</td><td>MCQ 9, 11 · Short Q2, Q7</td></tr>
+    </tbody>
+  </table>
+</main>
+<footer>Aerospace electronics practice pages. Progress is stored in this browser only; nothing is sent anywhere.</footer>
+<script>
+(function(){
+  function get(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } }
+  function set(pill,bar,done,total,label){
+    var p=document.getElementById(pill), b=document.getElementById(bar);
+    b.style.width=(100*done/total)+'%';
+    if(done>=total){ p.className='pill done'; p.textContent='✓ '+label; }
+    else if(done>0){ p.className='pill go'; p.textContent=label; }
+  }
+  // Servo Bench: MCQs answered correctly + short questions self-rated (same rule as the bench's own counter)
+  var KEY={M1:1,M2:1,M3:2,M4:2,M5:2,M6:2,M7:0,M8:0,M9:0,M10:0,M11:0,M12:0,M13:0,M14:1,M15:2};
+  var SHORT=['S1','S2','S3','S4','S5a','S5b','S5c','S6','S7','S8'];
+  var b=get('servoBench.v1');
+  if(b){
+    var n=0; for(var id in KEY){ if(b.ans && b.ans[id]===KEY[id]) n++; }
+    SHORT.forEach(function(id){ if(b.rate && b.rate[id]) n++; });
+    set('bPill','bBar',n,25,n+' of 25 done');
+  }
+  var m=get('servoMatch.v1');
+  if(m && m.rounds){
+    var r=m.finished?3:(m.r||0);
+    set('mPill','mBar',r,3, m.finished?'All 3 rounds done':(r+' of 3 rounds done'));
+  }
+})();
+</script>
+</body>
+</html>
