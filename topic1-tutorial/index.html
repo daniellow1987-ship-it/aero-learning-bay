@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diode Bench · Tutorial 1A Semiconductors-Diodes</title>
+<style>
+:root{
+  --ink:#16222e; --muted:#5b6b7a; --bg:#f3f5f8; --card:#fff; --line:#d6dee6;
+  --blue:#1f5f9e; --blue-soft:#e3eef9; --ok:#1e8a4c; --ok-soft:#e2f4ea; --bad:#b83a3a; --bad-soft:#fbe7e7;
+  --amber:#b7791f; --amber-soft:#fdf3e1; --fwd:#d8efe0; --rev:#dce9f7; --brk:#f7dfe9;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{background:#12324f;color:#fff}
+.hwrap{max-width:1120px;margin:0 auto;padding:14px 20px 0}
+h1{font-size:20px;margin:0}
+.hsub{font-size:13px;opacity:.8;margin:2px 0 10px}
+.progress{display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:10px}
+.pbar{flex:1;max-width:320px;height:8px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:#48d17a;transition:width .3s}
+nav.tabs{display:flex;gap:2px;overflow-x:auto}
+nav.tabs button{background:transparent;border:none;color:#c9d8e6;padding:9px 14px;font-size:13.5px;font-weight:600;cursor:pointer;border-radius:8px 8px 0 0;white-space:nowrap}
+nav.tabs button.on{background:var(--bg);color:var(--ink)}
+nav.tabs button .ct{font-weight:500;opacity:.75;margin-left:4px;font-size:12px}
+main{max-width:1120px;margin:0 auto;padding:18px 20px 40px}
+section.station{display:none}
+section.station.on{display:block}
+.intro{background:#fff;border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:14px}
+.intro b{color:var(--blue)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+@media (max-width:880px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+.card h3{margin:0 0 8px;font-size:15px}
+.card h4{margin:10px 0 4px;font-size:13.5px}
+.muted{color:var(--muted);font-size:13px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+label.sl{display:block;font-size:13px;color:var(--muted);margin:8px 0 2px}
+input[type=range]{width:100%}
+.readout{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:10px}
+.ro{background:#f6f8fa;border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.ro span{display:block;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.ro b{font-size:17px;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12.5px;font-weight:700}
+.pill.fwd{background:var(--fwd);color:#17693a}.pill.rev{background:var(--rev);color:#1f5f9e}.pill.brk{background:var(--brk);color:#a3345f}
+button.btn{border:none;border-radius:8px;padding:8px 14px;font-size:13.5px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff}
+button.btn.sec{background:#fff;color:var(--ink);border:1px solid #c7d2dc}
+button.btn.warn{background:var(--amber)}
+button.btn:disabled{opacity:.45;cursor:not-allowed}
+select{font:inherit;font-size:13.5px;padding:5px 8px;border-radius:7px;border:1px solid #c7d2dc;background:#fff}
+svg text{font-family:inherit}
+/* question cards */
+.qs{margin-top:16px}
+.qs > h3{font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 8px}
+.q{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.q.done-ok{border-left:4px solid var(--ok)} .q.done-part{border-left:4px solid var(--amber)}
+.q .qn{font-size:12px;font-weight:700;color:var(--blue);letter-spacing:.04em}
+.q .qt{margin:2px 0 8px;font-weight:600}
+.q .opt{display:flex;gap:8px;align-items:flex-start;padding:5px 8px;border-radius:7px;cursor:pointer;margin:2px 0}
+.q .opt:hover{background:#f3f6f9}
+.q .opt.right{background:var(--ok-soft)} .q .opt.wrong{background:var(--bad-soft)}
+.q .fb{margin-top:8px;font-size:13.5px;padding:8px 10px;border-radius:7px;display:none}
+.q .fb.ok{display:block;background:var(--ok-soft)} .q .fb.bad{display:block;background:var(--bad-soft)}
+.q textarea{width:100%;min-height:64px;font:inherit;font-size:13.5px;border:1px solid #c7d2dc;border-radius:7px;padding:6px 8px}
+.q .model{display:none;margin-top:8px;background:#f3f7fb;border:1px solid #cddcec;border-radius:8px;padding:8px 12px;font-size:13.5px}
+.q .model.on{display:block}
+.q .model ul{margin:4px 0;padding-left:18px}
+.q .rate{display:none;margin-top:8px;font-size:13px}
+.q .rate.on{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.q .rate button{border:1px solid #c7d2dc;background:#fff;border-radius:99px;padding:3px 10px;font-size:12.5px;cursor:pointer}
+.q .rate button.sel{background:var(--blue);color:#fff;border-color:var(--blue)}
+.q .qfig{margin:4px 0 8px}
+/* DMM bench */
+.dmm{background:#2b2f33;border-radius:14px;padding:12px;color:#fff;width:210px}
+.lcd{background:#b9c7a4;color:#1d2415;font:700 34px/1 "Courier New",monospace;text-align:right;padding:10px 12px;border-radius:6px;letter-spacing:1px;min-height:54px}
+.lcd small{font-size:13px;display:block;letter-spacing:0;font-weight:700}
+.dial{margin-top:8px;font-size:12px;color:#c8ccd0;text-align:center}
+.parts{display:flex;flex-wrap:wrap;gap:10px}
+.part{border:2px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;background:#fff;text-align:center;min-width:92px}
+.part.sel{border-color:var(--blue);background:var(--blue-soft)}
+.part .pl{font-weight:700;font-size:13px}
+.part .dg{font-size:11.5px;color:var(--muted)}
+table.diag{border-collapse:collapse;width:100%;font-size:13.5px;margin-top:6px}
+table.diag td,table.diag th{border-bottom:1px solid #e6ebf0;padding:5px 6px;text-align:left}
+table.diag td.okc{color:var(--ok);font-weight:700} table.diag td.badc{color:var(--bad);font-weight:700}
+.checklist label{display:flex;gap:8px;align-items:flex-start;padding:4px 6px;border-radius:6px;font-size:13.5px}
+.checklist label.right{background:var(--ok-soft)} .checklist label.wrong{background:var(--bad-soft)}
+/* symbols */
+.symgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.sym{border:1px solid var(--line);border-radius:9px;padding:6px;text-align:center;background:#fff}
+.sym.right{background:var(--ok-soft);border-color:#9fd3b3} .sym.wrong{background:var(--bad-soft);border-color:#e5a9a9}
+.sym select{width:100%;margin-top:4px;font-size:12.5px}
+#ivsvg *:not(rect){pointer-events:none}
+.lamp{transition:fill .15s, filter .15s}
+.note{font-size:12.5px;color:var(--muted);margin-top:8px}
+.task{font-size:13.5px;margin:6px 0 0;padding-left:18px}
+.task li{margin:3px 0}
+.task li.done{color:var(--ok)}
+.task li.done::marker{content:"✔ "}
+.allq .q{margin-bottom:8px}
+.goto{font-size:12px;margin-left:8px;color:var(--blue);cursor:pointer;text-decoration:underline}
+footer{max-width:1120px;margin:0 auto;padding:0 20px 30px;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header><div class="hwrap">
+  <h1>Diode Bench</h1>
+  <div class="hsub">Tutorial 1A · Semiconductors – Diodes · Aircraft Electronics &amp; Digital Systems</div>
+  <div class="progress"><span id="ptext">0 / 28 complete</span><div class="pbar"><i id="pfill"></i></div><button class="btn sec" id="resetAll" style="padding:3px 10px;font-size:12px">Reset progress</button></div>
+  <nav class="tabs" id="tabs">
+    <button data-t="s1" class="on">1 · I-V curve<span class="ct" data-c="s1"></span></button>
+    <button data-t="s2">2 · Multimeter bench<span class="ct" data-c="s2"></span></button>
+    <button data-t="s3">3 · Special diodes<span class="ct" data-c="s3"></span></button>
+    <button data-t="s4">4 · SCR lab<span class="ct" data-c="s4"></span></button>
+    <button data-t="s5">5 · Ripple bench<span class="ct" data-c="s5"></span></button>
+    <button data-t="all">All 28 questions<span class="ct" data-c="all"></span></button>
+  </nav>
+</div></header>
+<main>
+
+<!-- ============ STATION 1 : I-V CURVE ============ -->
+<section class="station on" id="s1">
+  <div class="intro"><b>Station 1 · The diode I-V characteristic.</b> Drag the applied voltage and watch the operating point move along the curve. Change the diode material and see where it starts to conduct. Then label the three regions yourself: that is short question 1.</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Characteristic curve</h3>
+      <div id="ivPlot"></div>
+      <label class="sl" for="ivV">Applied voltage V (anode to cathode): <b id="ivVtxt">0.00 V</b></label>
+      <input type="range" id="ivV" min="-6" max="2" step="0.01" value="0">
+      <div class="row" style="margin-top:6px">
+        <span class="muted">Diode:</span>
+        <select id="ivType">
+          <option value="si">Silicon</option>
+          <option value="ge">Germanium</option>
+          <option value="led">LED (red)</option>
+        </select>
+      </div>
+      <div class="readout">
+        <div class="ro"><span>Region</span><b id="ivReg">–</b></div>
+        <div class="ro"><span>Current</span><b id="ivI">–</b></div>
+        <div class="ro"><span>Diode resistance</span><b id="ivR">–</b></div>
+      </div>
+      <p class="note">Breakdown is drawn at −4 V to match the tutorial's sketch. Leakage current is exaggerated so it is visible. Real rectifier diodes break down at tens to hundreds of volts.</p>
+    </div>
+    <div class="card">
+      <h3>Task: label the regions (Short question 1)</h3>
+      <p class="muted" style="margin-top:0">Pick a label, then click the matching region on the graph.</p>
+      <div class="row" id="ivChips">
+        <button class="btn sec" data-lab="fwd">Forward</button>
+        <button class="btn sec" data-lab="rev">Reverse</button>
+        <button class="btn sec" data-lab="brk">Reverse breakdown</button>
+      </div>
+      <div id="ivLabFb" class="note"></div>
+      <h4>Try this</h4>
+      <ol class="task" id="ivTasks">
+        <li data-k="knee">Find the voltage where the silicon diode really starts to conduct.</li>
+        <li data-k="ge">Switch to germanium. How much lower is its turn-on voltage?</li>
+        <li data-k="led">Switch to the LED. Where does it switch on?</li>
+        <li data-k="brk">Push into reverse breakdown. What happens to the current?</li>
+      </ol>
+    </div>
+  </div>
+  <div class="qs" id="q-s1"><h3>Checkpoint questions</h3></div>
+</section>
+
+<!-- ============ STATION 2 : DMM BENCH ============ -->
+<section class="station" id="s2">
+  <div class="intro"><b>Station 2 · Multimeter bench.</b> Five diodes came off an aircraft power supply board and their labels have rubbed off. Set the meter to diode test, probe each one <b>both ways</b>, and decide whether it is serviceable, and if so what type it is.</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Before you touch anything (Short question 5)</h3>
+      <p class="muted" style="margin-top:0">Tick every statement that is a correct safety precaution when working with diodes.</p>
+      <div class="checklist" id="safety"></div>
+      <div class="row" style="margin-top:8px"><button class="btn" id="safetyCheck">Check precautions</button><span id="safetyFb" class="muted"></span></div>
+    </div>
+    <div class="card">
+      <h3>The meter</h3>
+      <div class="row" style="align-items:flex-start;gap:16px">
+        <div class="dmm"><div class="lcd" id="lcd">– – – –<small>&nbsp;</small></div><div class="dial">⎓ DIODE TEST ▸ ⊳|</div></div>
+        <div style="flex:1;min-width:160px">
+          <div id="probeSvg"></div>
+          <div class="row" style="margin-top:6px">
+            <button class="btn" id="probeFwd">Red on anode</button>
+            <button class="btn sec" id="probeRev">Red on cathode</button>
+          </div>
+          <p class="note" id="probeHint">Select a part below first.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3>Parts on the bench</h3>
+    <div class="parts" id="parts"></div>
+    <table class="diag" id="diagTable"><thead><tr><th>Part</th><th>Forward reading</th><th>Reverse reading</th><th>Your diagnosis</th><th></th></tr></thead><tbody></tbody></table>
+    <div class="row" style="margin-top:10px"><button class="btn" id="diagCheck">Check my diagnoses</button><span id="diagFb" class="muted"></span></div>
+  </div>
+  <div class="qs" id="q-s2"><h3>Checkpoint questions</h3></div>
+</section>
+
+<!-- ============ STATION 3 : SPECIAL DIODES ============ -->
+<section class="station" id="s3">
+  <div class="intro"><b>Station 3 · Special-purpose diodes.</b> Each of these devices exploits one property of the PN junction, or of a metal–semiconductor junction. Move the controls and watch what changes.</div>
+  <div class="grid3">
+    <div class="card"><h3>Photodiode</h3><div id="pdSvg"></div>
+      <label class="sl" for="pdL">Light intensity: <b id="pdLt">20 %</b></label><input type="range" id="pdL" min="0" max="100" value="20">
+      <div class="readout"><div class="ro"><span>Bias</span><b>Reverse</b></div><div class="ro"><span>Current</span><b id="pdI">–</b></div></div></div>
+    <div class="card"><h3>Varactor (varicap)</h3><div id="vcSvg"></div>
+      <label class="sl" for="vcV">Reverse bias voltage: <b id="vcVt">2.0 V</b></label><input type="range" id="vcV" min="0" max="12" step="0.1" value="2">
+      <div class="readout"><div class="ro"><span>Depletion layer</span><b id="vcW">–</b></div><div class="ro"><span>Capacitance</span><b id="vcC">–</b></div></div></div>
+    <div class="card"><h3>LED</h3><div id="ledSvg"></div>
+      <label class="sl" for="ledM">Semiconductor material used in the doping</label>
+      <select id="ledM" style="width:100%">
+        <option value="ir">Gallium arsenide (GaAs)</option>
+        <option value="red" selected>Gallium arsenide phosphide (GaAsP)</option>
+        <option value="grn">Gallium phosphide (GaP)</option>
+        <option value="blu">Indium gallium nitride (InGaN)</option>
+      </select>
+      <div class="readout"><div class="ro"><span>Light emitted</span><b id="ledCol">–</b></div><div class="ro"><span>Forward voltage</span><b id="ledVf">–</b></div></div></div>
+    <div class="card"><h3>Varistor (MOV)</h3><div id="movSvg"></div>
+      <label class="sl" for="movV">Voltage across the line: <b id="movVt">115 V</b></label><input type="range" id="movV" min="0" max="400" value="115">
+      <div class="row" style="margin-top:6px"><button class="btn warn" id="movSpike">Inject a 1 kV spike</button></div>
+      <div class="readout"><div class="ro"><span>Varistor resistance</span><b id="movR">–</b></div><div class="ro"><span>Equipment sees</span><b id="movOut">–</b></div></div></div>
+    <div class="card"><h3>Schottky vs silicon</h3><div id="schSvg"></div>
+      <div class="row" style="margin-top:6px"><button class="btn sec" id="schPlay">Switch both off</button></div>
+      <p class="note">Watch how long each diode keeps conducting in the reverse direction after the voltage flips.</p></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3>Symbol matcher</h3>
+    <p class="muted" style="margin-top:0">Name each schematic symbol. Questions 10 and 16 depend on recognising these.</p>
+    <div class="symgrid" id="symgrid"></div>
+    <div class="row" style="margin-top:10px"><button class="btn" id="symCheck">Check symbols</button><span id="symFb" class="muted"></span></div>
+  </div>
+  <div class="qs" id="q-s3"><h3>Checkpoint questions</h3></div>
+</section>
+
+<!-- ============ STATION 4 : SCR LAB ============ -->
+<section class="station" id="s4">
+  <div class="intro"><b>Station 4 · SCR / thyristor lab.</b> A lamp is fed through an SCR. First drive it from DC and find out how it turns on, why it stays on, and what finally turns it off. Then switch to AC and use it as a light dimmer.</div>
+  <div class="row" style="margin-bottom:10px"><button class="btn" id="modeDC">DC circuit</button><button class="btn sec" id="modeAC">AC light dimmer</button></div>
+  <div id="scrDC" class="grid2">
+    <div class="card">
+      <h3>DC test circuit</h3>
+      <div id="scrCirc"></div>
+      <label class="sl" for="scrVs">Supply voltage V<sub>S</sub>: <b id="scrVst">20 V</b></label><input type="range" id="scrVs" min="0" max="60" step="0.5" value="20">
+      <label class="sl" for="scrIg">Gate current I<sub>G</sub>: <b id="scrIgt">0 mA</b></label><input type="range" id="scrIg" min="0" max="20" step="0.5" value="0">
+      <div class="row" style="margin-top:6px"><button class="btn sec" id="scrGateOff">Remove gate (I<sub>G</sub> = 0)</button><button class="btn sec" id="scrReset">Reset circuit</button></div>
+      <div class="readout">
+        <div class="ro"><span>SCR state</span><b id="scrState">OFF</b></div>
+        <div class="ro"><span>V<sub>AK</sub></span><b id="scrVak">–</b></div>
+        <div class="ro"><span>I<sub>AK</sub></span><b id="scrIak">–</b></div>
+        <div class="ro"><span>V<sub>BR(F)</sub> now</span><b id="scrVbr">–</b></div>
+      </div>
+      <p class="note">Model values: load 1 kΩ, holding current I<sub>H</sub> = 5 mA, latching current I<sub>L</sub> = 8 mA, V<sub>BR(F)</sub> = 50 V with no gate current, falling as I<sub>G</sub> rises.</p>
+    </div>
+    <div class="card">
+      <h3>Characteristic</h3>
+      <div id="scrPlot"></div>
+      <h4>Investigate</h4>
+      <ol class="task" id="scrTasks">
+        <li data-k="bo">With no gate current, raise V<sub>S</sub> until the SCR fires on its own.</li>
+        <li data-k="gate">Reset. Set V<sub>S</sub> to 20 V, then raise I<sub>G</sub> until it fires.</li>
+        <li data-k="latch">Now remove the gate. Does the lamp go out?</li>
+        <li data-k="hold">Lower V<sub>S</sub> slowly until the SCR turns off. Note I<sub>AK</sub> just before it drops out.</li>
+      </ol>
+    </div>
+  </div>
+  <div id="scrAC" class="grid2" style="display:none">
+    <div class="card">
+      <h3>AC light dimmer</h3>
+      <div id="acPlot"></div>
+      <label class="sl" for="acAng">Gate firing angle: <b id="acAngt">90°</b></label><input type="range" id="acAng" min="0" max="180" value="90">
+      <div class="readout"><div class="ro"><span>Conducts for (per + half cycle)</span><b id="acCond">–</b></div><div class="ro"><span>Lamp power (% of full)</span><b id="acPow">–</b></div></div>
+    </div>
+    <div class="card"><h3>What to notice</h3>
+      <ul class="task" style="list-style:disc">
+        <li>The SCR is fired part-way through each <b>positive</b> half cycle, when the anode is positive.</li>
+        <li>It switches itself <b>off</b> at the end of that half cycle, when the current falls below I<sub>H</sub> and the anode goes negative. No off switch is needed.</li>
+        <li>It never conducts in the negative half cycle.</li>
+        <li>Move the firing angle and watch the lamp: this is how a dimmer or a variable-speed control works.</li>
+      </ul>
+      <div id="acLamp"></div>
+    </div>
+  </div>
+  <div class="qs" id="q-s4"><h3>Checkpoint questions</h3></div>
+</section>
+
+<!-- ============ STATION 5 : RIPPLE ============ -->
+<section class="station" id="s5">
+  <div class="intro"><b>Station 5 · Rectifier and ripple bench.</b> Rectification is the most common diode application. Choose the rectifier, then size the smoothing capacitor and the load, and watch the ripple.</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Output waveform (12 V peak, 50 Hz)</h3>
+      <div id="rpPlot"></div>
+      <div class="row" style="margin-top:6px"><span class="muted">Rectifier:</span>
+        <select id="rpType"><option value="half">Half-wave (1 diode)</option><option value="full" selected>Full-wave bridge</option></select></div>
+      <label class="sl" for="rpC">Smoothing capacitor C: <b id="rpCt">–</b></label><input type="range" id="rpC" min="0" max="100" value="45">
+      <label class="sl" for="rpR">Load resistor R<sub>L</sub>: <b id="rpRt">–</b></label><input type="range" id="rpR" min="0" max="100" value="40">
+      <div class="readout"><div class="ro"><span>Ripple (p-p)</span><b id="rpVr">–</b></div><div class="ro"><span>Load current</span><b id="rpIl">–</b></div></div>
+    </div>
+    <div class="card"><h3>Try this</h3>
+      <ol class="task" id="rpTasks">
+        <li data-k="c">Keep the load fixed and increase C. What happens to the ripple?</li>
+        <li data-k="r">Keep C fixed and make R<sub>L</sub> smaller, so it draws more current. What happens?</li>
+        <li data-k="h">Switch to half-wave. Why is the ripple worse?</li>
+      </ol>
+      <p class="note">Ripple ≈ I<sub>load</sub> ÷ (f<sub>ripple</sub> × C). The ripple frequency is 50 Hz for half-wave and 100 Hz for full-wave. Getting it low means choosing the capacitor <b>and</b> knowing the load.</p>
+    </div>
+  </div>
+  <div class="qs" id="q-s5"><h3>Checkpoint questions</h3></div>
+</section>
+
+<!-- ============ ALL QUESTIONS ============ -->
+<section class="station" id="all">
+  <div class="intro"><b>All 28 tutorial questions</b>, in tutorial order. The same questions appear at the stations; your answers are shared. Use this page to revise or to find what you have not attempted yet.</div>
+  <div class="allq" id="allq"></div>
+</section>
+</main>
+<footer>Questions and model answers: Tutorial 1A Semiconductors-Diodes, Temasek Polytechnic, Aircraft Electronics &amp; Digital Systems. Your progress is saved in this browser only.</footer>
+
+<script>
+/* ============ QUESTION BANK (Tutorial 1A, as written) ============ */
+const SYM = {}; // filled by symbols.js: SVG strings keyed by name
+const Q = [
+ {id:'M1', st:'s1', t:'Diodes are __________.', o:['conductors','semiconductors','insulators'], a:1,
+  why:'Diodes are made from semiconductor material, silicon or germanium, whose conductivity lies between that of a conductor and an insulator.'},
+ {id:'M2', st:'s1', t:'When the diode is connected in reversed biased, __________.', o:['diode current flows','leakage current flows','current will only flow if the voltage is above 0.7 V'], a:1,
+  why:'Reverse bias widens the depletion layer, so only a tiny leakage current flows. You can see it on the I-V curve as the thin line just below zero. Option C describes forward bias.'},
+ {id:'M3', st:'s3', t:'When a varactor diode is reversed biased, __________.', o:['its capacitance increases when biased voltage increases','its capacitance decreases when biased voltage increases','its capacitance remains the same when biased voltage increases'], a:1,
+  why:'The depletion layer acts as the dielectric of a capacitor. More reverse voltage widens it, which moves the "plates" apart, so capacitance falls. Try the varactor slider.'},
+ {id:'M4', st:'s2', t:'In a diode, electrons flow from the __________.', o:['anode','cathode','doped area'], a:1,
+  why:'Electrons flow from cathode to anode. Conventional current flows the other way, anode to cathode, which is the direction the symbol\'s arrow points.'},
+ {id:'M5', st:'s3', t:'The amount of photodiode _________ is directly proportional to the amount of light.', o:['voltage','current','resistance'], a:1,
+  why:'Each absorbed photon frees charge carriers, so the reverse current rises in proportion to the light falling on the junction.'},
+ {id:'M6', st:'s1', t:'To conduct current, a silicon diode requires a forward biased voltage of __________.', o:['0.6 to 0.7 V','1.2 to 1.4 V','0.2 to 0.3 V'], a:0,
+  why:'Silicon turns on at about 0.6 to 0.7 V. 0.2 to 0.3 V is germanium; 1.2 to 1.4 V is two silicon junctions in series.'},
+ {id:'M7', st:'s4', t:'Once an SCR starts to conduct, it will switch off __________.', o:['automatically after a specific time','only when the anode goes positive w.r.t. the cathode','only when the anode goes negative w.r.t. the cathode'], a:2,
+  why:'Once latched, an SCR has no timer and the gate cannot turn it off. It stays on until the anode goes negative w.r.t. the cathode, which drives its current below the holding current. In an AC circuit that happens at the end of every positive half cycle.'},
+ {id:'M8', st:'s3', t:'What gives the colour of an LED?', o:['The plastic encasing.','The active element used in the doping.','The type of gas used in the casing.'], a:1,
+  why:'The semiconductor material sets the energy of the emitted photons, and so the colour. Change the material in the LED card to see it.'},
+ {id:'M9', st:'s3', t:'The forward biased voltage of a LED is __________.', o:['less than 0.3 V','0.3V to 1.0 V','1.2V to 3.2V'], a:2,
+  why:'LEDs need 1.2 to 3.2 V: lowest for infrared, highest for blue. That is well above a silicon diode.'},
+ {id:'M10', st:'s3', t:'The symbol shown is a __________.', fig:'scr', o:['NPN transistor','PNP transistor','SCR / Thyristor'], a:2,
+  why:'It is a diode symbol with a gate lead added at the cathode: the SCR, or thyristor.'},
+ {id:'M11', st:'s1', t:'The forward biased voltage of a germanium diode is about ____________.', o:['Below 0.25v','0.25v to 0.3v','0.6v to 0.7v'], a:1,
+  why:'Germanium turns on at about 0.25 to 0.3 V. Switch the I-V curve to germanium to see the knee move.'},
+ {id:'M12', st:'s3', t:'Photodiode is biased in _________ condition.', o:['the forward bias','the reverse bias','either forward or reverse bias'], a:1,
+  why:'A photodiode is reverse biased. The dark leakage is then tiny, so the current is controlled almost entirely by the light.'},
+ {id:'M13', st:'s3', t:'The amount of current that flow through the photodiode _________ as the light intensity that fall on it increases.', o:['reduce','increase','is constant'], a:1,
+  why:'More light frees more carriers, so more current flows.'},
+ {id:'M14', st:'s3', t:'Varactor diode is used for ___________.', o:['voltage control oscillator','voltage suppression','current suppression'], a:0,
+  why:'A varactor is a voltage-controlled capacitor, so it tunes the frequency of a voltage-controlled oscillator (VCO). Voltage suppression is the varistor\'s job.'},
+ {id:'M15', st:'s3', t:'Varistor are widely used ___________.', o:['to protect systems against very high voltage','as variable resistance','as variable voltage regulator'], a:0,
+  why:'Above its threshold a varistor\'s resistance collapses, clamping the spike and protecting the equipment behind it. Inject a spike in the varistor card.'},
+ {id:'M16', st:'s3', t:'Which of the following is the schematic symbol of a Schottky diode?', fig:'m16', o:['(A)','(B)','(C)'], a:0,
+  why:'(A) has the S-shaped bar of the Schottky diode. (B) has arrows pointing in: a photodiode. (C) is a varistor.'},
+ {id:'M17', st:'s1', t:'When a diode is forward-biased, its resistance value is ___________.', o:['low','high','infinite'], a:0,
+  why:'Past the knee the current rises steeply for a tiny increase in voltage, so the resistance is low. Watch the resistance readout on the I-V curve.'},
+ {id:'M18', st:'s5', t:'One method to reduce ripple voltage of a typical power supply is to ___________.', o:['select a capacitor','select appropriate capacitor and load resistor value','select a half wave rectifier instead of full wave rectifier'], a:1,
+  why:'Ripple depends on how fast the load drains the capacitor between peaks, so capacitor and load must be chosen together. Half-wave makes ripple worse, not better. Try it on the ripple bench.'},
+ {id:'M19', st:'s4', t:'Silicon control rectifier (SCR) will conduct when the anode to cathode voltage VAK ___________ the forward break-over voltage VBR(F).', o:['less than','equal to','exceed'], a:2,
+  why:'The SCR fires when V<sub>AK</sub> exceeds V<sub>BR(F)</sub>. Gate current lowers V<sub>BR(F)</sub>, which is how the gate "triggers" it.'},
+ {id:'M20', st:'s4', t:'When the anode to cathode current IAK below its ___________, SCR will turn off.', o:['gate current IG','holding current IH','latching current IL'], a:1,
+  why:'Below the holding current I<sub>H</sub> the SCR cannot sustain conduction and switches off. Latching current is the (higher) current needed to latch it on in the first place.'},
+
+ {id:'S1', st:'s1', short:true, t:'Sketch the typical diode operating characteristics and indicate the forward, reverse and the reverse breakdown regions.',
+  model:'<p>See the characteristic curve on this station. <b>Forward</b> region: to the right of the origin; current rises steeply after the knee (V<sub>D</sub> ≈ 0.7 V for silicon). <b>Reverse</b> region: between 0 V and the breakdown voltage; only a tiny leakage current I<sub>S</sub> flows. <b>Reverse breakdown</b> region: beyond the reverse breakdown voltage V<sub>R</sub>; reverse current rises sharply.</p>',
+  task:'Complete the region-labelling task on the graph above; it counts as your sketch.'},
+ {id:'S2', st:'s3', short:true, t:'Name three common applications of diodes.',
+  model:'<p>Typical applications: Rectifiers, Logic switching, Frequency multipliers and Mixers.</p>'},
+ {id:'S3', st:'s3', short:true, t:'What are the main differences between the schottky diode and the normal silicon diode, hence state the advantage of schottky diode.',
+  model:'<p>Schottky diode has metal-to-semiconductor junction, silicon diode has PN junction.</p><p>A normal silicon diode has a forward biased voltage of about 0.7V, while a Schottky diode forward biased voltage is between approximately 0.3V. The lower forward biased voltage of Schottky diode can provide higher switching speed.</p>'},
+ {id:'S4', st:'s4', short:true, t:'Is the SCR/thyristor suitable for use in a DC or AC circuits and list two common applications for this device?',
+  model:'<p>SCR are well suited for ac circuits because they can be switched on during the appropriate half cycle of voltage, i.e. anode is positive, and will automatically switched off when the polarity reverses. Typical applications include variable speed appliances and light dimmer circuits.</p>'},
+ {id:'S5', st:'s2', short:true, t:'List some safety precautions that should be observed when working with diodes.',
+  model:'<p>Typical safety precautions:</p><ul><li>never remove or insert a diode into a circuit with voltage applied</li><li>never pry diodes loose from their circuits</li><li>always be careful when soldering diodes to ensure excessive heat is not applied to the diode</li><li>when testing a diode, ensure that the test voltage does not exceed the diode\'s maximum allowable voltage</li><li>ensure a replacement diode is put into a circuit in the correct direction</li></ul>'},
+ {id:'S6', st:'s2', short:true, t:'By using a digital multimeter that is set for diode testing, discuss how you confirm a working diode.',
+  model:'<ul><li>a serviceable diode will show around forward biased voltage of 0.7 volts on the multimeter when tested in the forward bias direction</li><li>a serviceable diode will show the internal voltage of the meter when tested in reverse bias.</li><li>If a diode has failed open circuit, it will show the internal voltage of the meter in both forward and reverse bias.</li><li>If it has failed in the short circuit condition, it will show zero (or nearly zero) in both directions.</li></ul>'},
+ {id:'S7', st:'s4', short:true, t:'State the terminal name of the SCR. Draw and label the schematic symbol of a SCR. Hence describe its operation.',
+  model:'<div class="qfig" data-fig="scrLabelled"></div><p>SCR has 3 terminals: A: Anode, K: Cathode and G: Gate.</p><p>The anode and cathode terminals act as a switch while the gate terminal controls the amount of forward break-over voltage (V<sub>BR(F)</sub>) required to turns on and conducts the SCR.</p><p>When the SCR conducts, current flow in one direction, from the anode to cathode terminals.</p><p>During conduction, when the gate terminal is remove (I<sub>G</sub> = 0 A), the SCR will continue to conduct until its anode current (I<sub>A</sub>) is below the holding current (I<sub>H</sub>).</p>'},
+ {id:'S8', st:'s4', short:true, t:'Describe the operation of SCR characteristic.',
+  model:'<ul><li>In normal operation, usually the amount of V<sub>BR(F)</sub> is controlled by a gate current.</li><li>Conduct when V<sub>AK</sub> exceed the forward break-over voltage V<sub>BR(F)</sub>.</li><li>Latching current I<sub>L</sub>: The minimum current I<sub>AK</sub>, increases from zero, required to latch SCR at the on state condition.</li><li>SCR continues to stay on after gate current is removed.</li><li>V<sub>BR(F)</sub> can be reduced by increasing the gate current (I<sub>G</sub>).</li><li>When the current I<sub>AK</sub> below its holding current I<sub>H</sub>, SCR will turn off.</li></ul>'}
+];
+const QBY = Object.fromEntries(Q.map(q=>[q.id,q]));
+
+/* ============ STATE ============ */
+const LS='diodeBench.v1';
+let STATE = {ans:{}, rate:{}, notes:{}, iv:{}, tasks:{}};
+try{ const s=JSON.parse(localStorage.getItem(LS)||'null'); if(s) STATE=Object.assign(STATE,s); }catch(e){}
+function save(){ try{ localStorage.setItem(LS, JSON.stringify(STATE)); }catch(e){} updateProgress(); }
+function isDone(id){ const q=QBY[id]; if(q.short) return !!STATE.rate[id]; return STATE.ans[id]!==undefined && STATE.ans[id]===q.a; }
+
+/* ============ RENDER A QUESTION ============ */
+function qNum(id){ return (id[0]==='M'?'MCQ ':'Short Q')+id.slice(1); }
+function renderQ(id){
+  const q=QBY[id]; const el=document.createElement('div'); el.className='q'; el.dataset.q=id;
+  let h=`<div class="qn">${qNum(id)}</div><div class="qt">${q.t}</div>`;
+  if(q.fig) h+=`<div class="qfig" data-fig="${q.fig}"></div>`;
+  if(!q.short){
+    q.o.forEach((o,i)=>{ h+=`<label class="opt"><input type="radio" name="r-${id}-${Math.random().toString(36).slice(2,6)}" value="${i}"> <span><b>${'ABC'[i]}.</b> ${o}</span></label>`; });
+    h+=`<div class="fb"></div>`;
+  } else {
+    if(q.task) h+=`<p class="muted" style="margin:0 0 6px">${q.task}</p>`;
+    if(id!=='S1') h+=`<textarea placeholder="Write your answer first, then compare with the model answer."></textarea>`;
+    h+=`<div class="row" style="margin-top:6px"><button class="btn sec showm">Show model answer</button></div>
+        <div class="model">${q.model}</div>
+        <div class="rate"><span class="muted">How did your answer compare?</span><button data-r="got">Got it</button><button data-r="part">Partly</button><button data-r="miss">Missed it</button></div>`;
+  }
+  el.innerHTML=h;
+  el.querySelectorAll('.qfig').forEach(f=>f.innerHTML=FIG[f.dataset.fig]||'');
+  if(!q.short){
+    el.querySelectorAll('input[type=radio]').forEach(r=>r.addEventListener('change',()=>{ STATE.ans[id]=+r.value; save(); syncQ(id); }));
+  } else {
+    const ta=el.querySelector('textarea');
+    if(ta){ ta.value=STATE.notes[id]||''; ta.addEventListener('input',()=>{ STATE.notes[id]=ta.value; save(); syncNotes(id,ta); }); }
+    el.querySelector('.showm').addEventListener('click',()=>{ STATE.shown=STATE.shown||{}; STATE.shown[id]=1; save(); syncQ(id); });
+    el.querySelectorAll('.rate button').forEach(b=>b.addEventListener('click',()=>{ STATE.rate[id]=b.dataset.r; save(); syncQ(id); }));
+  }
+  return el;
+}
+function syncNotes(id,src){ document.querySelectorAll(`.q[data-q="${id}"] textarea`).forEach(t=>{ if(t!==src) t.value=STATE.notes[id]||''; }); }
+function syncQ(id){
+  const q=QBY[id];
+  document.querySelectorAll(`.q[data-q="${id}"]`).forEach(el=>{
+    el.classList.remove('done-ok','done-part');
+    if(!q.short){
+      const a=STATE.ans[id]; const opts=el.querySelectorAll('.opt'); const fb=el.querySelector('.fb');
+      opts.forEach((o,i)=>{ o.classList.remove('right','wrong'); const r=o.querySelector('input'); r.checked=(a===i); });
+      fb.className='fb';
+      if(a!==undefined){
+        if(a===q.a){ opts[a].classList.add('right'); fb.classList.add('ok'); fb.innerHTML=`<b>Correct: ${'ABC'[q.a]}.</b> ${q.why}`; el.classList.add('done-ok'); }
+        else { opts[a].classList.add('wrong'); fb.classList.add('bad'); fb.innerHTML=`<b>Not quite.</b> Have another look at the station, then try again.`; }
+      }
+    } else {
+      const shown=STATE.shown&&STATE.shown[id];
+      el.querySelector('.model').classList.toggle('on',!!shown);
+      el.querySelector('.rate').classList.toggle('on',!!shown);
+      el.querySelectorAll('.rate button').forEach(b=>b.classList.toggle('sel',STATE.rate[id]===b.dataset.r));
+      if(STATE.rate[id]==='got') el.classList.add('done-ok'); else if(STATE.rate[id]) el.classList.add('done-part');
+      el.querySelectorAll('.qfig').forEach(f=>{ if(!f.innerHTML) f.innerHTML=FIG[f.dataset.fig]||''; });
+    }
+  });
+}
+function updateProgress(){
+  const done=Q.filter(q=>isDone(q.id)).length;
+  document.getElementById('ptext').textContent=`${done} / ${Q.length} complete`;
+  document.getElementById('pfill').style.width=(100*done/Q.length)+'%';
+  ['s1','s2','s3','s4','s5'].forEach(s=>{ const qs=Q.filter(q=>q.st===s); const d=qs.filter(q=>isDone(q.id)).length; document.querySelector(`[data-c="${s}"]`).textContent=`${d}/${qs.length}`; });
+  document.querySelector('[data-c="all"]').textContent=`${done}/${Q.length}`;
+}
+function mountQuestions(){
+  ['s1','s2','s3','s4','s5'].forEach(s=>{ const box=document.getElementById('q-'+s); Q.filter(q=>q.st===s).forEach(q=>box.appendChild(renderQ(q.id))); });
+  const all=document.getElementById('allq');
+  Q.forEach(q=>{ const el=renderQ(q.id); const g=document.createElement('span'); g.className='goto'; g.textContent='go to station '+q.st.slice(1); g.onclick=()=>showTab(q.st); el.querySelector('.qn').appendChild(g); all.appendChild(el); });
+  Q.forEach(q=>syncQ(q.id)); updateProgress();
+}
+
+/* ============ SYMBOLS (original drawings) ============ */
+const K = '#16222e';
+function dsvg(inner, w=90, h=60){ return `<svg viewBox="0 0 ${w} ${h}" width="${w*1.3}" height="${h*1.3}" xmlns="http://www.w3.org/2000/svg" stroke="${K}" stroke-width="2.2" fill="none">${inner}</svg>`; }
+const TRI = `<path d="M30,15 L30,45 L55,30 Z" fill="${K}"/><line x1="5" y1="30" x2="30" y2="30"/><line x1="55" y1="30" x2="85" y2="30"/>`;
+const SYMS = {
+  'Rectifier diode': dsvg(TRI+`<line x1="55" y1="15" x2="55" y2="45"/>`),
+  'Schottky diode':  dsvg(TRI+`<path d="M61,20 L61,15 L55,15 L55,45 L49,45 L49,40"/>`),
+  'LED':             dsvg(TRI+`<line x1="55" y1="15" x2="55" y2="45"/><path d="M44,12 L54,2 M54,2 l-6,1 M54,2 l-1,6 M54,14 L64,4 M64,4 l-6,1 M64,4 l-1,6" stroke-width="1.8"/>`),
+  'Photodiode':      dsvg(TRI+`<line x1="55" y1="15" x2="55" y2="45"/><path d="M54,2 L44,12 M44,12 l6,-1 M44,12 l1,-6 M64,4 L54,14 M54,14 l6,-1 M54,14 l1,-6" stroke-width="1.8"/>`),
+  'Varactor diode':  dsvg(`<path d="M28,15 L28,45 L53,30 Z" fill="${K}"/><line x1="5" y1="30" x2="28" y2="30"/><line x1="53" y1="15" x2="53" y2="45"/><line x1="61" y1="15" x2="61" y2="45"/><line x1="61" y1="30" x2="85" y2="30"/>`),
+  'Varistor':        dsvg(`<line x1="5" y1="30" x2="25" y2="30"/><rect x="25" y="23" width="40" height="14" fill="${K}"/><line x1="65" y1="30" x2="85" y2="30"/><path d="M18,46 L26,46 L66,12" stroke-width="1.8"/>`),
+  'SCR / thyristor': dsvg(TRI+`<line x1="55" y1="15" x2="55" y2="45"/><path d="M55,40 L68,54 L84,54"/>`)
+};
+const FIG = {
+  scr: `<div>${SYMS['SCR / thyristor']}</div>`,
+  m16: `<div class="row" style="gap:18px">${[['Schottky diode','A'],['Photodiode','B'],['Varistor','C']].map(([k,l])=>`<div style="text-align:center">${SYMS[k]}<div class="muted">(${l})</div></div>`).join('')}</div>`,
+  scrLabelled: dsvg(TRI+`<line x1="55" y1="15" x2="55" y2="45"/><path d="M55,40 L68,54 L84,54"/><g stroke="none" fill="${K}" font-size="11" font-weight="700"><text x="2" y="24">A</text><text x="78" y="24">K</text><text x="72" y="50">G</text></g>`, 90, 62)
+};
+
+/* ============ helpers ============ */
+const $ = s=>document.querySelector(s);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function fmtI(mA){ const a=Math.abs(mA); if(a>=1) return mA.toFixed(1)+' mA'; if(a>=0.001) return (mA*1000).toFixed(1)+' µA'; return (mA*1e6).toFixed(0)+' nA'; }
+function markTask(listSel, key){ const li=document.querySelector(`${listSel} li[data-k="${key}"]`); if(li && !li.classList.contains('done')){ li.classList.add('done'); STATE.tasks[listSel+'|'+key]=1; save(); } }
+function restoreTasks(){ Object.keys(STATE.tasks||{}).forEach(k=>{ const [sel,key]=k.split('|'); if(!key) return; const li=document.querySelector(`${sel} li[data-k="${key}"]`); if(li) li.classList.add('done'); }); }
+
+/* ============ STATION 1 : I-V ============ */
+const IV = { W:560, H:300, x0:-6, x1:2, y0:-32, y1:32 };
+const DIODES = { si:{vf:0.7,name:'Silicon'}, ge:{vf:0.3,name:'Germanium'}, led:{vf:1.8,name:'LED'} };
+const VBR=-4;
+function ivI(V,type){
+  const vf=DIODES[type].vf;
+  if(V>=0) return 10*Math.exp((V-vf)/0.035) - 10*Math.exp(-vf/0.035);
+  if(V>VBR) return -0.8*(1-Math.exp(V/0.12));
+  return -0.8 - (VBR-V)/0.03;
+}
+const px = v=> 50 + (v-IV.x0)/(IV.x1-IV.x0)*(IV.W-70);
+const py = i=> 20 + (IV.y1-clamp(i,IV.y0,IV.y1))/(IV.y1-IV.y0)*(IV.H-50);
+function ivDraw(){
+  const type=$('#ivType').value, V=+$('#ivV').value, lab=STATE.iv.lab||{};
+  let path=''; for(let v=IV.x0; v<=IV.x1+1e-9; v+=0.004){ const i=ivI(v,type); if(Math.abs(i)>IV.y1+2) { if(path && !path.endsWith('M')) {} continue;} path+=(path?'L':'M')+px(v).toFixed(1)+','+py(i).toFixed(1); }
+  const regs=[['brk',IV.x0,VBR,'var(--brk)','Reverse breakdown'],['rev',VBR,0,'var(--rev)','Reverse'],['fwd',0,IV.x1,'var(--fwd)','Forward']];
+  let s=`<svg viewBox="0 0 ${IV.W} ${IV.H}" width="100%" style="max-width:${IV.W}px;touch-action:manipulation" id="ivsvg">`;
+  regs.forEach(([k,a,b,c,t])=>{ s+=`<rect data-reg="${k}" x="${px(a)}" y="20" width="${px(b)-px(a)}" height="${IV.H-50}" fill="${lab[k]?c:'#f7f9fb'}" stroke="#e3e8ee" style="cursor:pointer"/>`; if(lab[k]) s+=`<text x="${(px(a)+px(b))/2}" y="38" text-anchor="middle" font-size="12.5" font-weight="700" fill="#34495e" pointer-events="none">${t}</text>`; });
+  // axes
+  s+=`<line x1="${px(IV.x0)}" y1="${py(0)}" x2="${px(IV.x1)}" y2="${py(0)}" stroke="#34495e"/><line x1="${px(0)}" y1="20" x2="${px(0)}" y2="${IV.H-30}" stroke="#34495e"/>`;
+  for(let v=-6; v<=2; v++){ s+=`<text x="${px(v)}" y="${IV.H-14}" font-size="11" text-anchor="middle" fill="#5b6b7a">${v}</text>`; }
+  for(let i=-30;i<=30;i+=10){ s+=`<text x="44" y="${py(i)+4}" font-size="11" text-anchor="end" fill="#5b6b7a">${i}</text>`; }
+  s+=`<text x="${IV.W-10}" y="${IV.H-14}" font-size="11" text-anchor="end" fill="#5b6b7a">V (volts)</text><text x="54" y="14" font-size="11" fill="#5b6b7a">I (mA)</text>`;
+  s+=`<line x1="${px(VBR)}" y1="20" x2="${px(VBR)}" y2="${IV.H-30}" stroke="#a3345f" stroke-dasharray="4 3" pointer-events="none"/><text x="${px(VBR)+4}" y="${py(0)-6}" font-size="11" fill="#a3345f" pointer-events="none">V<tspan font-size="8" dy="2">R</tspan></text>`;
+  const vf=DIODES[type].vf; s+=`<line x1="${px(vf)}" y1="${py(0)}" x2="${px(vf)}" y2="${IV.H-30}" stroke="#17693a" stroke-dasharray="4 3" pointer-events="none"/><text x="${px(vf)+3}" y="${py(0)+16}" font-size="11" fill="#17693a" pointer-events="none">V<tspan font-size="8" dy="2">D</tspan><tspan dy="-2"> ${vf} V</tspan></text>`;
+  s+=`<path d="${path}" stroke="#1f5f9e" stroke-width="2.6" fill="none" pointer-events="none"/>`;
+  const I=ivI(V,type); s+=`<circle cx="${px(V)}" cy="${py(I)}" r="7" fill="#e8742a" stroke="#fff" stroke-width="2" pointer-events="none"/>`;
+  s+='</svg>'; $('#ivPlot').innerHTML=s;
+  $('#ivsvg').querySelectorAll('rect[data-reg]').forEach(r=>r.addEventListener('click',()=>ivLabel(r.dataset.reg)));
+  // readouts
+  $('#ivVtxt').textContent=V.toFixed(2)+' V';
+  let reg, cls; if(V>=0){reg='Forward';cls='fwd';} else if(V>VBR){reg='Reverse';cls='rev';} else {reg='Breakdown';cls='brk';}
+  $('#ivReg').innerHTML=`<span class="pill ${cls}">${reg}</span>`;
+  $('#ivI').textContent=fmtI(I);
+  let R; if(V>=0 && I>0.5) R='Low · '+(V/I*1000).toFixed(0)+' Ω'; else if(V>=0) R='High (below knee)'; else if(V>VBR) R='Very high'; else R='Low: breakdown!';
+  $('#ivR').textContent=R;
+  // tasks
+  if(type==='si' && V>=0.6 && V<=0.76) markTask('#ivTasks','knee');
+  if(type==='ge' && V>=0.24 && V<=0.33) markTask('#ivTasks','ge');
+  if(type==='led' && V>=1.7 && V<=1.9) markTask('#ivTasks','led');
+  if(V<VBR-0.05) markTask('#ivTasks','brk');
+}
+let ivChip=null;
+function ivLabel(reg){
+  const fb=$('#ivLabFb');
+  if(!ivChip){ fb.textContent='Pick a label first.'; return; }
+  STATE.iv.lab=STATE.iv.lab||{};
+  if(ivChip===reg){ STATE.iv.lab[reg]=1; save(); fb.innerHTML='<span style="color:var(--ok)">✔ Correct.</span>'; document.querySelector(`#ivChips [data-lab="${reg}"]`).disabled=true; ivChip=null; document.querySelectorAll('#ivChips button').forEach(b=>b.classList.add('sec'));
+    if(Object.keys(STATE.iv.lab).length===3) fb.innerHTML='<span style="color:var(--ok)">✔ All three regions labelled.</span> Now open the model answer for Short question 1 below and rate yourself.';
+  } else { fb.innerHTML='<span style="color:var(--bad)">✘ Not that region.</span> Think about which side of 0 V is forward bias, and where the reverse current suddenly runs away.'; }
+  ivDraw();
+}
+function initS1(){
+  $('#ivV').addEventListener('input',ivDraw); $('#ivType').addEventListener('change',ivDraw);
+  document.querySelectorAll('#ivChips button').forEach(b=>{ if((STATE.iv.lab||{})[b.dataset.lab]) b.disabled=true;
+    b.addEventListener('click',()=>{ ivChip=b.dataset.lab; document.querySelectorAll('#ivChips button').forEach(x=>x.classList.toggle('sec',x!==b)); $('#ivLabFb').textContent='Now click that region on the graph.'; }); });
+  ivDraw();
+}
+
+/* ============ STATION 2 : DMM ============ */
+const PART_TYPES = {
+  si:   {f:'0.612', r:'OL', diag:'Serviceable – silicon', why:'About 0.6–0.7 V one way, OL the other: a healthy silicon junction.'},
+  ge:   {f:'0.284', r:'OL', diag:'Serviceable – germanium', why:'Conducts at about 0.25–0.3 V one way and blocks the other: germanium.'},
+  led:  {f:'1.824', r:'OL', diag:'Serviceable – LED', why:'1.2–3.2 V forward, blocks in reverse, and it glows faintly on the meter\'s test current: an LED.'},
+  open: {f:'OL',    r:'OL', diag:'Failed open circuit', why:'The meter shows its own open-circuit voltage (OL) in <b>both</b> directions: no path at all.'},
+  short:{f:'0.003', r:'0.003', diag:'Failed short circuit', why:'Nearly zero in <b>both</b> directions: the junction has broken down into a short.'}
+};
+const DIAGS = ['— choose —','Serviceable – silicon','Serviceable – germanium','Serviceable – LED','Failed open circuit','Failed short circuit'];
+let selPart=null;
+function initS2(){
+  if(!STATE.bench){ const t=['si','ge','led','open','short'].sort(()=>Math.random()-.5); STATE.bench={map:t, meas:{}, diag:{}}; save(); }
+  const B=STATE.bench;
+  $('#parts').innerHTML = B.map.map((t,i)=>`<div class="part" data-i="${i}"><svg width="86" height="30" viewBox="0 0 86 30"><line x1="0" y1="15" x2="86" y2="15" stroke="#8a939c" stroke-width="3"/><rect x="22" y="6" width="42" height="18" rx="4" fill="#2a2f35"/><rect x="54" y="6" width="6" height="18" fill="#cfd6dd"/></svg><div class="pl">D${i+1}</div><div class="dg" id="dg${i}">not tested</div></div>`).join('');
+  document.querySelectorAll('.part').forEach(p=>p.addEventListener('click',()=>{ selPart=+p.dataset.i; document.querySelectorAll('.part').forEach(x=>x.classList.toggle('sel',x===p)); $('#probeHint').textContent=`D${selPart+1} selected. The band marks the cathode. Probe it both ways.`; drawProbe(null); $('#lcd').innerHTML='– – – –<small>&nbsp;</small>'; }));
+  $('#probeFwd').onclick=()=>probe('f'); $('#probeRev').onclick=()=>probe('r');
+  const tb=$('#diagTable tbody');
+  tb.innerHTML=B.map.map((t,i)=>`<tr data-i="${i}"><td><b>D${i+1}</b></td><td class="mf">–</td><td class="mr">–</td><td><select>${DIAGS.map(d=>`<option>${d}</option>`).join('')}</select></td><td class="res"></td></tr>`).join('');
+  tb.querySelectorAll('select').forEach((s,i)=>{ if(B.diag[i]) s.value=B.diag[i]; s.addEventListener('change',()=>{ B.diag[i]=s.value; save(); }); });
+  refreshMeas();
+  $('#diagCheck').onclick=()=>{
+    let ok=0; tb.querySelectorAll('tr').forEach((tr,i)=>{ const P=PART_TYPES[B.map[i]], res=tr.querySelector('.res'); const chosen=B.diag[i];
+      const tested=B.meas[i]&&B.meas[i].f&&B.meas[i].r;
+      if(!tested){ res.className='res badc'; res.innerHTML='Test both ways first'; return; }
+      if(chosen===P.diag){ ok++; res.className='res okc'; res.innerHTML='✔ '+P.why; } else { res.className='res badc'; res.innerHTML='✘ Re-read the two readings.'; } });
+    $('#diagFb').innerHTML = ok===5?'<span style="color:var(--ok)"><b>All five diagnosed.</b> Now compare with the model answer to Short question 6 below.</span>':`${ok} / 5 correct.`;
+    if(ok===5){ STATE.bench.done=1; save(); }
+  };
+  // safety checklist
+  const items=[
+    ['Never remove or insert a diode into a circuit with voltage applied.',1],
+    ['Never pry diodes loose from their circuits.',1],
+    ['Be careful when soldering so excessive heat is not applied to the diode.',1],
+    ['When testing, make sure the test voltage does not exceed the diode\'s maximum allowable voltage.',1],
+    ['Make sure a replacement diode is fitted in the correct direction.',1],
+    ['Test the diode in-circuit with power ON to see its real operating voltage.',0],
+    ['A diode conducts both ways, so orientation only matters for LEDs.',0],
+    ['Hold the iron on the joint as long as it takes to get a shiny finish.',0]
+  ].sort(()=>Math.random()-.5);
+  $('#safety').innerHTML=items.map(([t,c],i)=>`<label data-c="${c}"><input type="checkbox"> <span>${t}</span></label>`).join('');
+  $('#safetyCheck').onclick=()=>{ let right=0; document.querySelectorAll('#safety label').forEach(l=>{ const c=+l.dataset.c, on=l.querySelector('input').checked; l.classList.remove('right','wrong'); if(c===+on){ right++; if(on) l.classList.add('right'); } else l.classList.add('wrong'); });
+    $('#safetyFb').innerHTML = right===items.length?'<span style="color:var(--ok)">✔ All correct: exactly five real precautions.</span>':`${right} / ${items.length} statements judged correctly. Red ones need another look.`; };
+  drawProbe(null);
+}
+function probe(dir){
+  if(selPart===null){ $('#probeHint').textContent='Select a part below first.'; return; }
+  const B=STATE.bench, t=B.map[selPart], P=PART_TYPES[t], v=dir==='f'?P.f:P.r;
+  $('#lcd').innerHTML = (v==='OL'?'&nbsp;&nbsp;O.L':v)+`<small>${v==='OL'?'meter\'s internal (open-circuit) voltage':'V drop'}</small>`;
+  B.meas[selPart]=B.meas[selPart]||{}; B.meas[selPart][dir]=v; save(); refreshMeas();
+  drawProbe(dir, t==='led' && dir==='f');
+}
+function refreshMeas(){ const B=STATE.bench; document.querySelectorAll('#diagTable tbody tr').forEach((tr,i)=>{ const m=B.meas[i]||{}; tr.querySelector('.mf').textContent=m.f||'–'; tr.querySelector('.mr').textContent=m.r||'–'; const dg=document.getElementById('dg'+i); if(dg) dg.textContent=(m.f&&m.r)?'tested both ways':(m.f||m.r)?'tested one way':'not tested'; }); }
+function drawProbe(dir, glow){
+  const red='#d23b3b', blk='#222';
+  const L = dir==='f'?red:dir==='r'?blk:'#bbb', R = dir==='f'?blk:dir==='r'?red:'#bbb';
+  $('#probeSvg').innerHTML=`<svg viewBox="0 0 220 80" width="100%" style="max-width:260px">
+    <line x1="30" y1="40" x2="190" y2="40" stroke="#8a939c" stroke-width="4"/>
+    <rect x="75" y="27" width="70" height="26" rx="5" fill="${glow?'#ff5a4a':'#2a2f35'}" ${glow?'style="filter:drop-shadow(0 0 8px #ff5a4a)"':''}/><rect x="130" y="27" width="9" height="26" fill="#cfd6dd"/>
+    <text x="110" y="72" font-size="10" text-anchor="middle" fill="#5b6b7a">anode ← · band = cathode</text>
+    <path d="M30,40 Q10,10 30,5" stroke="${L}" stroke-width="4" fill="none"/><circle cx="30" cy="40" r="5" fill="${L}"/>
+    <path d="M190,40 Q210,10 190,5" stroke="${R}" stroke-width="4" fill="none"/><circle cx="190" cy="40" r="5" fill="${R}"/>
+  </svg>`;
+}
+
+/* ============ STATION 3 : SPECIAL DIODES ============ */
+function s3Draw(){
+  // photodiode
+  const L=+$('#pdL').value, Iua=0.02+0.5*L; $('#pdLt').textContent=L+' %'; $('#pdI').textContent=Iua.toFixed(1)+' µA';
+  let rays=''; const n=Math.round(L/12.5); for(let k=0;k<n;k++){ const y=12+k*6; rays+=`<line x1="${20}" y1="${y}" x2="${78}" y2="${40+(k-n/2)*2}" stroke="#f2b705" stroke-width="2" opacity="${0.35+L/160}"/>`; }
+  $('#pdSvg').innerHTML=`<svg viewBox="0 0 300 110" width="100%"><circle cx="18" cy="30" r="12" fill="${L?'#ffd84d':'#ddd'}"/>${rays}
+   <g transform="translate(80,15) scale(1.05)">${SYMS['Photodiode'].replace(/<\/?svg[^>]*>/g,'')}</g>
+   <rect x="190" y="30" width="${Math.max(2,Iua*1.9)}" height="18" fill="#1f5f9e" rx="3"/><text x="190" y="66" font-size="11" fill="#5b6b7a">reverse current ∝ light</text></svg>`;
+  // varactor
+  const V=+$('#vcV').value, w=1/Math.sqrt(1+V/0.7), wpx=12+ (1-w)*0+ 60*Math.sqrt(1+V/0.7)/Math.sqrt(1+12/0.7), C=60*w;
+  $('#vcVt').textContent=V.toFixed(1)+' V'; $('#vcW').textContent=(wpx/12).toFixed(1)+' units'; $('#vcC').textContent=C.toFixed(0)+' pF';
+  const cx=150; $('#vcSvg').innerHTML=`<svg viewBox="0 0 300 100" width="100%"><rect x="20" y="20" width="${cx-wpx/2-20}" height="50" fill="#f3c9c9"/><rect x="${cx+wpx/2}" y="20" width="${280-cx-wpx/2}" height="50" fill="#c9d9f3"/>
+    <rect x="${cx-wpx/2}" y="20" width="${wpx}" height="50" fill="#fff" stroke="#aaa" stroke-dasharray="3 2"/>
+    <text x="40" y="50" font-size="13" font-weight="700" fill="#a33">P</text><text x="255" y="50" font-size="13" font-weight="700" fill="#1f5f9e">N</text>
+    <text x="${cx}" y="88" font-size="11" text-anchor="middle" fill="#5b6b7a">depletion layer = capacitor dielectric</text></svg>`;
+  // LED
+  const M={ir:['Infrared (invisible)','#6b1b1b',1.2,0.25],red:['Red','#ff3b30',1.8,1],grn:['Green','#34c759',2.1,1],blu:['Blue','#2f7bff',3.2,1]}[$('#ledM').value];
+  $('#ledCol').textContent=M[0]; $('#ledVf').textContent=M[2].toFixed(1)+' V';
+  $('#ledSvg').innerHTML=`<svg viewBox="0 0 300 110" width="100%"><defs><radialGradient id="lg"><stop offset="0" stop-color="${M[1]}" stop-opacity="${0.9*M[3]}"/><stop offset="1" stop-color="${M[1]}" stop-opacity="0"/></radialGradient></defs>
+    <circle cx="150" cy="45" r="46" fill="url(#lg)"/><path d="M130,70 L130,40 A20,20 0 0 1 170,40 L170,70 Z" fill="${M[1]}" opacity=".85" stroke="#333"/><rect x="126" y="70" width="48" height="6" fill="#999"/>
+    <line x1="140" y1="76" x2="140" y2="104" stroke="#888" stroke-width="3"/><line x1="160" y1="76" x2="160" y2="98" stroke="#888" stroke-width="3"/></svg>`;
+  // MOV
+  const mv=+$('#movV').value; $('#movVt').textContent=mv+' V';
+  const Rm = mv<200? 1e9 : Math.max(2, 1e9*Math.exp(-(mv-200)/6));
+  $('#movR').textContent = Rm>=1e8? '≈ 1 GΩ (off)' : Rm>=1e3? (Rm/1e3).toFixed(0)+' kΩ' : Rm.toFixed(0)+' Ω (clamping)';
+  $('#movOut').textContent = (mv<=200? mv : Math.round(200+(mv-200)*0.12))+' V';
+  movPlot(false);
+}
+function movPlot(spike){
+  let pin='',pout=''; for(let t=0;t<=280;t+=2){ const base=163*Math.sin(t/280*4*Math.PI); let v=base; if(spike && t>120 && t<160){ v = base + 900*Math.exp(-Math.pow((t-128)/8,2)); } const o = v>200? 200+(v-200)*0.06 : v<-200? -200+(v+200)*0.06 : v;
+    const y=v2=> 60 - v2/1000*50; pin+=(pin?'L':'M')+(10+t)+','+y(v).toFixed(1); pout+=(pout?'L':'M')+(10+t)+','+y(o).toFixed(1); }
+  $('#movSvg').innerHTML=`<svg viewBox="0 0 300 120" width="100%"><line x1="10" y1="60" x2="290" y2="60" stroke="#ccc"/><line x1="10" y1="${60-10}" x2="290" y2="${60-10}" stroke="#e8742a" stroke-dasharray="3 3"/><text x="292" y="${53}" font-size="9" fill="#e8742a" text-anchor="end">clamp ≈ 200 V</text>
+    <path d="${pin}" stroke="#b83a3a" stroke-width="1.6" fill="none" stroke-dasharray="${spike?'4 3':''}"/><path d="${pout}" stroke="#1f5f9e" stroke-width="2.2" fill="none"/>
+    <text x="12" y="112" font-size="10" fill="#b83a3a">— line voltage</text><text x="110" y="112" font-size="10" fill="#1f5f9e">— what the equipment sees</text></svg>`;
+}
+function schPlot(t){
+  // reverse recovery comparison, t in 0..1 animation progress
+  const T=260, n=Math.round(T*t); let ps='',pk='';
+  for(let x=0;x<=n;x+=2){ const tt=x-60; let si,sk;
+    if(tt<0){ si=sk=30; } else { si = tt<40? -30*(1-tt/40)*1 + 0 : -30*Math.exp(-(tt-40)/18); if(tt<40) si=-30; sk = -30*Math.exp(-tt/2.5); }
+    const y=v=>60-v; ps+=(ps?'L':'M')+(20+x)+','+y(si); pk+=(pk?'L':'M')+(20+x)+','+y(sk); }
+  $('#schSvg').innerHTML=`<svg viewBox="0 0 300 130" width="100%"><line x1="20" y1="60" x2="290" y2="60" stroke="#ccc"/><line x1="80" y1="18" x2="80" y2="100" stroke="#aaa" stroke-dasharray="3 3"/><text x="82" y="16" font-size="9" fill="#777">voltage reverses</text>
+    <path d="${ps}" stroke="#b83a3a" stroke-width="2.2" fill="none"/><path d="${pk}" stroke="#1e8a4c" stroke-width="2.2" fill="none"/>
+    <text x="24" y="116" font-size="10" fill="#b83a3a">— silicon PN diode</text><text x="140" y="116" font-size="10" fill="#1e8a4c">— Schottky diode</text><text x="24" y="128" font-size="9" fill="#777">current through the diode against time</text></svg>`;
+}
+function initS3(){
+  ['#pdL','#vcV','#movV'].forEach(s=>$(s).addEventListener('input',s3Draw)); $('#ledM').addEventListener('change',s3Draw);
+  $('#movSpike').onclick=()=>movPlot(true);
+  $('#schPlay').onclick=()=>{ let t=0; const step=()=>{ t+=0.03; schPlot(Math.min(1,t)); if(t<1) requestAnimationFrame(step); else { $('#schSvg').insertAdjacentHTML('beforeend','<p class="note" style="margin:4px 0 0">The silicon PN diode keeps conducting <b>backwards</b> until the stored charge carriers are swept out (reverse recovery). The Schottky\'s metal–semiconductor junction stores almost no minority charge, so it stops almost instantly, and it also has the lower ~0.3 V forward drop. Both make it the faster switch.</p>'); } }; step(); };
+  schPlot(0.25); s3Draw();
+  // symbols
+  const names=Object.keys(SYMS), order=names.slice().sort(()=>Math.random()-.5);
+  $('#symgrid').innerHTML=order.map(n=>`<div class="sym" data-n="${n}">${SYMS[n]}<select><option value="">— name it —</option>${names.slice().sort().map(x=>`<option>${x}</option>`).join('')}</select></div>`).join('');
+  $('#symCheck').onclick=()=>{ let ok=0; document.querySelectorAll('.sym').forEach(d=>{ const v=d.querySelector('select').value; d.classList.remove('right','wrong'); if(v===d.dataset.n){ok++;d.classList.add('right');} else d.classList.add('wrong'); }); $('#symFb').innerHTML= ok===names.length?'<span style="color:var(--ok)">✔ All '+ok+' symbols named.</span>':`${ok} / ${names.length} correct.`; };
+}
+
+/* ============ STATION 4 : SCR ============ */
+const SCR={on:false, R:1, IH:5, IL:8, firedByGate:false, gateRemovedWhileOn:false, note:''};
+const vbr = ig=> Math.max(2, 50-2.4*ig);
+function scrUpdate(ev){
+  const Vs=+$('#scrVs').value, Ig=+$('#scrIg').value, VB=vbr(Ig); SCR.note='';
+  $('#scrVst').textContent=Vs+' V'; $('#scrIgt').textContent=Ig+' mA';
+  const Ion=(Vs-1)/SCR.R;
+  if(!SCR.on){
+    if(Vs>VB){ if(Ion>=SCR.IL){ SCR.on=true; SCR.firedByGate=Ig>0; if(Ig===0) markTask('#scrTasks','bo'); else if(Vs<=30) markTask('#scrTasks','gate'); SCR.note=Ig>0?'Gate current lowered V<sub>BR(F)</sub> below V<sub>S</sub>, so it fired.':'V<sub>AK</sub> exceeded V<sub>BR(F)</sub>: it broke over and fired.'; }
+      else SCR.note='V<sub>AK</sub> exceeds V<sub>BR(F)</sub>, but the anode current would be below the latching current I<sub>L</sub>, so it cannot latch on.'; }
+  } else {
+    if(Ion<SCR.IH){ SCR.on=false; if(ev==='vs'){ markTask('#scrTasks','hold'); SCR.note=`Dropped out: I<sub>AK</sub> fell below the holding current I<sub>H</sub> = ${SCR.IH} mA.`; } }
+    else if(Ig===0 && SCR.firedByGate){ markTask('#scrTasks','latch'); SCR.note='Gate removed, still conducting: the SCR has <b>latched</b>.'; }
+  }
+  const Iak = SCR.on? Ion : 0.0005*Vs, Vak = SCR.on? 1.0 : Vs;
+  $('#scrState').innerHTML = SCR.on? '<span class="pill fwd">ON</span>':'<span class="pill rev">OFF</span>';
+  $('#scrVak').textContent=Vak.toFixed(1)+' V'; $('#scrIak').textContent= SCR.on? Iak.toFixed(1)+' mA' : '≈ 0 (leakage)'; $('#scrVbr').textContent=VB.toFixed(1)+' V';
+  scrCircuit(Iak, Vs, Ig); scrPlot(Vak, Iak, VB);
+}
+function scrCircuit(I, Vs, Ig){
+  const b=SCR.on?clamp(I/59,0,1):0;
+  $('#scrCirc').innerHTML=`<svg viewBox="0 0 360 170" width="100%" style="max-width:420px" stroke="#16222e" stroke-width="2" fill="none">
+    <path d="M40,40 L40,140 L300,140 L300,40 L200,40"/><path d="M40,40 L142,40"/>
+    <line x1="30" y1="80" x2="50" y2="80"/><line x1="34" y1="90" x2="46" y2="90" stroke-width="3"/><text x="0" y="90" stroke="none" fill="#16222e" font-size="12">V<tspan font-size="9" dy="2">S</tspan></text>
+    <circle class="lamp" cx="160" cy="40" r="18" fill="rgba(255,210,60,${b})" style="filter:${b>0.02?'drop-shadow(0 0 '+(4+14*b)+'px rgba(255,200,40,.9))':'none'}"/><path d="M148,40 L172,40 M150,30 L170,50 M170,30 L150,50" stroke-width="1.4"/>
+    <path d="M178,40 L200,40"/>
+    <g transform="translate(300,40) rotate(90)"><path d="M10,-12 L10,12 L32,0 Z" fill="#16222e"/><line x1="32" y1="-12" x2="32" y2="12"/><line x1="0" y1="0" x2="10" y2="0"/><line x1="32" y1="0" x2="44" y2="0"/><path d="M32,8 L44,20"/></g>
+    <path d="M280,84 L250,110 L230,110"/><circle cx="222" cy="110" r="8" fill="${Ig>0?'#e8742a':'#fff'}"/><text x="200" y="130" stroke="none" fill="#16222e" font-size="11">gate I<tspan font-size="8" dy="2">G</tspan></text>
+    <text x="312" y="62" stroke="none" fill="#16222e" font-size="11">A</text><text x="312" y="92" stroke="none" fill="#16222e" font-size="11">K</text>
+    <text x="140" y="75" stroke="none" fill="#5b6b7a" font-size="10">lamp 1 kΩ</text></svg>
+    <div class="note">${SCR.note||'&nbsp;'}</div>`;
+}
+function scrPlot(Vak, Iak, VB){
+  const W=380,H=240, X=v=>40+v/60*(W-60), Y=i=>H-30-i/60*(H-50);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px"><line x1="40" y1="${H-30}" x2="${W-15}" y2="${H-30}" stroke="#34495e"/><line x1="40" y1="${H-30}" x2="40" y2="12" stroke="#34495e"/>
+   <text x="${W-15}" y="${H-12}" font-size="11" text-anchor="end" fill="#5b6b7a">V<tspan font-size="8" dy="2">AK</tspan></text><text x="44" y="16" font-size="11" fill="#5b6b7a">I<tspan font-size="8" dy="2">AK</tspan></text>`;
+  s+=`<path d="M${X(0)},${Y(0)} L${X(VB)},${Y(0.6)}" stroke="#1f5f9e" stroke-width="2.4" fill="none"/><path d="M${X(VB)},${Y(0.6)} L${X(1.2)},${Y(SCR.IL)}" stroke="#1f5f9e" stroke-width="1.6" stroke-dasharray="5 4" fill="none"/>
+   <path d="M${X(0.8)},${Y(SCR.IH)} L${X(1)},${Y(59)}" stroke="#1f5f9e" stroke-width="2.4" fill="none"/>
+   <line x1="40" y1="${Y(SCR.IH)}" x2="${W-15}" y2="${Y(SCR.IH)}" stroke="#b83a3a" stroke-dasharray="3 3"/><text x="${W-15}" y="${Y(SCR.IH)+11}" font-size="10" text-anchor="end" fill="#b83a3a">I<tspan font-size="8" dy="2">H</tspan><tspan dy="-2"> = 5 mA</tspan></text>
+   <line x1="40" y1="${Y(SCR.IL)}" x2="${W-15}" y2="${Y(SCR.IL)}" stroke="#b7791f" stroke-dasharray="3 3"/><text x="${W-15}" y="${Y(SCR.IL)-3}" font-size="10" text-anchor="end" fill="#b7791f">I<tspan font-size="8" dy="2">L</tspan><tspan dy="-2"> = 8 mA</tspan></text>
+   <line x1="${X(VB)}" y1="${H-30}" x2="${X(VB)}" y2="${Y(20)}" stroke="#17693a" stroke-dasharray="3 3"/><text x="${X(VB)+3}" y="${Y(22)}" font-size="10" fill="#17693a">V<tspan font-size="8" dy="2">BR(F)</tspan></text>
+   <circle cx="${X(Vak)}" cy="${Y(Iak)}" r="6.5" fill="#e8742a" stroke="#fff" stroke-width="2"/></svg>`;
+  $('#scrPlot').innerHTML=s;
+}
+function acDraw(){
+  const a=+$('#acAng').value, ar=a*Math.PI/180; $('#acAngt').textContent=a+'°';
+  const W=460,H=190, X=t=>30+t/(4*Math.PI)*(W-45), Y=v=>H/2-v*(H/2-22);
+  let sup='',shade='';
+  for(let t=0;t<=4*Math.PI+1e-6;t+=0.02){ sup+=(sup?'L':'M')+X(t).toFixed(1)+','+Y(Math.sin(t)).toFixed(1); }
+  [0,2*Math.PI].forEach(o=>{ let p=`M${X(o+ar)},${Y(0)}`; for(let t=ar;t<=Math.PI+1e-6;t+=0.02) p+=`L${X(o+t).toFixed(1)},${Y(Math.sin(t)).toFixed(1)}`; p+=`L${X(o+Math.PI)},${Y(0)}Z`; shade+=`<path d="${p}" fill="rgba(255,190,40,.55)" stroke="#e8742a" stroke-width="2"/>`; shade+=`<line x1="${X(o+ar)}" y1="${Y(0)+4}" x2="${X(o+ar)}" y2="${Y(-0.35)}" stroke="#e8742a" stroke-width="2"/><text x="${X(o+ar)}" y="${Y(-0.45)}" font-size="10" fill="#e8742a" text-anchor="middle">gate pulse</text>`; });
+  $('#acPlot').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%"><line x1="30" y1="${Y(0)}" x2="${W-10}" y2="${Y(0)}" stroke="#ccc"/>${shade}<path d="${sup}" stroke="#1f5f9e" stroke-width="1.8" fill="none" stroke-dasharray="5 3"/>
+   <text x="${X(Math.PI/2)}" y="14" font-size="10" text-anchor="middle" fill="#17693a">anode +</text><text x="${X(3*Math.PI/2)}" y="${H-4}" font-size="10" text-anchor="middle" fill="#b83a3a">anode − : SCR off</text>
+   <text x="${W-12}" y="${Y(0)-6}" font-size="10" text-anchor="end" fill="#5b6b7a">time →</text></svg>`;
+  const frac=((Math.PI-ar)+Math.sin(2*ar)/2)/(2*Math.PI); const pct=Math.round(frac*100);
+  $('#acCond').textContent=(180-a)+'°'; $('#acPow').textContent=pct+' %';
+  const b=frac/0.5; $('#acLamp').innerHTML=`<svg viewBox="0 0 200 110" width="200"><circle cx="100" cy="50" r="30" fill="rgba(255,210,60,${b})" stroke="#16222e" stroke-width="2" style="filter:${b>0.02?'drop-shadow(0 0 '+(6+22*b)+'px rgba(255,200,40,.9))':'none'}"/><rect x="88" y="80" width="24" height="16" fill="#999"/></svg>`;
+}
+function initS4(){
+  $('#scrVs').addEventListener('input',()=>scrUpdate('vs')); $('#scrIg').addEventListener('input',()=>scrUpdate('ig'));
+  $('#scrGateOff').onclick=()=>{ $('#scrIg').value=0; scrUpdate('ig'); };
+  $('#scrReset').onclick=()=>{ SCR.on=false; SCR.firedByGate=false; $('#scrIg').value=0; $('#scrVs').value=20; scrUpdate('reset'); };
+  $('#modeDC').onclick=()=>{ $('#scrDC').style.display=''; $('#scrAC').style.display='none'; $('#modeDC').classList.remove('sec'); $('#modeAC').classList.add('sec'); };
+  $('#modeAC').onclick=()=>{ $('#scrDC').style.display='none'; $('#scrAC').style.display=''; $('#modeAC').classList.remove('sec'); $('#modeDC').classList.add('sec'); acDraw(); };
+  $('#acAng').addEventListener('input',acDraw);
+  scrUpdate('init'); acDraw();
+}
+
+/* ============ STATION 5 : RIPPLE ============ */
+const RP={lastC:null,lastR:null,lastVr:null};
+const Cval=k=>10*Math.pow(470,k/100), Rval=k=>47*Math.pow(10000/47,k/100);
+function rpDraw(ev){
+  const full=$('#rpType').value==='full', C=Cval(+$('#rpC').value)*1e-6, R=Rval(+$('#rpR').value);
+  const Vp = full? 12-1.4 : 12-0.7, f=50, dt=2e-5, Tsim=0.08;
+  const vin=t=>{ const s=Math.sin(2*Math.PI*f*t); return full? Vp*Math.abs(s) : Math.max(0,Vp*s); };
+  let vc=Vp, pts=[], vmin=1e9, vmax=-1e9;
+  for(let t=0;t<=Tsim;t+=dt){ const vi=vin(t); if(vi>vc) vc=vi; else vc-=vc/(R*C)*dt; if(t>=0.04){ pts.push([t-0.04,vi,vc]); if(t>=0.06){ vmin=Math.min(vmin,vc); vmax=Math.max(vmax,vc);} } }
+  const Vr=vmax-vmin, W=480,H=220, X=t=>36+t/0.04*(W-50), Y=v=>H-26-v/12*(H-44);
+  let pi='',po=''; pts.forEach(([t,vi,v],i)=>{ if(i%3) return; pi+=(pi?'L':'M')+X(t).toFixed(1)+','+Y(vi).toFixed(1); po+=(po?'L':'M')+X(t).toFixed(1)+','+Y(v).toFixed(1); });
+  $('#rpPlot').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%"><line x1="36" y1="${Y(0)}" x2="${W-10}" y2="${Y(0)}" stroke="#34495e"/><line x1="36" y1="${Y(0)}" x2="36" y2="10" stroke="#34495e"/>
+    ${[0,4,8,12].map(v=>`<text x="30" y="${Y(v)+4}" font-size="10" text-anchor="end" fill="#5b6b7a">${v} V</text>`).join('')}
+    <text x="${W-10}" y="${H-8}" font-size="10" text-anchor="end" fill="#5b6b7a">40 ms</text>
+    <path d="${pi}" stroke="#9aa7b4" stroke-width="1.6" fill="none" stroke-dasharray="4 3"/><path d="${po}" stroke="#1f5f9e" stroke-width="2.6" fill="none"/>
+    <text x="44" y="16" font-size="10" fill="#9aa7b4">- - rectified input</text><text x="170" y="16" font-size="10" fill="#1f5f9e">— smoothed output</text></svg>`;
+  $('#rpCt').textContent = (C*1e6>=100? (C*1e6).toFixed(0):(C*1e6).toFixed(1))+' µF';
+  $('#rpRt').textContent = R>=1000? (R/1000).toFixed(2)+' kΩ' : R.toFixed(0)+' Ω';
+  $('#rpVr').textContent = Vr.toFixed(2)+' V'; $('#rpIl').textContent=((vmax+vmin)/2/R*1000).toFixed(1)+' mA';
+  if(ev==='c' && RP.lastVr!==null && Vr<RP.lastVr-0.05) markTask('#rpTasks','c');
+  if(ev==='r' && RP.lastR!==null && R<RP.lastR && Vr>RP.lastVr+0.05) markTask('#rpTasks','r');
+  if(ev==='t' && !full) markTask('#rpTasks','h');
+  RP.lastC=C; RP.lastR=R; RP.lastVr=Vr;
+}
+function initS5(){ $('#rpC').addEventListener('input',()=>rpDraw('c')); $('#rpR').addEventListener('input',()=>rpDraw('r')); $('#rpType').addEventListener('change',()=>rpDraw('t')); rpDraw('init'); }
+
+/* ============ TABS + BOOT ============ */
+function showTab(t){ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t)); document.querySelectorAll('section.station').forEach(s=>s.classList.toggle('on',s.id===t)); try{ localStorage.setItem(LS+'.tab',t);}catch(e){} window.scrollTo(0,0); }
+document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.t)));
+$('#resetAll').onclick=()=>{ if(!confirm('Clear all your answers and progress on this device?')) return; try{ localStorage.removeItem(LS);}catch(e){} location.reload(); };
+mountQuestions(); initS1(); initS2(); initS3(); initS4(); initS5(); restoreTasks();
+try{ const t=localStorage.getItem(LS+'.tab'); if(t && document.getElementById(t)) showTab(t); }catch(e){}
+
+</script>
+</body>
+</html>
