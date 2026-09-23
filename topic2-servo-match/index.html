@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Servo Match · Topic 2 Servomechanisms</title>
+<style>
+:root{
+  --ink:#16222e; --muted:#5b6b7a; --bg:#f3f5f8; --card:#fff; --line:#d6dee6;
+  --blue:#1f5f9e; --blue-soft:#e3eef9; --ok:#1e8a4c; --ok-soft:#e2f4ea; --bad:#b83a3a; --bad-soft:#fbe7e7;
+  --amber:#b7791f; --amber-soft:#fdf3e1; --air:#1f5f9e; --home:#7a4fa0;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{background:#12324f;color:#fff}
+.hwrap{max-width:1180px;margin:0 auto;padding:14px 20px 12px}
+.htop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+h1{font-size:20px;margin:0}
+.hsub{font-size:13px;opacity:.8;margin:2px 0 0}
+.hlink{color:#cfe3f7;font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:4px 10px;white-space:nowrap}
+.hlink:hover{background:rgba(255,255,255,.1)}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:13px;align-items:center}
+.stat{background:rgba(255,255,255,.1);border-radius:99px;padding:3px 12px}
+.stat b{font-variant-numeric:tabular-nums}
+.rounds{display:flex;gap:4px;align-items:center}
+.rounds i{width:26px;height:6px;border-radius:9px;background:rgba(255,255,255,.2);display:block}
+.rounds i.on{background:#7fb8ec}.rounds i.done{background:#48d17a}
+button.linkish{background:none;border:none;color:#cfe3f7;font-size:12.5px;text-decoration:underline;cursor:pointer;padding:0 4px}
+main{max-width:1180px;margin:0 auto;padding:16px 20px 40px}
+.intro{background:#fff;border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:14px}
+.intro b{color:var(--blue)}
+.board{display:grid;grid-template-columns:minmax(260px,340px) minmax(0,1fr);gap:16px;align-items:start}
+
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+.panel h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px;display:flex;justify-content:space-between;align-items:center}
+.tray{display:flex;flex-direction:column;gap:8px;min-height:60px}
+@media (max-width:820px){.trayWrap{position:sticky;top:0;z-index:5;box-shadow:0 6px 14px rgba(0,0,0,.06)} .tray{flex-direction:row;overflow-x:auto;padding-bottom:4px} .tray .card{min-width:230px;max-width:260px;touch-action:pan-x}}
+.card{position:relative;background:#fff;border:1.5px solid #c7d2dc;border-radius:10px;padding:9px 11px 9px 11px;cursor:grab;text-align:left;font:inherit;font-size:13.5px;line-height:1.4;color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none;width:100%}
+.card:hover{border-color:#8fb0cf}
+.card.sel{border-color:var(--blue);background:var(--blue-soft);box-shadow:0 0 0 3px rgba(31,95,158,.18)}
+.card.wrongback{border-color:var(--bad);background:var(--bad-soft)}
+.card .hint{display:block;margin-top:6px;font-size:12.5px;color:var(--bad)}
+.tag{display:inline-block;font-size:11px;font-weight:700;border-radius:99px;padding:1px 8px;margin-bottom:4px;letter-spacing:.02em}
+.tag.air{background:#e3eef9;color:var(--air)}.tag.home{background:#f0e8f7;color:var(--home)}
+.empty{font-size:13px;color:var(--muted);padding:10px;text-align:center;border:1.5px dashed var(--line);border-radius:10px}
+.bins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.bin{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:8px;min-height:120px;display:flex;flex-direction:column;gap:6px;transition:border-color .12s,background .12s}
+.bin.armed{border-color:#8fb0cf;border-style:dashed;cursor:pointer}
+.bin.over{border-color:var(--blue);background:var(--blue-soft)}
+.bhead{display:flex;align-items:center;gap:8px;border-bottom:1px solid #edf1f5;padding-bottom:6px}
+.bhead svg{width:66px;height:44px;flex:0 0 66px}
+.bname{font-weight:700;font-size:14px;line-height:1.2}
+.bdoes{font-size:11.5px;color:var(--muted);line-height:1.3}
+.chip{position:relative;border:1.5px solid #c7d2dc;border-radius:8px;padding:5px 8px;font-size:12.5px;line-height:1.35;background:#fbfcfd;cursor:pointer;text-align:left;font-family:inherit;color:var(--ink);touch-action:manipulation;width:100%}
+.chip.locked{border-color:#9fd3b3;background:var(--ok-soft);cursor:default}
+.chip.locked.whyq{cursor:pointer}
+.chip .wb{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;border-radius:99px;padding:0 7px;vertical-align:1px}
+.wb.q{background:var(--amber);color:#fff}.wb.ok{background:var(--ok);color:#fff}.wb.miss{background:#9aa6b1;color:#fff}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+button.btn{border:none;border-radius:8px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff;font-family:inherit}
+button.btn.sec{background:#fff;color:var(--ink);border:1px solid #c7d2dc}
+button.btn:disabled{opacity:.45;cursor:not-allowed}
+.msg{font-size:13.5px;color:var(--muted)}
+.ghost{position:fixed;z-index:50;pointer-events:none;opacity:.92;transform:rotate(-2deg);box-shadow:0 10px 24px rgba(0,0,0,.18);max-width:300px}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(18,50,79,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+.modal.on{display:flex}
+.mbox{background:#fff;border-radius:14px;max-width:560px;width:100%;padding:18px 18px 16px;box-shadow:0 20px 50px rgba(0,0,0,.25);max-height:92vh;overflow:auto}
+.mbox h3{margin:0 0 4px;font-size:16px}
+.mbox .scen{background:#f6f8fa;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13.5px;margin:8px 0 10px}
+.mdev{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--ok)}
+.mdev svg{width:60px;height:40px}
+.opt{display:block;width:100%;text-align:left;border:1.5px solid #c7d2dc;background:#fff;border-radius:9px;padding:8px 11px;margin:6px 0;font:inherit;font-size:13.5px;cursor:pointer;color:var(--ink)}
+.opt:hover:not(:disabled){border-color:#8fb0cf;background:#f5f9fd}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.explain{display:none;margin-top:8px;font-size:13.5px;background:#f3f7fb;border:1px solid #cddcec;border-radius:9px;padding:8px 11px}
+.explain.on{display:block}
+.mfoot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:8px}
+.qcount{font-size:12.5px;color:var(--muted)}
+/* summary */
+.done{display:none}
+.done.on{display:block}
+.bigscore{display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 14px}
+.bs{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 16px}
+.bs span{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.bs b{font-size:24px;font-variant-numeric:tabular-nums}
+table.sum{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:13.5px}
+table.sum th,table.sum td{padding:8px 10px;border-bottom:1px solid #e6ebf0;text-align:left;vertical-align:top}
+table.sum th{background:#f6f8fa;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+table.sum td svg{width:66px;height:44px}
+table.sum ul{margin:0;padding-left:16px}
+table.sum li.miss{color:var(--bad)}
+@media (max-width:700px){table.sum thead{display:none} table.sum tr{display:block;border-bottom:2px solid var(--line)} table.sum td{display:block;border:none;padding:4px 10px} table.sum td[data-l]::before{content:attr(data-l);display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}}
+.note{font-size:12.5px;color:var(--muted);margin-top:10px}
+footer{max-width:1180px;margin:0 auto;padding:0 20px 30px;font-size:12px;color:var(--muted)}
+/* phone overrides (kept last so they win) */
+@media (max-width:820px){.board{grid-template-columns:minmax(0,1fr)} .trayWrap{min-width:0} .tray{align-items:flex-start} .bins{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px} .bin{min-height:96px;padding:6px} .bhead{flex-direction:column;align-items:flex-start;gap:2px} .bhead svg{width:54px;height:36px;flex:0 0 36px} .bname{font-size:13px} .bdoes{font-size:11px}}
+</style>
+</head>
+<body>
+<header><div class="hwrap">
+  <div class="htop">
+    <div><h1>Servo Match</h1><div class="hsub">Topic 2 · Servomechanisms: which device does the job?</div></div>
+    <a class="hlink" href="../topic2-tutorial/">← Servo Bench (Tutorial 2)</a>
+  </div>
+  <div class="stats">
+    <span class="stat">Round <b id="rNum">1</b> of 3</span><span class="rounds" id="rBar"><i></i><i></i><i></i></span>
+    <span class="stat">Matched first try <b id="sMatch">0</b>/<b id="sTot">24</b></span>
+    <span class="stat">Why correct <b id="sWhy">0</b></span>
+    <button class="linkish" id="resetAll">Start over</button>
+  </div>
+</div></header>
+<main>
+  <div id="play">
+    <div class="intro"><b>How to play.</b> Each card describes a job that needs an angle, a position or a speed sent or measured, either on an aircraft (<span class="tag air">✈ Aircraft</span>) or in everyday life (<span class="tag home">⌂ Everyday</span>). Decide which device does it: a <b>torque synchro</b>, a <b>control synchro servo</b>, a <b>differential synchro</b>, a <b>resolver</b>, an <b>LVDT</b> or a <b>tachogenerator</b>. Drag each card into its bin, or tap a card and then tap a bin. Press <b>Check</b>: cards in the right bin lock in green and you'll be asked <b>why</b>. Wrong cards come back with a hint.</div>
+    <div class="board">
+      <div class="panel trayWrap"><h2><span>Application cards</span><span id="trayCount"></span></h2><div class="tray" id="tray"></div></div>
+      <div>
+        <div class="bins" id="bins"></div>
+        <div class="actions"><button class="btn" id="checkBtn">Check</button><button class="btn sec" id="whyBtn" style="display:none">Answer the why questions</button><button class="btn" id="nextBtn" style="display:none">Next round →</button><span class="msg" id="msg"></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="done" id="done">
+    <div class="intro"><b>All three rounds done.</b> The table below is your knowledge summary: each device, what it does, and every card you matched to it. Anything you got wrong the first time is in red, so revise those.</div>
+    <div class="bigscore" id="bigscore"></div>
+    <table class="sum" id="sumTable"><thead><tr><th>Device</th><th>What it does</th><th>✈ On the aircraft</th><th>⌂ Everyday</th></tr></thead><tbody></tbody></table>
+    <p class="note">Tutorial 2 links: torque receiver gives a mechanical output (MCQ 1), control synchros for large power and high accuracy (MCQ 4), both rotors share the AC supply (MCQ 5), tachogenerator output ∝ speed (MCQ 9), resolver coils (MCQ 11), resolver uses (Short Q2), TDX and TDR modes (Short Q3, Q4), control transformer (Short Q5b), LVDT magnitude and direction (Short Q7).</p>
+    <div class="actions"><button class="btn" id="againBtn">Play again with new rounds</button><a class="hlink" style="color:var(--blue);border-color:#c7d2dc" href="../topic2-tutorial/">Go to the Servo Bench →</a></div>
+  </div>
+</main>
+<div class="modal" id="whyModal" role="dialog" aria-modal="true" aria-labelledby="whyTitle"><div class="mbox">
+  <h3 id="whyTitle">Why?</h3>
+  <div class="mdev" id="whyDev"></div>
+  <div class="scen" id="whyScen"></div>
+  <div id="whyOpts"></div>
+  <div class="explain" id="whyEx"></div>
+  <div class="mfoot"><span class="qcount" id="whyCount"></span><button class="btn" id="whyNext" disabled>Next</button></div>
+</div></div>
+<div class="modal" id="roundModal" role="dialog" aria-modal="true"><div class="mbox" id="roundBox"></div></div>
+<footer>Aircraft examples are simplified to show the device's role, and exact designs vary by aircraft type. Your progress is saved in this browser only.</footer>
+<script>
+/* ============ ICONS (original drawings) ============ */
+const K = '#16222e';
+function dsvg(inner, w=90, h=60){ return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" stroke="${K}" stroke-width="2" fill="none" aria-hidden="true">${inner}</svg>`; }
+const dial=(cx,cy,a,col='#b35e1f')=>{ const x=cx+13*Math.sin(a*Math.PI/180), y=cy-13*Math.cos(a*Math.PI/180); return `<circle cx="${cx}" cy="${cy}" r="16"/><line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="${col}" stroke-width="3"/>`; };
+
+const DEV = [
+  {k:'tsyn', name:'Torque synchro (TX → TR)', lc:'a torque synchro', wq:'Why is a torque synchro right here?',
+   does:'The receiver shaft follows the transmitter directly. No amplifier is needed, but it can only move light loads such as pointers.',
+   sym: dsvg(dial(18,30,40)+dial(72,30,40)+`<line x1="34" y1="26" x2="56" y2="26"/><line x1="34" y1="30" x2="56" y2="30"/><line x1="34" y1="34" x2="56" y2="34"/>`)},
+  {k:'csyn', name:'Control synchro servo (CX → CT)', lc:'a control synchro servo', wq:'Why does this job need a control synchro servo?',
+   does:'The CT outputs an error voltage. An amplifier and motor supply the power, so heavy loads can be positioned accurately.',
+   sym: dsvg(`<circle cx="14" cy="30" r="11"/><text x="14" y="34" font-size="9" fill="${K}" stroke="none" text-anchor="middle">CT</text><line x1="25" y1="30" x2="34" y2="30"/><path d="M34,18 L34,42 L54,30 Z"/><line x1="54" y1="30" x2="60" y2="30"/><circle cx="71" cy="30" r="11"/><text x="71" y="34" font-size="10" fill="${K}" stroke="none" text-anchor="middle">M</text>`)},
+  {k:'diff', name:'Differential synchro (TDX / TDR)', lc:'a differential synchro', wq:'Why does this job need a differential synchro?',
+   does:'Adds or subtracts two angles, for example applying a correction or finding the difference between two shafts.',
+   sym: dsvg(`<circle cx="14" cy="30" r="11"/><circle cx="45" cy="30" r="13"/><circle cx="76" cy="30" r="11"/><line x1="25" y1="30" x2="32" y2="30"/><line x1="58" y1="30" x2="65" y2="30"/><text x="45" y="34" font-size="11" fill="${K}" stroke="none" text-anchor="middle">±</text>`)},
+  {k:'res', name:'Resolver', lc:'a resolver', wq:'Why is a resolver right here?',
+   does:'Two rotor and two stator coils at 90° give E cos θ and E sin θ, turning an angle into x–y components.',
+   sym: dsvg(`<circle cx="30" cy="30" r="22"/><line x1="30" y1="30" x2="46" y2="16" stroke="#1f5f9e" stroke-width="3"/><line x1="30" y1="30" x2="16" y2="16" stroke="#1e8a4c" stroke-width="3"/><text x="58" y="26" font-size="10" fill="${K}" stroke="none">sin</text><text x="58" y="42" font-size="10" fill="${K}" stroke="none">cos</text>`)},
+  {k:'lvdt', name:'LVDT', lc:'an LVDT', wq:'Why is an LVDT right here?',
+   does:'Linear position → an AC output whose size gives the displacement and whose phase gives the direction.',
+   sym: dsvg(`<rect x="8" y="18" width="22" height="24" rx="3"/><rect x="34" y="18" width="22" height="24" rx="3"/><rect x="60" y="18" width="22" height="24" rx="3"/><rect x="22" y="27" width="40" height="6" fill="#8a96a3" stroke="none"/><path d="M66,50 L80,50 M76,46 L80,50 L76,54 M24,50 L10,50 M14,46 L10,50 L14,54" stroke-width="1.6"/>`)},
+  {k:'tacho', name:'Tachogenerator', lc:'a tachogenerator', wq:'Why is a tachogenerator right here?',
+   does:'Output voltage proportional to shaft speed. Used for speed indication and for rate (damping) feedback.',
+   sym: dsvg(`<circle cx="26" cy="30" r="18"/><text x="26" y="34" font-size="10" fill="${K}" stroke="none" text-anchor="middle">TG</text><line x1="44" y1="30" x2="54" y2="30"/><text x="56" y="34" font-size="11" fill="${K}" stroke="none">V∝ω</text>`)}
+];
+const DEVK = Object.fromEntries(DEV.map(d=>[d.k,d]));
+
+const CARDS = [
+ // ---- Torque synchro
+ {id:'t1', dev:'tsyn', ctx:'air', short:'Flap position indicator (older aircraft)',
+  t:'On many older aircraft, a transmitter at the flap drive turns a pointer on the flight deck flap position indicator.',
+  why:['The receiver simply repeats the transmitter\'s angle, and a pointer is a light load, so no amplifier is needed','It must add two angles together','It needs an error voltage to drive a heavy motor'],
+  ex:'This is the classic torque synchro job: remote indication. The TX and TR are linked only by wires (Short Q5a advantages), and both rotors share the AC excitation (MCQ 5).',
+  trap:{csyn:'A control synchro servo would need an amplifier and motor. Is that necessary just to turn a light pointer?'}},
+ {id:'t2', dev:'tsyn', ctx:'air', short:'Heading repeater driven from the gyro',
+  t:'A heading repeater indicator on the flight deck, driven directly from the synchro transmitter on a directional gyro.',
+  why:['A TR can follow the gyro\'s TX angle directly, and the indicator needs very little torque','The heading must be converted into x–y components','The indicator must measure a linear displacement'],
+  ex:'The repeater\'s receiver rotor lines up with the transmitter rotor, so the pointer shows the same heading. If it were held back, a high current would flow in the stators (MCQ 15).',
+  trap:{res:'The indicator only needs to repeat the angle, not split it into sine and cosine.'}},
+ {id:'t3', dev:'tsyn', ctx:'air', short:'Trim position indicator (older aircraft)',
+  t:'A stabilizer or rudder trim position indicator on an older aircraft, showing the surface position on a dial.',
+  why:['It is remote indication of an angle on a light pointer: TX at the surface, TR in the indicator','It controls the surface through an amplifier','It measures how fast the trim is moving'],
+  ex:'Remote position indication is the torque synchro\'s job. Swap S1 and S3 at the receiver and the pointer would turn the wrong way (Short Q1).',
+  trap:{tacho:'The dial shows where the trim is, not how fast it is moving.'}},
+ {id:'t4', dev:'tsyn', ctx:'home', short:'Ship\'s rudder angle indicator',
+  t:'The rudder angle indicator on a ship\'s bridge, showing where the rudder is.',
+  why:['A light pointer on the bridge simply repeats the rudder angle through wires','The indicator must move the rudder','It needs a voltage proportional to speed'],
+  ex:'The same remote-indication idea at sea. The TX and TR can be far apart and the cable can go around obstacles, which a mechanical linkage couldn\'t.'},
+ // ---- Control synchro servo
+ {id:'c1', dev:'csyn', ctx:'air', short:'Weather radar antenna drive',
+  t:'A weather radar antenna must follow its scan command accurately, even against the air load on the dish.',
+  why:['The CT gives an error voltage and an amplifier and motor supply the power to move the heavy antenna accurately','A torque receiver has enough torque to turn the antenna directly','It needs to add two angles'],
+  ex:'MCQ 4: control synchros are used where large power and high accuracy are needed. The CT supplies the signal and the motor supplies the torque (Servo Bench station 3).',
+  trap:{tsyn:'A torque receiver can\'t move a heavy antenna against the air load; it only turns pointers. What adds amplifier power?'}},
+ {id:'c2', dev:'csyn', ctx:'home', short:'Searchlight following a handwheel',
+  t:'A large searchlight must follow an operator\'s remote handwheel, swinging a heavy lamp precisely.',
+  why:['A CX at the handwheel and a CT on the lamp give an error signal that drives a powered motor until the error is null','The lamp is light enough for a torque receiver','It needs sine and cosine outputs'],
+  ex:'At null the CT rotor sits at 90° to its field (MCQ 12), so the error voltage is zero and the motor stops.'},
+ {id:'c3', dev:'csyn', ctx:'air', short:'Error reads 10 V at 180°',
+  t:'Troubleshooting a servo: you measure 10 V at 180° phase on the rotor of the unit geared to the load, and the load is away from its commanded position.',
+  why:['An error voltage whose amplitude and phase give how far and which way to move comes from a control transformer','A torque receiver always outputs 10 V','A tachogenerator\'s phase shows position'],
+  ex:'Short Q6: the amplitude (10 V) gives the amount of displacement needed, and the phase (180°) gives the direction. Only a CT produces this error signal.',
+  trap:{diff:'A differential adds or subtracts angles; it doesn\'t output an error voltage for an amplifier. Which unit does?'}},
+ {id:'c4', dev:'csyn', ctx:'home', short:'Ship steering via power amplifier',
+  t:'Steering a large ship\'s rudder from the bridge wheel through a power amplifier and a hydraulic motor.',
+  why:['The heavy rudder needs amplified power; the synchros only supply an accurate error signal','A torque synchro can turn the rudder directly','The rudder position must be converted to x–y'],
+  ex:'The torque comes from the amplifier and motor. The control synchros provide accuracy, and their higher impedance means they draw little current (Short Q5c).'},
+ // ---- Differential synchro
+ {id:'d1', dev:'diff', ctx:'air', short:'Adding a correction to the heading',
+  t:'A manually set correction (such as a compass deviation) must be added to the heading signal before it reaches the heading indicator.',
+  why:['A differential takes two inputs (heading and correction) and outputs their sum','A torque receiver can add two angles','It must measure a straight-line movement'],
+  ex:'With S1 and S3 crossed on both links, a TDX adds its input to the transmitter angle (Short Q3, addition mode).',
+  trap:{tsyn:'A plain TX→TR can only repeat one angle. Adding a correction needs a device with two inputs.'}},
+ {id:'d2', dev:'diff', ctx:'air', short:'Showing the split between two levers',
+  t:'An indicator must show the difference in position between two levers, each with its own synchro transmitter.',
+  why:['A TDR fed by two transmitters turns its shaft to their difference','A resolver gives the difference as sin and cos','An LVDT measures the angle difference'],
+  ex:'A TDR with straight wiring gives TDR = TX1 − TX2 (Short Q4, subtraction mode).'},
+ {id:'d3', dev:'diff', ctx:'home', short:'Ship\'s bearing: course + relative bearing',
+  t:'On a ship, the ship\'s own course must be added to a target\'s relative bearing to give its true bearing.',
+  why:['A differential adds the two angles','A tachogenerator adds angles by their speed','A control transformer adds two transmitters'],
+  ex:'Adding or subtracting two angles is exactly what differential synchros do. MCQ 13 reminds you that adding two transmitters is NOT the CT\'s job.',
+  trap:{csyn:'MCQ 13: a control transformer derives an error voltage; it doesn\'t add the outputs of two transmitters.'}},
+ {id:'d4', dev:'diff', ctx:'air', short:'Heading + relative bearing on an indicator',
+  t:'An indicator combines the compass heading with the ADF\'s relative bearing to show the bearing to a station.',
+  why:['Two angle signals must be combined into one, which is a differential synchro\'s job','A single torque receiver can do the sum','It needs a speed signal'],
+  ex:'Differentials let one synchro system apply a second angle to another, whether as a sum or a difference, by choosing the S1/S3 wiring.'},
+ // ---- Resolver
+ {id:'r1', dev:'res', ctx:'air', short:'Pitch/roll → earth reference',
+  t:'Converting aircraft pitch and roll into earth-referenced components in an attitude or navigation computer.',
+  why:['A resolver gives E cos θ and E sin θ, transforming an angle into x–y components instantly','A torque receiver outputs x and y','An LVDT measures pitch'],
+  ex:'Short Q2: resolvers transform polar coordinates to rectangular (and back), for example turning pitch, roll and yaw back into earth references.'},
+ {id:'r2', dev:'res', ctx:'air', short:'Thrust lever angle to the FADEC',
+  t:'A rugged angle sensor on each thrust lever sends sine and cosine signals to the engine control computer (FADEC).',
+  why:['Its two rotor coils at 90° give sine and cosine of the lever angle, which the computer turns into a precise angle','It measures the lever\'s straight-line travel','It generates a voltage proportional to lever speed'],
+  ex:'MCQ 11: a resolver has two rotor and two stator coils. Having both sine and cosine lets the computer find the angle unambiguously over the full travel.',
+  trap:{lvdt:'The thrust lever moves through an angle, not along a straight line.'}},
+ {id:'r3', dev:'res', ctx:'home', short:'Electric car motor angle sensor',
+  t:'The motor-shaft angle sensor in an electric car\'s traction motor, chosen because it is rugged and tolerates heat.',
+  why:['A resolver\'s sine and cosine outputs give the rotor angle, and it is very rugged','It adds two angles','It measures linear position'],
+  ex:'Short Q2: resolvers are very rugged. The controller needs the exact rotor angle to switch the motor windings.'},
+ {id:'r4', dev:'res', ctx:'air', short:'Radar scan: polar → x–y for display',
+  t:'A radar display must turn the antenna scan angle and the range of a return into x–y screen positions.',
+  why:['Range × cos θ and range × sin θ are exactly a resolver\'s outputs','A tachogenerator gives the scan angle','A differential synchro converts to x–y'],
+  ex:'Polar (range, angle) to rectangular (x, y) is the resolver\'s textbook job: X = E cos θ, Y = E sin θ.'},
+ // ---- LVDT
+ {id:'l1', dev:'lvdt', ctx:'air', short:'Flight control actuator ram position',
+  t:'A fly-by-wire computer needs to know how far a flight control actuator\'s ram has extended.',
+  why:['The ram moves in a straight line, and an LVDT turns linear position into a voltage (size = distance, phase = direction)','A resolver measures straight-line travel','A tachogenerator gives position'],
+  ex:'Short Q7: the LVDT output is the difference of two secondary voltages. Its magnitude is proportional to displacement, and its phase shows the direction.',
+  trap:{res:'The actuator ram moves in a straight line, not through an angle.'}},
+ {id:'l2', dev:'lvdt', ctx:'air', short:'Servo-valve spool position',
+  t:'Feedback of the spool position inside a hydraulic servo-valve on a flight control actuator.',
+  why:['The spool slides back and forth, and an LVDT measures that small linear movement and its direction','It measures the spool\'s speed','It adds two spool positions'],
+  ex:'At the centre (null) position both secondaries are equal and the output is zero. Either side of null, the phase tells which way the spool moved.'},
+ {id:'l3', dev:'lvdt', ctx:'air', short:'Fuel metering valve position to FADEC',
+  t:'The engine\'s fuel metering valve position is fed back to the FADEC.',
+  why:['The valve moves linearly, and an LVDT reports how far and which way','It needs the valve\'s speed only','It needs the valve angle as sine and cosine'],
+  ex:'LVDTs are contactless, so they suit harsh engine environments and give an accurate linear position with direction.',
+  trap:{tacho:'The FADEC needs where the valve is, not how fast it is moving.'}},
+ {id:'l4', dev:'lvdt', ctx:'home', short:'Factory sheet thickness gauge',
+  t:'A factory gauge measuring the thickness of sheet metal to a few micrometres.',
+  why:['A small linear movement of the probe produces a proportional LVDT output','It measures probe speed','It needs a heavy servo drive'],
+  ex:'Small linear displacements with direction are exactly what an LVDT measures.'},
+ // ---- Tachogenerator
+ {id:'g1', dev:'tacho', ctx:'air', short:'Rate feedback in an autopilot servo',
+  t:'An autopilot servo uses a feedback signal proportional to how fast it is moving, to damp the motion so the surface doesn\'t overshoot.',
+  why:['A tachogenerator\'s output is proportional to speed, so it provides rate (velocity) feedback for damping','It gives the surface position','It adds a correction angle'],
+  ex:'MCQ 9: tachogenerator output is proportional to speed of rotation. On the Servo Bench loop station, tacho feedback cuts the overshoot without adding friction.',
+  trap:{lvdt:'An LVDT gives position. This job needs a signal proportional to how fast it is moving.'}},
+ {id:'g2', dev:'tacho', ctx:'air', short:'Engine rpm indication (older aircraft)',
+  t:'On older aircraft, a small generator on the engine gearbox drives the flight deck rpm gauge.',
+  why:['Its output (voltage and frequency) rises in proportion to engine speed','It repeats the gearbox angle like a synchro','It measures a linear displacement'],
+  ex:'Speed → a proportional electrical signal is the tachogenerator\'s whole job.',
+  trap:{tsyn:'An rpm gauge needs a signal proportional to speed, not a copy of a shaft angle.'}},
+ {id:'g3', dev:'tacho', ctx:'air', short:'Radar antenna at steady scan speed',
+  t:'A velocity servo must sweep a radar antenna at a constant scan speed, whatever the air load.',
+  why:['A velocity servo needs speed feedback, and the tachogenerator provides it','It needs position feedback from an LVDT','A differential sets the speed'],
+  ex:'Position servos feed back position; velocity servos feed back speed from a tachogenerator.',
+  trap:{csyn:'This job controls speed, not position. What sensor feeds back speed?'}},
+ {id:'g4', dev:'tacho', ctx:'home', short:'Lathe / conveyor speed control',
+  t:'Keeping a factory lathe or conveyor motor at a set speed as the load changes.',
+  why:['The tachogenerator\'s speed signal lets the controller correct the motor speed','It measures the conveyor\'s position','It converts speed into x–y components'],
+  ex:'Closed-loop speed control: the tacho feeds back actual speed, and the error drives the motor harder or softer.'}
+];
+
+/* ============ STATE ============ */
+const KEY = 'servoMatch.v1';
+const $ = s => document.querySelector(s);
+const CARDK = Object.fromEntries(CARDS.map(c=>[c.id,c]));
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const esc = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fx = s => esc(s).replace(/([A-Za-zβ])_([A-Za-z()]+)/g,'$1<sub>$2</sub>');
+
+let S = null;
+function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && s.v===1 && s.rounds && s.rounds.flat().length===CARDS.length && s.rounds.flat().every(id=>CARDK[id])) return s; }catch(e){} return null; }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+/* Deal the cards into 3 rounds so every round has at least one card for every bin */
+function newGame(){
+  const rounds=[[],[],[]]; let r=Math.floor(Math.random()*3);
+  DEV.forEach(d=>{ shuffle(CARDS.filter(c=>c.dev===d.k)).forEach(c=>{ rounds[r].push(c.id); r=(r+1)%3; }); });
+  const cards={}; CARDS.forEach(c=>cards[c.id]={bin:null, locked:false, tries:0, firstOk:null, why:null, whyOrder:shuffle([0,1,2]), hint:null});
+  S={v:1, rounds:rounds.map(shuffle), r:0, cards, finished:false};
+  save();
+}
+
+/* ============ RENDER ============ */
+let selId = null;
+const roundIds = () => S.rounds[S.r];
+const tagHtml = c => c.ctx==='air' ? '<span class="tag air">✈ Aircraft</span>' : '<span class="tag home">⌂ Everyday</span>';
+
+function renderStats(){
+  const all=Object.values(S.cards);
+  $('#rNum').textContent = Math.min(S.r+1,3);
+  $('#sMatch').textContent = all.filter(c=>c.firstOk===true).length;
+  $('#sTot').textContent = CARDS.length;
+  $('#sWhy').textContent = all.filter(c=>c.why==='ok').length;
+  [...$('#rBar').children].forEach((el,i)=>{ el.className = (S.finished||i<S.r)?'done':(i===S.r?'on':''); });
+}
+
+function render(){
+  renderStats();
+  if(S.finished){ $('#play').style.display='none'; $('#done').classList.add('on'); renderDone(); return; }
+  $('#play').style.display=''; $('#done').classList.remove('on');
+  const ids = roundIds();
+  const inTray = ids.filter(id=>!S.cards[id].bin);
+  $('#tray').innerHTML = inTray.length ? inTray.map(id=>{ const c=CARDK[id], st=S.cards[id];
+      return `<button class="card${selId===id?' sel':''}${st.hint?' wrongback':''}" data-id="${id}" aria-pressed="${selId===id}">${tagHtml(c)}<br>${fx(c.t)}${st.hint?`<span class="hint">${st.hint}</span>`:''}</button>`; }).join('')
+    : `<div class="empty">${ids.every(id=>S.cards[id].locked) ? 'All cards matched.' : 'All cards placed. Press <b>Check</b>.'}</div>`;
+  $('#trayCount').textContent = inTray.length+' of '+ids.length+' left';
+  $('#bins').innerHTML = DEV.map(d=>{
+    const chips = ids.filter(id=>S.cards[id].bin===d.k).map(id=>{ const c=CARDK[id], st=S.cards[id];
+      const wb = st.locked ? (st.why==='ok'?'<span class="wb ok">why ✓</span>':st.why==='miss'?'<span class="wb miss">why ✗</span>':'<span class="wb q">why?</span>') : '';
+      return `<button class="chip${st.locked?' locked':''}${st.locked&&!st.why?' whyq':''}" data-id="${id}" title="${st.locked?'':'Tap to send back to the tray'}">${c.ctx==='air'?'✈':'⌂'} ${fx(c.short)}${wb}</button>`; }).join('');
+    return `<div class="bin${selId?' armed':''}" data-k="${d.k}" role="button" tabindex="0" aria-label="${esc(d.name)}"><div class="bhead">${d.sym}<div><div class="bname">${esc(d.name)}</div><div class="bdoes">${fx(d.does)}</div></div></div>${chips}</div>`;
+  }).join('');
+  const placed = ids.filter(id=>S.cards[id].bin && !S.cards[id].locked).length;
+  const pendingWhy = ids.filter(id=>S.cards[id].locked && !S.cards[id].why).length;
+  const roundDone = ids.every(id=>S.cards[id].locked && S.cards[id].why);
+  $('#checkBtn').disabled = placed===0;
+  $('#checkBtn').style.display = roundDone?'none':'';
+  $('#whyBtn').style.display = pendingWhy && !roundDone ? '' : 'none';
+  $('#nextBtn').style.display = roundDone ? '' : 'none';
+  $('#nextBtn').textContent = S.r<2 ? 'Next round →' : 'See my summary →';
+  if(roundDone) $('#msg').textContent = 'Round complete.';
+  else if(selId) $('#msg').textContent = 'Now tap the bin that fits this card.';
+  else if(!placed && !pendingWhy) $('#msg').textContent = `Round ${S.r+1} of 3: sort these ${ids.length} cards. The next set appears on this same page when you finish.`;
+}
+
+/* ============ ACTIONS ============ */
+function place(id,k){ const st=S.cards[id]; if(!st||st.locked) return; st.bin=k; st.hint=null; selId=null; save(); render(); }
+function unplace(id){ const st=S.cards[id]; if(!st||st.locked) return; st.bin=null; save(); render(); }
+function tapCard(id){ selId = selId===id?null:id; render(); }
+
+function check(){
+  const ids=roundIds(); let right=0, wrong=0;
+  ids.forEach(id=>{ const st=S.cards[id], c=CARDK[id]; if(!st.bin||st.locked) return;
+    st.tries++;
+    if(st.bin===c.dev){ st.locked=true; if(st.firstOk===null) st.firstOk=(st.tries===1); right++; }
+    else { const d=DEVK[st.bin]; st.hint = (c.trap&&c.trap[st.bin]) ? fx(c.trap[st.bin]) : `Not ${esc(d.lc)}. ${esc(d.lc.charAt(0).toUpperCase()+d.lc.slice(1))}: ${fx(d.does.charAt(0).toLowerCase()+d.does.slice(1))} Is that what this job needs?`;
+      st.firstOk=false; st.bin=null; wrong++; }
+  });
+  selId=null; save(); render();
+  $('#msg').textContent = `${right} right${wrong?`, ${wrong} back in the tray with a hint`:''}.`;
+  openWhy();
+}
+
+/* ---- why modal ---- */
+let whyQ=[], whyIdx=0;
+function openWhy(onlyId){
+  whyQ = onlyId ? [onlyId] : roundIds().filter(id=>S.cards[id].locked && !S.cards[id].why);
+  whyIdx=0; if(!whyQ.length) return afterWhy();
+  $('#whyModal').classList.add('on'); showWhy();
+}
+function showWhy(){
+  const id=whyQ[whyIdx], c=CARDK[id], st=S.cards[id], d=DEVK[c.dev];
+  $('#whyDev').innerHTML = `${d.sym}<span>✓ ${esc(d.name)}. Correct match.</span>`;
+  $('#whyScen').innerHTML = `${tagHtml(c)}<br>${fx(c.t)}`;
+  $('#whyTitle').textContent = d.wq;
+  $('#whyOpts').innerHTML = st.whyOrder.map(i=>`<button class="opt" data-i="${i}">${fx(c.why[i])}</button>`).join('');
+  $('#whyEx').classList.remove('on'); $('#whyEx').innerHTML='';
+  $('#whyNext').disabled=true; $('#whyNext').textContent = whyIdx<whyQ.length-1?'Next':'Done';
+  $('#whyCount').textContent = whyQ.length>1 ? `${whyIdx+1} of ${whyQ.length}` : '';
+  const first=$('#whyOpts .opt'); if(first) first.focus();
+}
+function pickWhy(i){
+  const id=whyQ[whyIdx], c=CARDK[id], st=S.cards[id];
+  if(st.why) return;
+  st.why = i===0 ? 'ok' : 'miss';
+  document.querySelectorAll('#whyOpts .opt').forEach(b=>{ const bi=+b.dataset.i; b.disabled=true; if(bi===0) b.classList.add('right'); else if(bi===i) b.classList.add('wrong'); });
+  $('#whyEx').innerHTML = (i===0?'<b style="color:var(--ok)">Yes.</b> ':'<b style="color:var(--bad)">Not quite.</b> The green answer is the reason. ') + fx(c.ex);
+  $('#whyEx').classList.add('on'); $('#whyNext').disabled=false; $('#whyNext').focus();
+  save(); renderStats();
+}
+function nextWhy(){ whyIdx++; if(whyIdx<whyQ.length) showWhy(); else { $('#whyModal').classList.remove('on'); afterWhy(); } }
+function afterWhy(){ render(); const ids=roundIds(); if(ids.every(id=>S.cards[id].locked && S.cards[id].why)) showRoundModal(); }
+
+function roundStats(ids){ return {n:ids.length, first:ids.filter(id=>S.cards[id].firstOk).length, why:ids.filter(id=>S.cards[id].why==='ok').length}; }
+function showRoundModal(){
+  const st=roundStats(roundIds()); const last=S.r===2;
+  $('#roundBox').innerHTML = `<h3>Round ${S.r+1} complete</h3>
+    <div class="bigscore"><div class="bs"><span>Matched first try</span><b>${st.first}/${st.n}</b></div><div class="bs"><span>Why correct</span><b>${st.why}/${st.n}</b></div></div>
+    <p class="msg">${st.first===st.n&&st.why===st.n?'A perfect round.':'Cards you missed are marked in red on the summary at the end.'}</p>
+    <div class="mfoot"><button class="btn sec" id="rStay">Stay and review</button><button class="btn" id="rGo">${last?'See my summary →':'Next round →'}</button></div>`;
+  $('#roundModal').classList.add('on'); $('#rGo').focus();
+  $('#rStay').onclick=()=>$('#roundModal').classList.remove('on');
+  $('#rGo').onclick=()=>{ $('#roundModal').classList.remove('on'); nextRound(); };
+}
+function nextRound(){ if(S.r<2){ S.r++; } else { S.finished=true; } selId=null; save(); render(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+function renderDone(){
+  const all=Object.values(S.cards), n=CARDS.length;
+  const f=all.filter(c=>c.firstOk).length, w=all.filter(c=>c.why==='ok').length;
+  $('#bigscore').innerHTML = `<div class="bs"><span>Matched first try</span><b>${f}/${n}</b></div><div class="bs"><span>Why correct</span><b>${w}/${n}</b></div><div class="bs"><span>Overall</span><b>${Math.round((f+w)/(2*n)*100)}%</b></div>`;
+  const li = c => { const st=S.cards[c.id]; const miss = st.firstOk===false || st.why==='miss';
+    return `<li class="${miss?'miss':''}" title="${esc(c.t)}">${fx(c.short)}${miss?` <small>(${[st.firstOk===false?'match':'',st.why==='miss'?'why':''].filter(Boolean).join(' + ')} missed)</small>`:''}</li>`; };
+  $('#sumTable tbody').innerHTML = DEV.map(d=>{ const cs=CARDS.filter(c=>c.dev===d.k);
+    return `<tr><td data-l="Device">${d.sym}<br><b>${esc(d.name)}</b></td><td data-l="What it does">${fx(d.does)}</td><td data-l="✈ On the aircraft"><ul>${cs.filter(c=>c.ctx==='air').map(li).join('')||'<li>—</li>'}</ul></td><td data-l="⌂ Everyday"><ul>${cs.filter(c=>c.ctx==='home').map(li).join('')||'<li>—</li>'}</ul></td></tr>`; }).join('');
+}
+
+/* ============ POINTER: drag or tap ============ */
+let drag=null, suppressClick=false;
+function dropTarget(x,y){ const el=document.elementFromPoint(x,y); if(!el) return null; const b=el.closest('.bin'); if(b) return {bin:b.dataset.k, el:b}; if(el.closest('.trayWrap')) return {tray:true, el:$('.trayWrap')}; return null; }
+function clearOver(){ document.querySelectorAll('.bin.over').forEach(b=>b.classList.remove('over')); }
+document.addEventListener('pointerdown', e=>{
+  const el=e.target.closest('.card, .chip:not(.locked)'); if(!el || e.button>0) return;
+  drag={id:el.dataset.id, el, x:e.clientX, y:e.clientY, on:false, pid:e.pointerId};
+});
+document.addEventListener('pointermove', e=>{
+  if(!drag || e.pointerId!==drag.pid) return;
+  if(!drag.on){ if(Math.hypot(e.clientX-drag.x, e.clientY-drag.y)<7) return;
+    drag.on=true; const r=drag.el.getBoundingClientRect(); drag.dx=e.clientX-r.left; drag.dy=e.clientY-r.top;
+    drag.g=drag.el.cloneNode(true); drag.g.classList.add('ghost'); drag.g.classList.remove('sel'); drag.g.style.width=Math.min(r.width,300)+'px'; document.body.appendChild(drag.g); drag.el.style.opacity=.35; }
+  e.preventDefault();
+  drag.g.style.left=(e.clientX-drag.dx)+'px'; drag.g.style.top=(e.clientY-drag.dy)+'px';
+  clearOver(); const t=dropTarget(e.clientX,e.clientY); if(t&&t.bin) t.el.classList.add('over');
+}, {passive:false});
+function endDrag(e, cancel){
+  if(!drag || (e && e.pointerId!==drag.pid)) return;
+  if(drag.on){ suppressClick=true; setTimeout(()=>suppressClick=false,0); drag.g.remove(); drag.el.style.opacity=''; clearOver();
+    if(!cancel){ const t=dropTarget(e.clientX,e.clientY); if(t&&t.bin) place(drag.id,t.bin); else if(t&&t.tray) unplace(drag.id); } }
+  drag=null;
+}
+document.addEventListener('pointerup', e=>endDrag(e,false));
+document.addEventListener('pointercancel', e=>endDrag(e,true));
+
+document.addEventListener('click', e=>{
+  if(suppressClick){ suppressClick=false; return; }
+  const card=e.target.closest('#tray .card'); if(card){ tapCard(card.dataset.id); return; }
+  const chip=e.target.closest('.chip'); if(chip){ const st=S.cards[chip.dataset.id]; if(!st.locked) unplace(chip.dataset.id); else if(!st.why) openWhy(chip.dataset.id); return; }
+  const bin=e.target.closest('.bin'); if(bin && selId){ place(selId, bin.dataset.k); return; }
+  const opt=e.target.closest('#whyOpts .opt'); if(opt){ pickWhy(+opt.dataset.i); return; }
+});
+document.addEventListener('keydown', e=>{
+  if((e.key==='Enter'||e.key===' ') && e.target.classList && e.target.classList.contains('bin') && selId){ e.preventDefault(); place(selId, e.target.dataset.k); }
+  if(e.key==='Escape'){ if($('#roundModal').classList.contains('on')) $('#roundModal').classList.remove('on'); else if(selId){ selId=null; render(); } }
+});
+
+$('#checkBtn').onclick=check;
+$('#whyBtn').onclick=()=>openWhy();
+$('#whyNext').onclick=nextWhy;
+$('#nextBtn').onclick=()=>{ if(roundIds().every(id=>S.cards[id].locked && S.cards[id].why)) nextRound(); };
+$('#againBtn').onclick=()=>{ newGame(); selId=null; render(); window.scrollTo({top:0}); };
+let resetArm=null;
+$('#resetAll').onclick=()=>{ const b=$('#resetAll'); if(resetArm){ clearTimeout(resetArm); resetArm=null; b.textContent='Start over'; newGame(); selId=null; render(); return; }
+  b.textContent='Sure? Click again to wipe your progress'; resetArm=setTimeout(()=>{ resetArm=null; b.textContent='Start over'; },3500); };
+
+/* ============ BOOT ============ */
+S = load(); if(!S) newGame();
+render();
+if(!S.finished && roundIds().some(id=>S.cards[id].locked && !S.cards[id].why)) $('#msg').textContent='You have why questions waiting.';
+
+</script>
+</body>
+</html>
