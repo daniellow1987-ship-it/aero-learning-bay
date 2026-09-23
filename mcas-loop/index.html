@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build the MCAS Closed Loop</title>
+<style>
+:root{
+  --ink:#16222e; --muted:#5b6b7a; --line:#2a3a4a; --bg:#f4f6f8; --card:#ffffff;
+  --blue:#1f5f9e; --blue-soft:#e3eef9; --ok:#1e8a4c; --ok-soft:#e2f4ea; --bad:#b83a3a; --bad-soft:#fbe7e7;
+  --amber:#b7791f; --slot:#fbfcfd;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{padding:14px 20px 6px;max-width:1060px;margin:0 auto}
+h1{font-size:20px;margin:0 0 2px}
+.sub{color:var(--muted);font-size:13.5px;margin:0}
+.levelbar{display:flex;gap:8px;align-items:center;margin:10px 0 0}
+.lvl{border:1px solid #c9d3dd;background:#fff;border-radius:999px;padding:4px 12px;font-size:13px;color:var(--muted);cursor:pointer}
+.lvl.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.lvl:disabled{opacity:.5;cursor:not-allowed}
+main{max-width:1060px;margin:0 auto;padding:6px 20px 24px}
+.stagewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.stage{position:relative;width:100%;min-width:760px;aspect-ratio:1000/450;background:var(--card);border:1px solid #d6dee6;border-radius:10px}
+.stage svg.loop{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.slot{position:absolute;transform:translate(-50%,-50%);width:13%;height:26.2%;border:2px dashed #9fb2c4;border-radius:10px;background:var(--slot);display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s}
+.slot .role{position:absolute;left:0;right:0;top:-22px;text-align:center;font-size:12.5px;font-weight:600;color:var(--blue);letter-spacing:.02em;white-space:nowrap}
+.slot.hover{border-color:var(--blue);background:var(--blue-soft)}
+.slot.sel-target{border-color:var(--blue)}
+.slot.ok{border:2px solid var(--ok);background:var(--ok-soft)}
+.slot.bad{border:2px solid var(--bad);background:var(--bad-soft)}
+.slot .empty{font-size:11.5px;color:#9aa9b7;text-align:center;padding:0 6px}
+.tray-h{font-size:13px;color:var(--muted);margin:14px 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.tray{display:flex;flex-wrap:wrap;gap:10px;min-height:118px;padding:10px;background:#eaeef2;border:1px dashed #c3cdd7;border-radius:10px}
+.tray.hover{background:#dde6ef}
+.piece{width:132px;height:100px;background:#fff;border:1px solid #c7d2dc;border-radius:9px;box-shadow:0 1px 2px rgba(0,0,0,.06);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 6px;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none}
+.piece svg{width:64px;height:46px;flex:none}
+.piece .nm{font-size:11.5px;line-height:1.2;text-align:center;font-weight:600;margin-top:3px}
+.piece.selected{outline:3px solid var(--blue);outline-offset:1px}
+.slot .piece{width:100%;height:100%;border:none;box-shadow:none;background:transparent}
+.slot .piece svg{width:56%;height:52%}
+.slot .piece .nm{font-size:clamp(9px,1.05vw,11.5px)}
+.ghost{position:fixed;z-index:50;pointer-events:none;opacity:.92;transform:translate(-50%,-50%) rotate(-2deg);box-shadow:0 8px 22px rgba(0,0,0,.18)}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 0}
+button.btn{border:none;border-radius:8px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.ghostb{background:#fff;color:var(--ink);border:1px solid #c7d2dc}
+.score{font-size:14px;color:var(--muted);margin-left:auto}
+.feedback{margin:12px 0 0;display:none;border-radius:10px;padding:12px 14px;background:#fff;border:1px solid #d6dee6}
+.feedback h3{margin:0 0 6px;font-size:15px}
+.feedback ul{margin:0;padding-left:18px}
+.feedback li{margin:3px 0}
+.feedback li.ok{color:var(--ok)} .feedback li.bad{color:var(--bad)}
+.debrief{background:var(--ok-soft);border-color:#b7dcc6}
+.hint{font-size:12.5px;color:var(--muted);margin:6px 0 0}
+table.map{border-collapse:collapse;margin:8px 0;font-size:13.5px}
+table.map td{padding:3px 10px 3px 0;vertical-align:top}
+table.map td:first-child{font-weight:600;color:var(--blue);white-space:nowrap}
+.note{font-size:12.5px;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Build the MCAS closed loop</h1>
+  <p class="sub">Boeing 737 MAX Manoeuvring Characteristics Augmentation System, modelled as a closed-loop servo (Topic 2 – Servomechanisms)</p>
+  <div class="levelbar">
+    <button class="lvl on" id="lvl1">Level 1 · Slot the components</button>
+    <button class="lvl" id="lvl2" disabled title="Coming next">Level 2 · Free build</button>
+  </div>
+</header>
+
+<main>
+  <p class="hint" id="instr">Drag each component into the loop position it performs. Two pieces do not belong in this loop. On a touchscreen you can also tap a piece, then tap a slot.</p>
+
+  <div class="stagewrap"><div class="stage" id="stage">
+    <svg class="loop" viewBox="0 0 1000 450" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2a3a4a"/></marker>
+      </defs>
+      <g stroke="#2a3a4a" stroke-width="2.4" fill="none">
+        <line x1="160" y1="140" x2="218" y2="140" marker-end="url(#ah)"/>
+        <line x1="350" y1="140" x2="408" y2="140" marker-end="url(#ah)"/>
+        <line x1="540" y1="140" x2="598" y2="140" marker-end="url(#ah)"/>
+        <line x1="730" y1="140" x2="788" y2="140" marker-end="url(#ah)"/>
+        <line x1="920" y1="140" x2="990" y2="140" marker-end="url(#ah)"/>
+        <polyline points="950,140 950,355 827,355" marker-end="url(#ah)"/>
+        <line x1="695" y1="355" x2="542" y2="355" marker-end="url(#ah)"/>
+        <polyline points="410,355 285,355 285,201" marker-end="url(#ah)"/>
+      </g>
+      <circle cx="950" cy="140" r="5" fill="#2a3a4a"/>
+      <text x="200" y="128" font-size="20" font-weight="700" fill="#1e8a4c">+</text>
+      <text x="294" y="232" font-size="24" font-weight="700" fill="#b83a3a">−</text>
+      <g font-size="12" fill="#5b6b7a" font-style="italic" text-anchor="middle">
+        <text x="186" y="160">set-point</text>
+        <text x="379" y="160">error</text>
+        <text x="569" y="160">command</text>
+        <text x="759" y="160">trim</text>
+        <text x="618" y="375">measured AOA</text>
+        <text x="347" y="375">feedback</text>
+      </g>
+      <g font-size="12" fill="#5b6b7a" font-style="italic" text-anchor="end">
+        <text x="942" y="245">output</text><text x="942" y="260">(pitch / AOA)</text>
+      </g>
+      <text x="500" y="442" font-size="12.5" fill="#5b6b7a" text-anchor="middle">Forward path runs left → right · the feedback path returns the measured output to the error detector</text>
+    </svg>
+    <!-- slots positioned in % of 1000x520 -->
+    <div class="slot" data-slot="ref"  style="left:9.5%;top:31.1%"><span class="role">Reference input</span><span class="empty">drop here</span></div>
+    <div class="slot" data-slot="cmp"  style="left:28.5%;top:31.1%"><span class="role">Error detector</span><span class="empty">drop here</span></div>
+    <div class="slot" data-slot="amp"  style="left:47.5%;top:31.1%"><span class="role">Amplifier</span><span class="empty">drop here</span></div>
+    <div class="slot" data-slot="cor"  style="left:66.5%;top:31.1%"><span class="role">Error corrector</span><span class="empty">drop here</span></div>
+    <div class="slot" data-slot="out"  style="left:85.5%;top:31.1%"><span class="role">Controlled output</span><span class="empty">drop here</span></div>
+    <div class="slot" data-slot="sen"  style="left:76%;top:78.9%"><span class="role">Feedback sensor</span><span class="empty">drop here</span></div>
+    <div class="slot" data-slot="proc" style="left:47.5%;top:78.9%"><span class="role">Feedback processing</span><span class="empty">drop here</span></div>
+  </div></div>
+
+  <div class="tray-h">Components</div>
+  <div class="tray" id="tray" data-slot="tray"></div>
+
+  <div class="controls">
+    <button class="btn primary" id="check">Check my loop</button>
+    <button class="btn ghostb" id="reset">Reset</button>
+    <span class="score" id="score"></span>
+  </div>
+  <div class="feedback" id="fb"></div>
+</main>
+
+<script>
+/* ---------- component library (original drawn icons) ---------- */
+const S = (inner) => `<svg viewBox="0 0 80 58" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+const ICON = {
+  ref: S(`<path d="M12 46 A28 28 0 0 1 68 46" fill="none" stroke="#2a3a4a" stroke-width="3"/>
+          <path d="M54 22 A28 28 0 0 1 68 46" fill="none" stroke="#b83a3a" stroke-width="6"/>
+          <line x1="40" y1="46" x2="56" y2="26" stroke="#1f5f9e" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="40" cy="46" r="4" fill="#2a3a4a"/><text x="40" y="57" font-size="8" text-anchor="middle" fill="#5b6b7a">AOA limit</text>`),
+  cmp: S(`<rect x="6" y="8" width="68" height="42" rx="4" fill="#dfe6ee" stroke="#2a3a4a" stroke-width="2"/>
+          <circle cx="40" cy="29" r="14" fill="#fff" stroke="#2a3a4a" stroke-width="2.5"/>
+          <line x1="30" y1="19" x2="50" y2="39" stroke="#2a3a4a" stroke-width="2.5"/><line x1="50" y1="19" x2="30" y2="39" stroke="#2a3a4a" stroke-width="2.5"/>
+          <text x="15" y="22" font-size="11" font-weight="700" fill="#1e8a4c">+</text><text x="61" y="46" font-size="13" font-weight="700" fill="#b83a3a">−</text>`),
+  amp: S(`<path d="M16 8 L64 29 L16 50 Z" fill="#e3eef9" stroke="#2a3a4a" stroke-width="2.5"/>
+          <line x1="4" y1="29" x2="16" y2="29" stroke="#2a3a4a" stroke-width="2.5"/><line x1="64" y1="29" x2="76" y2="29" stroke="#2a3a4a" stroke-width="2.5"/>
+          <text x="32" y="33" font-size="10" font-weight="700" fill="#1f5f9e">K</text>`),
+  cor: S(`<rect x="6" y="14" width="30" height="30" rx="5" fill="#cfd8e1" stroke="#2a3a4a" stroke-width="2"/>
+          <circle cx="21" cy="29" r="7" fill="#fff" stroke="#2a3a4a" stroke-width="2"/><text x="21" y="32.5" font-size="8" font-weight="700" text-anchor="middle">M</text>
+          <rect x="36" y="25" width="38" height="8" fill="#9aa7b4" stroke="#2a3a4a" stroke-width="1.5"/>
+          <g stroke="#2a3a4a" stroke-width="1.3">${[40,45,50,55,60,65,70].map(x=>`<line x1="${x}" y1="25" x2="${x-3}" y2="33"/>`).join('')}</g>`),
+  out: S(`<path d="M6 36 L50 30 L70 20 L74 22 L62 34 L74 38 L70 40 L50 38 Z" fill="#e3eef9" stroke="#2a3a4a" stroke-width="2"/>
+          <path d="M44 34 L64 12 L69 14 L56 34 Z" fill="#1f5f9e" stroke="#2a3a4a" stroke-width="1.5"/>
+          <path d="M22 44 q6 8 14 6" fill="none" stroke="#b83a3a" stroke-width="2.5" marker-end=""/><path d="M36 50 l-5 -1 l3 -4" fill="none" stroke="#b83a3a" stroke-width="2.2"/>
+          <text x="10" y="56" font-size="7.5" fill="#5b6b7a">nose down</text>`),
+  sen: S(`<path d="M4 50 Q4 14 44 10 L76 10 L76 50 Z" fill="#e3eef9" stroke="#2a3a4a" stroke-width="2"/>
+          <circle cx="30" cy="28" r="4" fill="#2a3a4a"/><path d="M30 28 L6 20 L7 17 L32 25 Z" fill="#c26a1b" stroke="#2a3a4a" stroke-width="1"/>
+          <g stroke="#1f5f9e" stroke-width="1.5"><line x1="0" y1="8" x2="10" y2="11"/><line x1="0" y1="14" x2="10" y2="17"/></g>`),
+  proc: S(`<rect x="10" y="8" width="60" height="42" rx="3" fill="#2f3b47" stroke="#16222e" stroke-width="2"/>
+          <rect x="16" y="14" width="48" height="10" rx="2" fill="#44525f"/><text x="40" y="22" font-size="8" fill="#e3eef9" text-anchor="middle" font-weight="700">ADIRU</text>
+          <circle cx="22" cy="38" r="3" fill="#48d17a"/><circle cx="32" cy="38" r="3" fill="#6b7885"/><rect x="44" y="34" width="20" height="8" rx="1" fill="#6b7885"/>`),
+  wheel: S(`<circle cx="40" cy="29" r="22" fill="none" stroke="#2a3a4a" stroke-width="5"/>
+          <circle cx="40" cy="29" r="5" fill="#2a3a4a"/><g stroke="#2a3a4a" stroke-width="3">${[0,60,120,180,240,300].map(a=>{const r=a*Math.PI/180;return `<line x1="40" y1="29" x2="${40+20*Math.cos(r)}" y2="${29+20*Math.sin(r)}"/>`}).join('')}</g>
+          <rect x="58" y="6" width="5" height="12" rx="2" fill="#c26a1b"/>`),
+  pitot: S(`<rect x="6" y="36" width="70" height="14" fill="#e3eef9" stroke="#2a3a4a" stroke-width="2"/>
+          <path d="M26 36 L26 22 L62 22" fill="none" stroke="#2a3a4a" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="63" cy="22" r="2.2" fill="#16222e"/>
+          <g stroke="#1f5f9e" stroke-width="1.5"><line x1="68" y1="16" x2="78" y2="16"/><line x1="68" y1="22" x2="78" y2="22"/><line x1="68" y1="28" x2="78" y2="28"/></g>`)
+};
+
+const PIECES = [
+  {id:'ref',  name:'Safe AOA threshold (set in FCC)', slot:'ref',
+   why:'The safe AOA threshold is the <b>desired value</b> the loop tries to maintain, so it is the reference input.'},
+  {id:'cmp',  name:'Flight Control Computer comparator', slot:'cmp',
+   why:'The FCC compares the reference with the measured AOA. Its output is the difference, the <b>error signal</b>.'},
+  {id:'amp',  name:'Trim command / amplifier', slot:'amp',
+   why:'The error signal is too weak to move anything. It is amplified into a <b>trim command</b> strong enough to drive the motor.'},
+  {id:'cor',  name:'Stabilizer trim motor', slot:'cor',
+   why:'The trim motor is the actuator that does the correcting work: it drives the jackscrew that moves the stabilizer.'},
+  {id:'out',  name:'Horizontal stabilizer → nose-down pitch', slot:'out',
+   why:'The stabilizer position, and the resulting nose-down pitch, is what the loop controls. That is the <b>output</b>.'},
+  {id:'sen',  name:'AOA vane', slot:'sen',
+   why:'The AOA vane <b>measures</b> the controlled quantity (angle of attack), so it is the feedback sensor.'},
+  {id:'proc', name:'ADIRU', slot:'proc',
+   why:'The ADIRU turns the raw vane angle into an AOA value on the databus and sends it back to the FCC.'},
+  {id:'wheel',name:'Manual stabilizer trim wheel', slot:null,
+   why:'The manual trim wheel is how the <b>pilot</b> trims by hand. It sits outside the automatic MCAS loop (and is part of how crews override it).'},
+  {id:'pitot',name:'Pitot probe', slot:null,
+   why:'The pitot probe measures pressure for <b>airspeed</b>, not angle of attack. It is not the feedback for a loop controlling AOA.'}
+];
+const ROLE = {ref:'Reference input',cmp:'Error detector',amp:'Amplifier',cor:'Error corrector',out:'Controlled output',sen:'Feedback sensor',proc:'Feedback processing'};
+
+/* ---------- build pieces ---------- */
+const tray = document.getElementById('tray');
+const stage = document.getElementById('stage');
+function makePiece(p){
+  const el = document.createElement('div');
+  el.className='piece'; el.dataset.id=p.id; el.tabIndex=0;
+  el.innerHTML = ICON[p.id] + `<div class="nm">${p.name}</div>`;
+  el.setAttribute('role','button'); el.setAttribute('aria-label', p.name);
+  return el;
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function resetAll(){
+  document.querySelectorAll('.slot').forEach(s=>{s.classList.remove('ok','bad'); const p=s.querySelector('.piece'); if(p) p.remove(); if(!s.querySelector('.empty')){const e=document.createElement('span');e.className='empty';e.textContent='drop here';s.appendChild(e);}});
+  tray.innerHTML='';
+  shuffle(PIECES.slice()).forEach(p=>tray.appendChild(makePiece(p)));
+  fb.style.display='none'; score.textContent=''; selected=null;
+}
+
+/* ---------- placement ---------- */
+function placeInto(target, pieceEl){
+  if(!target || !pieceEl) return;
+  if(target.classList.contains('slot')){
+    const existing = target.querySelector('.piece');
+    if(existing && existing!==pieceEl) tray.appendChild(existing);
+    const e = target.querySelector('.empty'); if(e) e.remove();
+    target.appendChild(pieceEl);
+  } else {
+    tray.appendChild(pieceEl);
+  }
+  // restore 'drop here' on emptied slots
+  document.querySelectorAll('.slot').forEach(s=>{ if(!s.querySelector('.piece') && !s.querySelector('.empty')){const e=document.createElement('span');e.className='empty';e.textContent='drop here';s.appendChild(e);} s.classList.remove('ok','bad');});
+  fb.style.display='none'; score.textContent='';
+}
+
+/* ---------- drag (pointer events: mouse + touch + pen) and tap-to-place ---------- */
+let drag=null, selected=null;
+function dropTargetAt(x,y){
+  const el = document.elementFromPoint(x,y);
+  if(!el) return null;
+  return el.closest('.slot') || el.closest('#tray');
+}
+document.addEventListener('pointerdown', e=>{
+  const p = e.target.closest('.piece'); if(!p) return;
+  e.preventDefault();
+  drag = {el:p, x0:e.clientX, y0:e.clientY, moved:false, ghost:null, over:null};
+  p.setPointerCapture?.(e.pointerId);
+});
+document.addEventListener('pointermove', e=>{
+  if(!drag) return;
+  const dx=e.clientX-drag.x0, dy=e.clientY-drag.y0;
+  if(!drag.moved && Math.hypot(dx,dy)>6){
+    drag.moved=true;
+    const g = drag.el.cloneNode(true); g.classList.add('ghost'); g.classList.remove('selected');
+    g.style.width='132px'; g.style.height='100px'; g.style.background='#fff'; g.style.border='1px solid #c7d2dc';
+    document.body.appendChild(g); drag.ghost=g; drag.el.style.opacity='.35';
+    clearSelection();
+  }
+  if(drag.moved){
+    drag.ghost.style.left=e.clientX+'px'; drag.ghost.style.top=e.clientY+'px';
+    const t = dropTargetAt(e.clientX,e.clientY);
+    if(t!==drag.over){ drag.over?.classList.remove('hover'); t?.classList.add('hover'); drag.over=t; }
+  }
+});
+document.addEventListener('pointerup', e=>{
+  if(!drag) return;
+  const d=drag; drag=null;
+  if(d.moved){
+    d.ghost.remove(); d.el.style.opacity=''; d.over?.classList.remove('hover');
+    const t = dropTargetAt(e.clientX,e.clientY);
+    if(t) placeInto(t, d.el);
+  } else {
+    // tap: select / deselect
+    if(selected===d.el){ clearSelection(); }
+    else { clearSelection(); selected=d.el; d.el.classList.add('selected'); document.querySelectorAll('.slot').forEach(s=>s.classList.add('sel-target')); }
+  }
+});
+document.addEventListener('pointercancel', ()=>{ if(drag){ drag.ghost?.remove(); drag.el.style.opacity=''; drag.over?.classList.remove('hover'); drag=null; }});
+function clearSelection(){ selected?.classList.remove('selected'); selected=null; document.querySelectorAll('.slot').forEach(s=>s.classList.remove('sel-target')); }
+// tap on a slot or the tray while a piece is selected
+document.addEventListener('click', e=>{
+  if(!selected) return;
+  if(e.target.closest('.piece')) return;
+  const t = e.target.closest('.slot') || e.target.closest('#tray');
+  if(t){ const s=selected; clearSelection(); placeInto(t, s); }
+});
+// keyboard: Enter on a piece selects; Enter on slot places
+document.addEventListener('keydown', e=>{
+  if(e.key!=='Enter' && e.key!==' ') return;
+  const p=e.target.closest('.piece');
+  if(p){ e.preventDefault(); if(selected===p) clearSelection(); else { clearSelection(); selected=p; p.classList.add('selected'); document.querySelectorAll('.slot').forEach(s=>{s.classList.add('sel-target'); s.tabIndex=0;}); } }
+  else if(selected){ const t=e.target.closest('.slot')||e.target.closest('#tray'); if(t){ e.preventDefault(); const s=selected; clearSelection(); placeInto(t,s);} }
+});
+
+/* ---------- check ---------- */
+const fb = document.getElementById('fb'), score=document.getElementById('score');
+const byId = Object.fromEntries(PIECES.map(p=>[p.id,p]));
+document.getElementById('check').addEventListener('click', ()=>{
+  const items=[]; let right=0;
+  document.querySelectorAll('.slot').forEach(s=>{
+    s.classList.remove('ok','bad');
+    const p = s.querySelector('.piece'); const slot=s.dataset.slot;
+    if(!p){ items.push(`<li class="bad"><b>${ROLE[slot]}</b>: still empty.</li>`); s.classList.add('bad'); return; }
+    const def = byId[p.dataset.id];
+    if(def.slot===slot){ right++; s.classList.add('ok'); }
+    else {
+      s.classList.add('bad');
+      const where = def.slot ? `It belongs in <b>${ROLE[def.slot]}</b>.` : `It does not belong in this loop.`;
+      items.push(`<li class="bad"><b>${ROLE[slot]}</b>: “${def.name}” is not right here. ${def.why} ${where}</li>`);
+    }
+  });
+  score.textContent = `${right} / 7 correct`;
+  fb.className='feedback'; fb.style.display='block';
+  if(right===7){
+    fb.classList.add('debrief');
+    fb.innerHTML = `<h3>Loop closed ✔</h3>
+      <p style="margin:0 0 6px">Trace it once more, as a signal:</p>
+      <table class="map">
+        <tr><td>Reference input</td><td>Safe AOA threshold held in the FCC: the value the system must not exceed.</td></tr>
+        <tr><td>Error detector</td><td>FCC compares reference (+) with measured AOA (−) → error signal.</td></tr>
+        <tr><td>Amplifier</td><td>Error signal is amplified into a trim command.</td></tr>
+        <tr><td>Error corrector</td><td>Stabilizer trim motor drives the jackscrew.</td></tr>
+        <tr><td>Controlled output</td><td>Horizontal stabilizer moves → nose pitches down → AOA reduces.</td></tr>
+        <tr><td>Feedback sensor</td><td>AOA vane measures the new angle of attack.</td></tr>
+        <tr><td>Feedback processing</td><td>ADIRU sends the measured AOA back to the FCC, closing the loop.</td></tr>
+      </table>
+      <p style="margin:6px 0 0"><b>Think about it:</b> the whole loop trusts one number, the measured AOA. What happens if the vane is damaged and reports an AOA 20° higher than reality?</p>
+      <p class="note">Teaching model: the real MCAS commands stabilizer trim in increments once the AOA threshold is exceeded, instead of servoing continuously. The closed-loop structure is the same.</p>`;
+  } else {
+    const unused = [...tray.querySelectorAll('.piece')].map(p=>byId[p.dataset.id]).filter(d=>d.slot===null);
+    fb.innerHTML = `<h3>Not closed yet</h3><ul>${items.join('')}</ul>` +
+      (unused.length===2 ? `<p class="hint">Good: you correctly left out the ${unused.map(u=>u.name.toLowerCase()).join(' and the ')}.</p>` : '');
+  }
+});
+document.getElementById('reset').addEventListener('click', resetAll);
+resetAll();
+</script>
+</body>
+</html>
