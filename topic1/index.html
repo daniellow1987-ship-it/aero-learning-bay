@@ -620,6 +620,10 @@ function overallPct(){
   return Math.round(done/total*100);
 }
 
+/* Tutorial practice pages (separate files in this repo) */
+const PRACTICE = [
+  {n:"T1", label:"Tutorial 1A · Diode Bench", href:"../topic1-tutorial/", blurb:"Hands-on lab with all 28 Tutorial 1A questions"}
+];
 function renderNav(){
   const nav = $("#railNav"); nav.innerHTML = "";
   nav.appendChild(el("div",{class:"nav-label"},"Start"));
@@ -643,6 +647,14 @@ function renderNav(){
 
   nav.appendChild(el("div",{class:"nav-label"},"Consolidate"));
   mk("summary","≡","Smart knowledge summary");
+
+  nav.appendChild(el("div",{class:"nav-label"},"Practise"));
+  PRACTICE.forEach(p=>{
+    const a = el("a",{class:"nav-item", href:p.href, target:"_blank", rel:"noopener", style:"text-decoration:none"});
+    a.appendChild(el("span",{class:"nav-num"}, p.n));
+    a.appendChild(el("span",{class:"nav-txt"}, esc(p.label)+" ↗"));
+    nav.appendChild(a);
+  });
 
   const pct = overallPct();
   $("#progPct").textContent = pct+"%";
@@ -686,6 +698,13 @@ VIEWS.home = function(host){
       <li>Describe the basic terminology of the printed circuit board and its use in avionics.</li>
     </ul>`;
   host.appendChild(ilo);
+
+  const prac = el("div",{class:"card"});
+  prac.innerHTML = `
+    <div class="card-h"><span class="dot"></span><h3>Tutorial practice</h3></div>
+    <p class="small muted" style="margin-bottom:10px">Work through the tutorial questions on an interactive bench. Each page opens in a new tab and keeps its own progress.</p>
+    <div class="btn-row">${PRACTICE.map(p=>`<a class="btn sec" style="text-decoration:none" href="${p.href}" target="_blank" rel="noopener">${esc(p.label)} ↗</a>`).join("")}</div>`;
+  host.appendChild(prac);
 
   const how = el("div",{class:"card"});
   how.innerHTML = `
