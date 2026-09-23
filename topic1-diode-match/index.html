@@ -337,7 +337,7 @@ function render(){
   $('#tray').innerHTML = inTray.length ? inTray.map(id=>{ const c=CARDK[id], st=S.cards[id];
       return `<button class="card${selId===id?' sel':''}${st.hint?' wrongback':''}" data-id="${id}" aria-pressed="${selId===id}">${tagHtml(c)}<br>${esc(c.t)}${st.hint?`<span class="hint">${st.hint}</span>`:''}</button>`; }).join('')
     : `<div class="empty">${ids.every(id=>S.cards[id].locked) ? 'All cards matched.' : 'All cards placed. Press <b>Check</b>.'}</div>`;
-  $('#trayCount').textContent = inTray.length+' left';
+  $('#trayCount').textContent = inTray.length+' of '+ids.length+' left';
   $('#bins').innerHTML = DEV.map(d=>{
     const chips = ids.filter(id=>S.cards[id].bin===d.k).map(id=>{ const c=CARDK[id], st=S.cards[id];
       const wb = st.locked ? (st.why==='ok'?'<span class="wb ok">why ✓</span>':st.why==='miss'?'<span class="wb miss">why ✗</span>':'<span class="wb q">why?</span>') : '';
@@ -354,7 +354,7 @@ function render(){
   $('#nextBtn').textContent = S.r<2 ? 'Next round →' : 'See my summary →';
   if(roundDone) $('#msg').textContent = 'Round complete.';
   else if(selId) $('#msg').textContent = 'Now tap the diode that does this job.';
-  else if(!placed && !pendingWhy) $('#msg').textContent = 'Drag a card onto a diode, or tap a card and then tap a diode.';
+  else if(!placed && !pendingWhy) $('#msg').textContent = `Round ${S.r+1} of 3: sort these ${ids.length} cards. The next set appears on this same page when you finish.`;
 }
 
 /* ============ ACTIONS ============ */
